@@ -1,0 +1,51 @@
+# ----------------------------------------------------------------------------#
+#                                                                             #
+#                              Battleship config                              #
+#                                                                             #
+# ----------------------------------------------------------------------------#
+
+# name of the language file (in the folder 'language')
+#   the default.yml file is overwriten on every server restart! This means you will have to use the other files
+#     to customize the messages, but since i am adding messages regulary in updates 
+#   You should use the default file if you just want to have the up to date english default messages
+langFile: 'default.yml'
+
+
+# requires vault and an economy plugin
+economy:
+  enabled: false
+  cost: 0
+  reward: 0
+
+# use 'Material:data' or 'ID:data'
+# Some materials can not be displayed in an inventory, just test everything after changing
+# You are advised to use different materials.
+items:
+  gem1:
+    material: 'Diamond'
+    displayName: "Diamond"
+  gem2:
+    material: 'EMERALD'
+    displayName: 'Emerald'
+  gem3:
+    material: 'BLAZE_POWDER'
+    displayName: 'Sparks'
+  gem4:
+    material: 'nether_star'
+    displayName: 'Star'
+
+    
+# Customise the timers used in the game (all times in seconds)
+timers:
+  # timer used during the ship-set part of the game
+  shipSetTimer:
+    countdown: 30
+  # timer used during the main part of the game
+  fireTimer:
+    countdown: 10
+  # timer used when attacker and defender change
+  changingGrids:
+    countdown: 3
+  # timer used for the invitations
+  invitationTimer:
+    validFor: 15
