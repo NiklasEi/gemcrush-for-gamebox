@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="unnamed">
+    <output-path>$PROJECT_DIR$/classes/artifacts/unnamed</output-path>
+    <root id="archive" name="unnamed.jar">
+      <element id="module-output" name="GemCrush" />
+      <element id="file-copy" path="$PROJECT_DIR$/config.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/plugin.yml" />
+      <element id="directory" name="language">
+        <element id="file-copy" path="$PROJECT_DIR$/language/lang_de.yml" />
+        <element id="file-copy" path="$PROJECT_DIR$/language/lang_en.yml" />
+      </element>
+    </root>
+  </artifact>
+</component>
