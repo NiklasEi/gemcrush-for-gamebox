@@ -33,6 +33,12 @@ items:
   gem4:
     material: 'nether_star'
     displayName: 'Star'
+  gem5:
+    material: 'gold_block'
+    displayName: 'Gold'
+  gem6:
+    material: 'iron_block'
+    displayName: 'Iron'
 
     
 # Customise the timers used in the game (all times in seconds)
