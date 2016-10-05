@@ -27,7 +27,7 @@ public class Main extends JavaPlugin{
 	private FileConfiguration config, stats;
 	private File con, sta;
 	public static Economy econ = null;
-	public static String prefix = "[&3Battleship&r]";
+	public static String prefix = "[&3GemCrush&r]";
 	public Boolean econEnabled;
 	public Double reward, price;
 	public Language lang;
