@@ -1,9 +1,6 @@
 package me.nikl.gemcrush.game;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -21,11 +18,13 @@ public class GameManager implements Listener{
 
 	private Main plugin;
 	private Set<Game> games;
+	private Map<UUID, Integer> clicks;
 	//private Language lang;
 	
 	public GameManager(Main plugin){
 		this.plugin = plugin;
-		this.games = new HashSet<Game>();
+		this.games = new HashSet<>();
+		this.clicks = new HashMap<>();
 		//this.lang = plugin.lang;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
@@ -36,9 +35,16 @@ public class GameManager implements Listener{
 			return;
 		}
 		
+		// player is inGame, clicked inside an inventory and the clicked item is not null
+		
 		// cancel event and return if it's not a right/left click
 		e.setCancelled(true);
-		if(!e.getAction().equals(InventoryAction.PICKUP_ALL) && !e.getAction().equals(InventoryAction.PICKUP_HALF)){
+		if(!e.getAction().equals(InventoryAction.PICKUP_ALL) && !e.getAction().equals(InventoryAction.PICKUP_HALF)) {
+			return;
+		}
+		
+		// check whether the clicked inventory is the top inventory
+		if(e.getRawSlot() != e.getSlot()){
 			return;
 		}
 		
@@ -46,27 +52,41 @@ public class GameManager implements Listener{
 		Player player = (Player) e.getWhoClicked();
 		Game game = getGame(player.getUniqueId());
 		
-		// check hashcode of the inventory against hascode of the games inventory
-		if(!game.isInventory(e.getClickedInventory().hashCode())){
-			Bukkit.getConsoleSender().sendMessage("not current inv."); // XXX
-			return;
-		}
 		int slot = e.getSlot();
 		
 		// switch with gamemode
 		switch(game.getState()){
-		
-		case FILLING:
-			player.sendMessage("filling");
-			break;
 			
-		case PLAY:
-			game.remove(slot);
-			game.fillUp();
-			break;			
+			
+			case PLAY:
+				if(this.clicks.containsKey(player.getUniqueId())){
+					int oldSlot = clicks.get(player.getUniqueId());
+					if(slot == oldSlot + 1 || slot == oldSlot - 1 || slot == oldSlot + 9 || slot == oldSlot - 9){
+						player.sendMessage("Switching Gems " + slot + " and " + oldSlot);
+						game.switchGems(slot < oldSlot ? slot : oldSlot, slot > oldSlot ? oldSlot : slot);
+					} else if(slot == oldSlot){
+						break;
+					} else {
+						clicks.put(player.getUniqueId(), slot);
+						player.sendMessage("overwritten click in " + oldSlot + " with click in " + slot);
+					}
+				} else {
+					player.sendMessage("saved first click in slot " + slot);
+					this.clicks.put(player.getUniqueId(), slot);
+				}
+				player.sendMessage("saved click: " + clicks.get(player.getUniqueId()));
+				player.sendMessage("Columns:");
+				player.sendMessage(game.scanColumns().toString());
+				player.sendMessage("Rows:");
+				player.sendMessage(game.scanRows().toString());
+				break;
+			
+			case FILLING:
+				break;
+					
 		
-		default:
-			break;
+			default:
+				break;
 			
 		}
 	}
@@ -124,7 +144,8 @@ public class GameManager implements Listener{
 	}
 
 	public void removeGame(Game game) {
-		games.remove(game);		
+		clicks.remove(game.getUUID());
+		games.remove(game);
 	}
 	
 	String chatColor(String message){
