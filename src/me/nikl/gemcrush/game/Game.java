@@ -1,10 +1,9 @@
 package me.nikl.gemcrush.game;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
+import me.nikl.gemcrush.gems.Gem;
+import me.nikl.gemcrush.gems.NormalGem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,15 +21,10 @@ import me.nikl.gemcrush.Main;
 
 
 public class Game extends BukkitRunnable{
-	// items that make up the game
-	private ItemStack gem1, gem2, gem3,gem4;
-	// the four grids the players play on
 
 	private GameState state;
 	private GameManager manager;
-	// UUIDs of the first and second player
 	private UUID playerUUID;
-	// first is the player that invited, second is the one that excepted
 	private Player player;
 	// save the config
 	private FileConfiguration config;
@@ -38,9 +32,14 @@ public class Game extends BukkitRunnable{
 	private Language lang;
 	// inventory
 	private Inventory inv;
+	// Array of all gems in the inventory
+	private Gem[] grid;
 	
-	// current inventorytitle
+	// current inventory title
 	private String title;
+	
+	// map with all gems
+	private Map<String, Gem> gems;
 	
 	private Main plugin;
 	
@@ -51,6 +50,9 @@ public class Game extends BukkitRunnable{
 		this.manager = plugin.getManager();
 		this.playerUUID = playerUUID;
 		this.player = Bukkit.getPlayer(playerUUID);
+		this.grid = new Gem[54];
+		
+		
 		if(player == null){
 			manager.removeGame(this);
 			return;
@@ -58,9 +60,12 @@ public class Game extends BukkitRunnable{
 		if(config == null){
 			Bukkit.getConsoleSender().sendMessage(Main.prefix + " Failed to load config!");
 			Bukkit.getPluginManager().disablePlugin(plugin);
+			return;
 		}
-		if(!getMaterials()){
-			setDefaultMaterials();
+		
+		if(!loadGems()){
+			//TODO send fail message
+			return;
 		}
 		this.title = lang.TITLE_SET_SHIP_1.replaceAll("%count%", "");
 		this.inv = Bukkit.getServer().createInventory(null, 54, ChatColor.translateAlternateColorCodes('&', title));
@@ -71,42 +76,186 @@ public class Game extends BukkitRunnable{
 		this.runTaskTimer(Main.getPlugin(Main.class), 0, 5);
 	}
 
-
-
-	public void fillUp() {
-		if(hasToBeFilled()){
-			this.state = GameState.FILLING;
-		}
-	}
-
 	private boolean hasToBeFilled() {
 		for(int slot = 0 ; slot < 54 ; slot++){
 			if(this.inv.getItem(slot) == null) return true;
 		}
 		return false;
 	}
-
-
-	public GameState getState() {
-		return state;
+	
+	public ArrayList<Integer> scanRows(){
+		ArrayList<Integer> toBreak = new ArrayList<>();
+		int slot, c;
+		int colorInRow;
+		String name;
+		for(int i = 0 ; i<6 ; i++){
+			// scan row number i
+			c = 0;
+			name = grid[i*9].getName();
+			while(c<9){
+				slot = i*9 + c;
+				colorInRow = 1;
+				
+				
+				c++;
+				slot ++;
+				
+				while(grid[slot] != null && name.equals(grid[slot].getName())){
+					colorInRow++;
+					c++;
+					slot++;
+				}
+				if(colorInRow < 3){
+					if(c<9)
+						name = grid[slot].getName();
+					continue;
+				} else {
+					for(int breakSlot = slot - 1; breakSlot >= slot - colorInRow; breakSlot -- ){
+						toBreak.add(breakSlot);
+					}
+				}
+				
+			}
+		}
+		return toBreak;
 	}
+	
+	public ArrayList<Integer> scanColumns(){
+		ArrayList<Integer> toBreak = new ArrayList<>();
+		int slot, c;
+		int colorInRow;
+		String name;
+		for(int i = 0 ; i<9 ; i++){
+			// scan column number i
+			c = 0;
+			name = grid[i].getName();
+			while(c<6){
+				colorInRow = 1;
+				
+				
+				c++;
+				slot = i + c*9;
+				
+				while(grid[slot] != null && name.equals(grid[slot].getName())){
+					colorInRow++;
+					c++;
+					slot = i + c*9;
+				}
+				if(colorInRow < 3){
+					if(c<6)
+						name = grid[slot].getName();
+					continue;
+				} else {
+					for(int breakSlot = slot - 9; breakSlot >= slot - colorInRow*9; breakSlot -= 9 ){
+						toBreak.add(breakSlot);
+					}
+				}
+				
+			}
+		}
+		return toBreak;
+	}
+	
+	
 
-	public void setState(GameState state) {
-		this.state = state;
-		switch (state){
-		
-		
-		default:
-			break;
+
+	@Override
+	public void run() {
+		switch(this.state){
+			case FILLING:
+				Random rand = new Random();
+				for(int column = 8 ; column > -1 ; column--){
+					for(int row = 5; row > -1 ; row --){
+						int slot = row*9 + column;
+						if(this.grid[slot] == null){
+							if(row == 0){
+								grid[slot] = gems.get(Integer.toString(rand.nextInt(6) + 1));
+								break;
+							} else {
+								if(this.grid[slot-9] != null){
+									this.grid[slot] = this.grid[slot-9];
+									this.grid[slot-9] = null;
+									break;
+								} else {
+									continue;
+								}
+							}
+						}
+					}
+				}
+				setInventory();
+				if(!hasToBeFilled()){
+					this.state = GameState.PLAY;
+				}
+				break;
+			case FINISHED:
+				break;
+			case PLAY:
+				break;
+			default:
+				break;
 		}
 	}
-
-	public UUID getUUID() {
-		return playerUUID;
+	
+	private void setInventory() {
+		for(int i=0;i<54;i++){
+			this.inv.setItem(i, this.grid[i].getItem());
+		}
 	}
-
-
-
+	
+	private boolean loadGems() {
+		boolean worked = true;
+		
+		Material mat = null;
+		int data = 0;
+		int index = 1;
+		for(String key : this.config.getConfigurationSection("items").getKeys(false)){
+			
+			if(!config.isSet(key + ".material")) return false;
+			if(!config.isSet(key + ".displayName") || !config.isString(key + ".displayName")) return false;
+			
+			String value = config.getString(key + ".material");
+			String[] obj = value.split(":");
+			String name = config.getString(key + ".displayName");
+			
+			if (obj.length == 2) {
+				try {
+					mat = Material.matchMaterial(obj[0]);
+				} catch (Exception e) {
+					worked = false; // material name doesn't exist
+				}
+				
+				try {
+					data = Integer.valueOf(obj[1]);
+				} catch (NumberFormatException e) {
+					worked = false; // data not a number
+				}
+			} else {
+				try {
+					mat = Material.matchMaterial(value);
+				} catch (Exception e) {
+					worked = false; // material name doesn't exist
+				}
+			}
+			if(mat == null) return false;
+			if(obj.length == 1){
+				this.gems.put(Integer.toString(index), new NormalGem(mat, name));
+			} else {
+				this.gems.put(Integer.toString(index), new NormalGem(mat, name, (short) data));
+			}
+			index++;
+		}
+		return worked;
+	}
+	
+	
+	
+	private String chatColor(String string) {
+		return ChatColor.translateAlternateColorCodes('&', string);
+	}
+	
+	
+	
 	public void won(boolean isFirst) {
 		if(plugin.getEconEnabled()){
 			Main.econ.depositPlayer(player, plugin.getReward());
@@ -114,7 +263,7 @@ public class Game extends BukkitRunnable{
 		} else {
 			player.sendMessage(manager.chatColor(Main.prefix + lang.GAME_WON));
 		}
-
+		
 	}
 	
 	public void onGameEnd(String winner, String looser){
@@ -137,172 +286,30 @@ public class Game extends BukkitRunnable{
 			}
 		}
 	}
-
-
-	private String chatColor(String string) {
-		return ChatColor.translateAlternateColorCodes('&', string);
-	}
-
-	/***
-	 * Get the materials and displaynames for the gems from the config file
-	 * 
-	 * @return worked
-	 */
-	private boolean getMaterials() {
-		boolean worked = true;
-
-	    Material mat = null;
-	    int data = 0;
-	    for(String key : Arrays.asList("gem1", "gem2", "gem3", "gem4")){
-
-		    if(!config.isSet("items." + key + ".material")) return false;
-		    if(!config.isSet("items." + key + ".displayName") || !config.isString("items." + key + ".displayName")) return false;
-		   
-	    	String value = config.getString("items." + key + ".material");
-		    String[] obj = value.split(":");
-		    String name = config.getString("items." + key + ".displayName");
 	
-		    if (obj.length == 2) {
-		        try {
-		            mat = Material.matchMaterial(obj[0]);
-		        } catch (Exception e) {
-		            worked = false; // material name doesn't exist
-		        }
 	
-		        try {
-		            data = Integer.valueOf(obj[1]);
-		        } catch (NumberFormatException e) {
-		        	worked = false; // data not a number
-		        }
-		    } else {
-		        try {
-		            mat = Material.matchMaterial(value);
-		        } catch (Exception e) {
-		            worked = false; // material name doesn't exist
-		        }
-		    }
-		    if(mat == null) return false;
-		    if(key.equals("gem1")){
-				this.gem1 = new ItemStack(mat, 1);
-				if (obj.length == 2) gem1.setDurability((short) data);
-				ItemMeta meta = gem1.getItemMeta();
-				meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-				meta.setDisplayName(name);
-				gem1.setItemMeta(meta);
-
-		    } else if(key.equals("gem2")){
-		    	this.gem2 = new ItemStack(mat, 1);
-		    	if (obj.length == 2) gem2.setDurability((short) data);
-		    	ItemMeta meta = gem2.getItemMeta();
-				meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		    	meta.setDisplayName(name);
-		    	gem2.setItemMeta(meta);
-		    	
-		    } else if(key.equals("gem3")){
-				this.gem3 = new ItemStack(mat, 1);
-				if (obj.length == 2) gem3.setDurability((short) data);
-				ItemMeta meta = gem3.getItemMeta();
-				meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-				meta.setDisplayName(name);
-				gem3.setItemMeta(meta);
-		    	
-		    } else if(key.equals("gem4")){
-				this.gem4 = new ItemStack(mat, 1);
-				if (obj.length == 2) gem4.setDurability((short) data);
-				ItemMeta meta = gem4.getItemMeta();
-				meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-				meta.setDisplayName(name);
-				gem4.setItemMeta(meta);
-		    }
-	    }
-		return worked;
+	public GameState getState() {
+		return state;
 	}
 	
-	private void setDefaultMaterials() {
-		Bukkit.getConsoleSender().sendMessage(plugin.chatColor(Main.prefix+" &4Failed to load materials from config"));
-		Bukkit.getConsoleSender().sendMessage(plugin.chatColor(Main.prefix+" &4Using default materials"));
-		
-		this.gem1 = new ItemStack(Material.DIAMOND);
-		ItemMeta metaGem1 = gem1.getItemMeta();
-		metaGem1.setDisplayName("Diamond");
-		metaGem1.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		gem1.setItemMeta(metaGem1);
-		gem1.setAmount(1);
-
-		this.gem2 = new ItemStack(Material.EMERALD);
-		ItemMeta metaGem2 = gem2.getItemMeta();
-		metaGem2.setDisplayName("Emerald");
-		metaGem2.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		gem2.setItemMeta(metaGem2);
-		gem2.setAmount(1);
-		
-		this.gem3 = new ItemStack(Material.BLAZE_POWDER);
-		ItemMeta metaGem3 = gem3.getItemMeta();
-		metaGem3.setDisplayName("Stardust");
-		metaGem3.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		gem3.setItemMeta(metaGem3);
-		gem3.setAmount(1);
-		
-		this.gem4 = new ItemStack(Material.NETHER_STAR);
-		ItemMeta metaGem4 = gem4.getItemMeta();
-		metaGem4.setDisplayName("Star");
-		metaGem4.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		gem4.setItemMeta(metaGem4);
-		gem4.setAmount(1);
-	}
-
-
-	public boolean isInventory(int hashCode) {
-		return (this.inv.hashCode() == hashCode);
-	}
-
-
-	@Override
-	public void run() {
-		if(!(this.state == GameState.FILLING)) return;
-		for(int column = 8 ; column > -1 ; column--){
-			for(int row = 5; row > -1 ; row --){
-				int slot = row*9 + column;
-				if(this.inv.getItem(slot) == null){
-					if(row == 0){
-						spawnGem(slot);
-						break;
-					} else {
-						if(this.inv.getItem(slot-9) != null){
-							this.inv.setItem(slot, this.inv.getItem(slot-9));
-							this.inv.setItem(slot-9, new ItemStack(Material.AIR, 1));
-							break;
-						} else {
-							continue;
-						}
-					}
-				}
-			}
+	public void setState(GameState state) {
+		this.state = state;
+		switch (state){
+			
+			
+			default:
+				break;
 		}
-		if(!hasToBeFilled()){
-			this.state = GameState.PLAY;
-		}
-		
-	}
-
-
-	private void spawnGem(int slot) {
-		double random = new Random().nextDouble();
-		if(random >= 0.75){
-			this.inv.setItem(slot, gem1);
-		} else if (random >= 0.5) {
-			this.inv.setItem(slot, gem2);
-		} else if (random >= 0.25) {
-			this.inv.setItem(slot, gem3);
-		} else {
-			this.inv.setItem(slot, gem4);
-		}		
-	}
-
-
-
-	public void remove(int slot) {
-		this.inv.getItem(slot).addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 0);		
 	}
 	
+	public UUID getUUID() {
+		return playerUUID;
+	}
+	
+	public void switchGems(int lowerSlot, int higherSlot) {
+		Gem oldGem = this.grid[lowerSlot];
+		this.grid[lowerSlot] = this.grid[higherSlot];
+		this.grid[higherSlot] = oldGem;
+		setInventory();
+	}
 }
