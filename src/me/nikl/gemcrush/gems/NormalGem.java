@@ -16,6 +16,12 @@ public class NormalGem extends Gem{
 		super(material, name, dur);
 	}
 	
+	public NormalGem(NormalGem copyFrom){
+		this.item = copyFrom.item;
+		this.name = copyFrom.name;
+		this.lore = copyFrom.lore;
+	}
+	
 	
 	@Override
 	public void onBreak() {

@@ -11,11 +11,15 @@ import java.util.ArrayList;
 /**
  * Created by niklas on 10/3/16.
  */
-public abstract class Gem {
+public abstract class Gem extends ItemStack{
 	ItemStack item;
 	int slot;
 	ArrayList<String> lore;
 	String name;
+	
+	protected Gem() {
+	}
+	
 	
 	public abstract void onBreak();
 	
@@ -44,6 +48,13 @@ public abstract class Gem {
 		this(material, name);
 		this.slot = slot;
 		this.name = name;
+	}
+	
+	public Gem(Gem copyFrom){
+		this.item = copyFrom.item;
+		this.name = copyFrom.name;
+		this.lore = copyFrom.lore;
+		this.shine(false);
 	}
 	
 	public void setLore(ArrayList lore){
