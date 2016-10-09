@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------#
 #                                                                             #
-#                              Battleship config                              #
+#                              GemCrush config                                #
 #                                                                             #
 # ----------------------------------------------------------------------------#
 
@@ -10,16 +10,37 @@
 #   You should use the default file if you just want to have the up to date english default messages
 langFile: 'default.yml'
 
+game:
+  # number of moves in a default game
+  moves: 20
+  # time in ticks (20 ticks = 1 second) between two gem movements
+  #   this is time each gem needs to fall down one row
+  ticksBetweenMovement: 5
+  # time in ticks (20 ticks = 1 second) between switching two gems and destroying the matched ones
+  ticksBetweenSwitchAndDestroy: 20
+
 
 # requires vault and an economy plugin
 economy:
   enabled: false
-  cost: 0
-  reward: 0
+  cost: 10
+  reward:
+    # reward intervalls the last number will be paid if a player finishes a game in the intervall
+    #   of the key to the next key (for the last key the invervall goes to infinity)
+    # You can add as many intervalls as you want to
+    0: 0
+    100: 100
+    200: 200
+    300: 300
+    400: 400
+    500: 500
 
 # use 'Material:data' or 'ID:data'
 # Some materials can not be displayed in an inventory, just test everything after changing
+#   there are also some materials that don't work for this plugin (for example: snowball)
+#   i'll try fixing that
 # You are advised to use different materials.
+# The displaynames have to be different for the game to work!
 items:
   gem1:
     material: 'Diamond'
@@ -31,8 +52,8 @@ items:
     material: 'BLAZE_POWDER'
     displayName: 'Sparks'
   gem4:
-    material: 'nether_star'
-    displayName: 'Star'
+    material: 'clay_ball'
+    displayName: 'Pearl'
   gem5:
     material: 'gold_block'
     displayName: 'Gold'
@@ -40,18 +61,15 @@ items:
     material: 'iron_block'
     displayName: 'Iron'
 
-    
-# Customise the timers used in the game (all times in seconds)
-timers:
-  # timer used during the ship-set part of the game
-  shipSetTimer:
-    countdown: 30
-  # timer used during the main part of the game
-  fireTimer:
-    countdown: 10
-  # timer used when attacker and defender change
-  changingGrids:
-    countdown: 3
-  # timer used for the invitations
-  invitationTimer:
-    validFor: 15
+onGameEnd:
+  dispatchCommands:
+    enabled: true
+    commands:
+    - 'tell %player% congrats ;)'
+    - 'tell %player% you scored %score%!'
+  broadcast:
+    enabled: true
+    messages:
+    - '%player% finished a game of &4Gem&2Crush&r with &2%score% &rpoints!'
+    - 'Do &2/gc &rto prove that you are better ;)'
+
