@@ -20,13 +20,11 @@ public class Language {
 	private Main plugin;
 	private FileConfiguration langFile;
 	
-	public String CMD_NO_PERM, CMD_ONLY_PLAYER, CMD_PLAYER_OFFLINE, CMD_PLAYER_INGAME, CMD_PLAYER_HAS_INVITE, CMD_NOT_YOURSELF, CMD_FIRST_OFFLINE, CMD_RELOADED, CMD_ONLY_ONE_ONLINE;
-	public String GAME_PAYED, GAME_NOT_ENOUGH_MONEY, GAME_WON_MONEY, GAME_WON_MONEY_GAVE_UP, GAME_WON, GAME_INVITE_ACCEPT, GAME_LOOSE, GAME_GAVE_UP, GAME_OTHER_GAVE_UP,
-		GAME_TOO_SLOW, GAME_WON_MONEY_TOO_SLOW, GAME_WON_TOO_SLOW, GAME_INVITE_EXPIRED, GAME_INVITE_RETURNED_MONEY;
-	public String TITLE_GUI, TITLE_SET_SHIP_1, TITLE_SET_SHIP_2, TITLE_SET_SHIP_3, TITLE_SET_SHIP_4, TITLE_ATTACKER, TITLE_DEFENDER, TITLE_WON, TITLE_LOST;
-	public List<String> CMD_HELP, GAME_INVITE_FIRST, GAME_INVITE_SECOND;
+	public String CMD_NO_PERM, CMD_ONLY_PLAYER, CMD_RELOADED;
+	public String GAME_PAYED, GAME_NOT_ENOUGH_MONEY, GAME_FINISHED;
+	public String TITLE_GAME;
+	public List<String> CMD_HELP;
 	private YamlConfiguration defaultLang;
-	public String TITLE_CHANGING;
 	
 	public Language(Main plugin){
 		this.plugin = plugin;
@@ -41,38 +39,16 @@ public class Language {
 	}
 	
 	private void getInvTitles() {
-		this.TITLE_GUI = getString("inventoryTitles.guiTitle");
-		this.TITLE_SET_SHIP_1 = getString("inventoryTitles.setShip1");
-		this.TITLE_SET_SHIP_2 = getString("inventoryTitles.setShip2");
-		this.TITLE_SET_SHIP_3 = getString("inventoryTitles.setShip3");
-		this.TITLE_SET_SHIP_4 = getString("inventoryTitles.setShip4");
-		this.TITLE_ATTACKER = getString("inventoryTitles.attacker");
-		this.TITLE_DEFENDER = getString("inventoryTitles.defender");
-		this.TITLE_WON = getString("inventoryTitles.won");		
-		this.TITLE_LOST = getString("inventoryTitles.lost");
+		this.TITLE_GAME = getString("inventoryTitles.title");
 
-		this.TITLE_CHANGING = getString("inventoryTitles.changingGrids");
 		
 	}
 
 	private void getGameMessages() {
-		this.GAME_INVITE_FIRST = getStringList("game.invite.messageToFirstPlayer");
-		this.GAME_INVITE_SECOND = getStringList("game.invite.messageToSecondPlayer");	
 		
 		this.GAME_PAYED = getString("game.econ.payed");	
-		this.GAME_NOT_ENOUGH_MONEY = getString("game.econ.notEnoughMoney");	
-		this.GAME_WON_MONEY = getString("game.econ.wonMoney");	
-		this.GAME_WON_MONEY_GAVE_UP = getString("game.econ.wonMoneyGaveUp");
-		this.GAME_WON_MONEY_TOO_SLOW = getString("game.econ.wonMoneyTooSlow");		
-		this.GAME_WON = getString("game.won");		
-		this.GAME_INVITE_ACCEPT = getString("game.invite.inviteAccept");	
-		this.GAME_LOOSE = getString("game.lost");	
-		this.GAME_GAVE_UP = getString("game.gaveUp");	
-		this.GAME_OTHER_GAVE_UP = getString("game.otherGaveUp");	
-		this.GAME_TOO_SLOW = getString("game.tooSlow");	
-		this.GAME_WON_TOO_SLOW = getString("game.otherTooSlow");	
-		this.GAME_INVITE_EXPIRED = getString("game.invite.expired");
-		this.GAME_INVITE_RETURNED_MONEY = getString("game.invite.returnedMoney");
+		this.GAME_NOT_ENOUGH_MONEY = getString("game.econ.notEnoughMoney");
+		this.GAME_FINISHED = getString("game.finished");
 		
 	}
 
@@ -80,15 +56,7 @@ public class Language {
 		
 		this.CMD_NO_PERM = getString("commandMessages.noPermission");
 		this.CMD_ONLY_PLAYER = getString("commandMessages.onlyAsPlayer");
-		this.CMD_PLAYER_OFFLINE = getString("commandMessages.playerIsOffline");
-		this.CMD_PLAYER_INGAME = getString("commandMessages.playerAlreadyIngame");
-		this.CMD_PLAYER_HAS_INVITE = getString("commandMessages.playerHasInviteAlready");
-		this.CMD_NOT_YOURSELF = getString("commandMessages.cannotInviteYourself");
-		this.CMD_FIRST_OFFLINE = getString("commandMessages.firstPlayerIsOffline");
 		this.CMD_RELOADED = getString("commandMessages.pluginReloaded");
-		
-
-		this.CMD_ONLY_ONE_ONLINE = getString("commandMessages.aloneOnServer");
 		
 
 		this.CMD_HELP = getStringList("commandMessages.help");		
