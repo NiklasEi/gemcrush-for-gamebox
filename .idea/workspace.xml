@@ -7,24 +7,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="91796b3b-9a47-4953-b60a-43c3a9798c42" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/BreakTimer.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/nms/InvTitle.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_10_R1.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_8_R1.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_8_R2.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_8_R3.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_9_R1.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_9_R2.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/moves/Move.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/moves/ThreeInRow.java" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/.idea/artifacts/unnamed.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/GemCrush.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GemCrush.iml" afterPath="$PROJECT_DIR$/GemCrush.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config.yml" afterPath="$PROJECT_DIR$/config.yml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/language/lang_de.yml" afterPath="$PROJECT_DIR$/language/lang_de.yml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/language/lang_en.yml" afterPath="$PROJECT_DIR$/language/lang_en.yml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plugin.yml" afterPath="$PROJECT_DIR$/plugin.yml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/Language.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/Language.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/Main.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/Main.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java" />
@@ -117,21 +102,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="plugin.yml" pinned="false" current-in-tab="false">
+      <file leaf-file-name="plugin.yml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/plugin.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="17" column="13" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
+            <state relative-caret-position="54">
+              <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Game.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Game.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2452">
-              <caret line="348" column="37" selection-start-line="348" selection-start-column="37" selection-end-line="348" selection-end-column="37" />
+            <state relative-caret-position="436">
+              <caret line="236" column="32" selection-start-line="236" selection-start-column="32" selection-end-line="236" selection-end-column="32" />
               <folding />
             </state>
           </provider>
@@ -181,10 +166,10 @@
         <option value="$PROJECT_DIR$/language/lang_en.yml" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/Main.java" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/game/BreakTimer.java" />
-        <option value="$PROJECT_DIR$/plugin.yml" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java" />
         <option value="$PROJECT_DIR$/config.yml" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java" />
+        <option value="$PROJECT_DIR$/plugin.yml" />
       </list>
     </option>
   </component>
@@ -1049,14 +1034,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/plugin.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" column="13" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2790">
@@ -1077,8 +1054,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2452">
-          <caret line="348" column="37" selection-start-line="348" selection-start-column="37" selection-end-line="348" selection-end-column="37" />
+        <state relative-caret-position="436">
+          <caret line="236" column="32" selection-start-line="236" selection-start-column="32" selection-end-line="236" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plugin.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
           <folding />
         </state>
       </provider>
