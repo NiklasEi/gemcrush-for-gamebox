@@ -1,9 +1,9 @@
 package me.nikl.gemcrush.game;
 
-import java.util.*;
-
+import me.nikl.gemcrush.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,19 +12,45 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import me.nikl.gemcrush.Main;
+import java.util.*;
 
 public class GameManager implements Listener{
 
 	private Main plugin;
 	private Set<Game> games;
 	private Map<UUID, Integer> clicks;
+	
+	private Map<Integer, Integer> prices;
 	//private Language lang;
 	
 	public GameManager(Main plugin){
 		this.plugin = plugin;
 		this.games = new HashSet<>();
 		this.clicks = new HashMap<>();
+		if(plugin.getConfig().isConfigurationSection("economy.reward")) {
+			prices = new HashMap<>();
+			ConfigurationSection priceSec = plugin.getConfig().getConfigurationSection("economy.reward");
+			for(String key : priceSec.getKeys(false)){
+				int keyInt;
+				try{
+					keyInt = Integer.parseInt(key);
+				} catch (NumberFormatException e){
+					Bukkit.getConsoleSender().sendMessage(Main.prefix + " NumberFormatException while getting the rewards from config!");
+					continue;
+				}
+				prices.put(keyInt, priceSec.getInt(key));
+			}
+			
+			// Debug output XXX
+			Bukkit.getConsoleSender().sendMessage("Testing price List: ");
+			for(int i : prices.keySet()){
+				
+				Bukkit.getConsoleSender().sendMessage("Over: " + i + "    Price: " + prices.get(i));
+			}
+			
+		} else {
+			prices = null;
+		}
 		//this.lang = plugin.lang;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
@@ -62,23 +88,25 @@ public class GameManager implements Listener{
 				if(this.clicks.containsKey(player.getUniqueId())){
 					int oldSlot = clicks.get(player.getUniqueId());
 					if(slot == oldSlot + 1 || slot == oldSlot - 1 || slot == oldSlot + 9 || slot == oldSlot - 9){
-						player.sendMessage("Switching Gems " + slot + " and " + oldSlot);
-						game.switchGems(slot < oldSlot ? slot : oldSlot, slot > oldSlot ? oldSlot : slot);
+						//player.sendMessage("Switching Gems " + slot + " and " + oldSlot);
+						if(game.switchGems(slot < oldSlot ? slot : oldSlot, slot > oldSlot ? slot : oldSlot)){
+							clicks.remove(player.getUniqueId());
+						}
 					} else if(slot == oldSlot){
 						break;
 					} else {
 						clicks.put(player.getUniqueId(), slot);
-						player.sendMessage("overwritten click in " + oldSlot + " with click in " + slot);
+						//player.sendMessage("overwritten click in " + oldSlot + " with click in " + slot);
 					}
 				} else {
-					player.sendMessage("saved first click in slot " + slot);
+					//player.sendMessage("saved first click in slot " + slot);
 					this.clicks.put(player.getUniqueId(), slot);
 				}
-				player.sendMessage("saved click: " + clicks.get(player.getUniqueId()));
-				player.sendMessage("Columns:");
-				player.sendMessage(game.scanColumns().toString());
-				player.sendMessage("Rows:");
-				player.sendMessage(game.scanRows().toString());
+				//player.sendMessage("saved click: " + clicks.get(player.getUniqueId()));
+				//player.sendMessage("Columns:");
+				//player.sendMessage(game.scanColumns().toString());
+				//player.sendMessage("Rows:");
+				//player.sendMessage(game.scanRows().toString());
 				break;
 			
 			case FILLING:
@@ -107,6 +135,7 @@ public class GameManager implements Listener{
 		if(!isIngame(e.getPlayer().getUniqueId())){
 			return;
 		}
+		//e.getPlayer().sendMessage("Inventory was closed");//XXX
 		removeGame(getGame(e.getPlayer().getUniqueId()));
 	}
 
@@ -145,7 +174,19 @@ public class GameManager implements Listener{
 
 	public void removeGame(Game game) {
 		clicks.remove(game.getUUID());
+		game.shutDown();
 		games.remove(game);
+	}
+	
+	public int getReward(int score){
+		if(prices == null || prices.size() == 0) return 0;
+		int price = 0;
+		for(int key : prices.keySet()) {
+			while (score > key){
+				price = prices.get(key);
+			}
+		}
+		return price;
 	}
 	
 	String chatColor(String message){
