@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import me.nikl.gemcrush.nms.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -33,8 +34,17 @@ public class Main extends JavaPlugin{
 	public Language lang;
 	public boolean disabled;
 	
+	private InvTitle updater;
+	
 	@Override
 	public void onEnable(){
+		
+		if (!setupUpdater()) {
+			getLogger().severe("Your server version is not compatible with this plugin!");
+			
+			Bukkit.getPluginManager().disablePlugin(this);
+			return;
+		}
         
 		this.disabled = false;
 		this.con = new File(this.getDataFolder().toString() + File.separatorChar + "config.yml");
@@ -56,6 +66,42 @@ public class Main extends JavaPlugin{
 				getLogger().log(Level.SEVERE, "Could not save statistics", e);
 			}		
 		}
+	}
+	
+	private boolean setupUpdater() {
+		String version;
+		
+		try {
+			version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
+		} catch (ArrayIndexOutOfBoundsException whatVersionAreYouUsingException) {
+			return false;
+		}
+		
+		//getLogger().info("Your server is running version " + version);
+		
+		if (version.equals("v1_10_R1")) {
+			updater = new Update_1_10_R1();
+			
+		} else if (version.equals("v1_9_R2")) {
+			updater = new Update_1_9_R2();
+			
+		} else if (version.equals("v1_9_R1")) {
+			updater = new Update_1_9_R1();
+			
+		} else if (version.equals("v1_8_R3")) {
+			updater = new Update_1_8_R3();
+			
+		} else if (version.equals("v1_8_R2")) {
+			updater = new Update_1_8_R2();
+			
+		} else if (version.equals("v1_8_R1")) {
+			updater = new Update_1_8_R1();
+		}
+		return updater != null;
+	}
+	
+	public InvTitle getUpdater(){
+		return this.updater;
 	}
 	
     private boolean setupEconomy(){
@@ -120,14 +166,17 @@ public class Main extends JavaPlugin{
 			if (!setupEconomy()){
 				Bukkit.getConsoleSender().sendMessage(chatColor(prefix + " &4No economy found!"));
 				getServer().getPluginManager().disablePlugin(this);
+				disabled = true;
 				return;
 			}
 			this.price = getConfig().getDouble("economy.cost");
-			this.reward = getConfig().getDouble("economy.reward");
+			/*this.reward = getConfig().getDouble("economy.reward");
 			if(price == null || reward == null || price < 0. || reward < 0.){
 				Bukkit.getConsoleSender().sendMessage(chatColor(prefix + " &4Wrong configuration in section economy!"));
 				getServer().getPluginManager().disablePlugin(this);
-			}
+				disabled = true;
+				return;
+			}*/
 		}
 	}
 
