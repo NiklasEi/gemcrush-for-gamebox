@@ -1,91 +1,97 @@
 package me.nikl.gemcrush.gems;
 
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by niklas on 10/3/16.
+ *
+ * Abstract class for all Gems
  */
-public abstract class Gem extends ItemStack{
-	ItemStack item;
-	int slot;
+public abstract class Gem{
 	ArrayList<String> lore;
 	String name;
+	int pointsOnBreak;
+	ItemStack item;
 	
-	protected Gem() {
+	Gem() {
 	}
-	
 	
 	public abstract void onBreak();
 	
-	public Gem(Material material, String name){
-		this.item = new ItemStack(material);
+	Gem(Material material, String name){
+		this.item = new ItemStack(material, 1);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(name);
 		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		if(lore != null && lore.size() > 0){
+			meta.setLore(lore);
+		}
 		item.setItemMeta(meta);
-		item.setAmount(1);
 		this.name = name;
 		
-		shine(false);
+		this.pointsOnBreak = 10;
 		
-		this.slot = -1;
+		//shine(false);
+	}
+	
+	Gem(ItemStack item, Gem gem){
+		this(item.getType(), gem.getName(), item.getDurability(), item.getItemMeta().getLore());
+		
+		this.pointsOnBreak = gem.getPointsOnBreak();
 	}
 	
 	
-	public Gem(Material material, String name, short durability){
+	Gem(Material material, String name, short durability){
 		this(material, name);
-		this.item.setDurability(durability);
+		item.setDurability(durability);
 		this.name = name;
+		
+		this.pointsOnBreak = 10;
 	}
 	
-	public Gem(Material material, String name, int slot){
-		this(material, name);
-		this.slot = slot;
-		this.name = name;
+	
+	Gem(Material material, String name, short durability, List<String> lore) {
+		this(material, name, durability);
+		if(lore != null && !lore.isEmpty())
+			this.setLore(new ArrayList(lore));
 	}
 	
 	public Gem(Gem copyFrom){
-		this.item = copyFrom.item;
-		this.name = copyFrom.name;
+		this(copyFrom.getItem().getType(), copyFrom.getName(), copyFrom.getItem().getDurability(), copyFrom.getItem().getItemMeta().getLore());
 		this.lore = copyFrom.lore;
-		this.shine(false);
+		this.pointsOnBreak = copyFrom.pointsOnBreak;
+		//this.shine(false);
 	}
 	
 	public void setLore(ArrayList lore){
-		ItemMeta meta = this.item.getItemMeta();
+		ItemMeta meta = item.getItemMeta();
 		meta.setLore(lore);
-		this.item.setItemMeta(meta);
-	}
-	
-	public ItemStack getItem(){
-		return this.item;
-	}
-	
-	
-	
-	public void shine(boolean shine){
-		if(shine){
-			this.item.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 0);
-		} else {
-			if(!this.item.getItemMeta().hasEnchants()) return;
-			for(Enchantment en : this.item.getEnchantments().keySet()){
-				this.item.removeEnchantment(en);
-			}
-		}
-	}
-	
-	
-	public void moveTo(int to){
-		this.slot = to;
+		item.setItemMeta(meta);
 	}
 	
 	public String getName(){
 		return this.name;
+	}
+	
+	public int getPointsOnBreak(){
+		return this.pointsOnBreak;
+	}
+	
+	public void setPointsOnBreak(int pointsOnBreak){
+		this.pointsOnBreak = pointsOnBreak;
+	}
+	
+	public ItemStack getItem(){
+		return item;
+	}
+	
+	public void setItem(ItemStack item){
+		this.item = item;
 	}
 }

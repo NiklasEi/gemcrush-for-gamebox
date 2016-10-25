@@ -1,5 +1,5 @@
 package me.nikl.gemcrush.game;
 
-public enum GameState {
+enum GameState {
 	FILLING, PLAY, FINISHED, BREAKING
 }

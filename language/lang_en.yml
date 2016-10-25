@@ -7,11 +7,15 @@ game:
     # use %cost% for the amount payed
     payed: " &2You paid &4%cost%"
     notEnoughMoney: " &4You do not have enough money!"
-  # use %points% to display the number of points at the end of the game
-  finished: " You finished the game with &2%points%&r points. &2Good job!"
-  
+  # use %score% to display the number of points at the end of the game
+  finishedWithoutPayout: " You finished the game with &2%score%&r points."
+  # use %score% for the score and %reward% for the reward
+  #   rewards are set in the config!
+  # this message will be send instead of the above 'finishedWithoutPayout' if the money reward is > 0
+  finishedWithPayout: " You finished with &2%score%&r points and won &2%reward%&r dollar!"
+
 inventoryTitles:
-  title: "GemCrush  Moves: %moves%  Score: %points%"
+  title: "GemCrush  Moves: %moves%  Score: %score%"
 
 
 
@@ -22,4 +26,11 @@ commandMessages:
   pluginReloaded: " &aPlugin was reloaded"
   help:
   - " &2To start a game do /gc"
+  # message send if there are no saved stats
+  noTopList: " &4No stats available!"
+  # here you can specify how the top 10 will be displayed
+  topListHead: "&a+ - + -  &3GemCrush  Top 10  &a- + - +"
+  # %rank% -> Rank of the player      %name% name of the player       %score% top score of the player
+  topListStructure: "%rank%. &6 %name%    &1Score: %score%"
+  topListTail: "&a+ - + - + - + - + - + - + - + - + - +"
   

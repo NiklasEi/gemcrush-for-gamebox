@@ -1,11 +1,16 @@
 package me.nikl.gemcrush.gems;
 
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Created by niklas on 10/3/16.
+ *
+ * NormalGem class
  */
 public class NormalGem extends Gem{
+	
+	double possibility = 1.;
 	
 	
 	public NormalGem(Material material, String name){
@@ -17,9 +22,16 @@ public class NormalGem extends Gem{
 	}
 	
 	public NormalGem(NormalGem copyFrom){
-		this.item = copyFrom.item;
-		this.name = copyFrom.name;
-		this.lore = copyFrom.lore;
+		super(copyFrom.getItem().getType(), copyFrom.name, copyFrom.getItem().getDurability(), copyFrom.lore);
+		this.possibility = copyFrom.possibility;
+		this.pointsOnBreak = copyFrom.pointsOnBreak;
+	}
+	
+	
+	public NormalGem(ItemStack item, NormalGem gem){
+		super(item.getType(), gem.getName(), item.getDurability(), item.getItemMeta().getLore());
+		
+		this.possibility = gem.possibility;
 	}
 	
 	
@@ -28,7 +40,11 @@ public class NormalGem extends Gem{
 		
 	}
 	
-	public String getName(){
-		return this.name;
+	public void setPossibility(double possibility){
+		this.possibility = possibility;
+	}
+	
+	public double getPossibility(){
+		return this.possibility;
 	}
 }

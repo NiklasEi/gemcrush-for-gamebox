@@ -23,25 +23,25 @@ public class MainCommand implements CommandExecutor {
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String lable, String[] args) {
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(args.length == 0){
 			if(!(sender instanceof Player)){
-				sender.sendMessage(plugin.chatColor(lang.CMD_ONLY_PLAYER));
+				sender.sendMessage(plugin.chatColor(Main.prefix + lang.CMD_ONLY_PLAYER));
 				return true;
 			}
 			Player player = (Player) sender;
 			if(!player.hasPermission("gemcrush.play")){
-				sender.sendMessage(plugin.chatColor(lang.CMD_NO_PERM));
+				sender.sendMessage(plugin.chatColor(Main.prefix + lang.CMD_NO_PERM));
 				return true;				
 			}
 			if(plugin.getEconEnabled() && !player.hasPermission("gemcrush.bypass")){
 				if(Main.econ.getBalance(player) >= plugin.getPrice()){
 					Main.econ.withdrawPlayer(player, plugin.getPrice());
-					sender.sendMessage(plugin.chatColor(lang.GAME_PAYED.replaceAll("%cost%", plugin.getPrice()+"")));
+					sender.sendMessage(plugin.chatColor(Main.prefix + lang.GAME_PAYED.replaceAll("%cost%", plugin.getPrice()+"")));
 					manager.startGame(player.getUniqueId());
 					return true;					
 				} else {
-					player.sendMessage(plugin.chatColor(lang.GAME_NOT_ENOUGH_MONEY));
+					player.sendMessage(plugin.chatColor(Main.prefix + lang.GAME_NOT_ENOUGH_MONEY));
 					return true;
 				}
 			} else {
@@ -51,15 +51,15 @@ public class MainCommand implements CommandExecutor {
 		} else if(args.length == 1 && args[0].equalsIgnoreCase("reload")){
 			if(sender.hasPermission("gemcrush.reload")){
 				plugin.reload();
-				sender.sendMessage(plugin.chatColor(lang.CMD_RELOADED));
+				sender.sendMessage(plugin.chatColor(Main.prefix + lang.CMD_RELOADED));
 				return true;
 			} else {
-				sender.sendMessage(plugin.chatColor(lang.CMD_NO_PERM));
+				sender.sendMessage(plugin.chatColor(Main.prefix + lang.CMD_NO_PERM));
 				return true;
 			}
 		}
 		for(String message :  lang.CMD_HELP)
-			sender.sendMessage(plugin.chatColor(message));
+			sender.sendMessage(plugin.chatColor(Main.prefix + message));
 		return true;
 	}
 

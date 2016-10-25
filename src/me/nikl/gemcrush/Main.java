@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import me.nikl.gemcrush.cmds.TopCommand;
 import me.nikl.gemcrush.nms.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,6 +24,7 @@ import me.nikl.gemcrush.game.GameManager;
 import net.milkbowl.vault.economy.Economy;
 
 public class Main extends JavaPlugin{
+	public final static boolean debug = true;
 
 	private GameManager manager;
 	private FileConfiguration config, stats;
@@ -30,7 +32,7 @@ public class Main extends JavaPlugin{
 	public static Economy econ = null;
 	public static String prefix = "[&3GemCrush&r]";
 	public Boolean econEnabled;
-	public Double reward, price;
+	public Double price;
 	public Language lang;
 	public boolean disabled;
 	
@@ -53,8 +55,8 @@ public class Main extends JavaPlugin{
 		reload();
 		if(disabled) return;
 
-		this.manager = new GameManager(this);
         this.getCommand("gemcrush").setExecutor(new MainCommand(this));
+		this.getCommand("gemcrushtop").setExecutor(new TopCommand(this));
 	}
 
 	@Override
@@ -77,25 +79,32 @@ public class Main extends JavaPlugin{
 			return false;
 		}
 		
-		//getLogger().info("Your server is running version " + version);
+		if(debug) getLogger().info("Your server is running version " + version);
 		
-		if (version.equals("v1_10_R1")) {
-			updater = new Update_1_10_R1();
-			
-		} else if (version.equals("v1_9_R2")) {
-			updater = new Update_1_9_R2();
-			
-		} else if (version.equals("v1_9_R1")) {
-			updater = new Update_1_9_R1();
-			
-		} else if (version.equals("v1_8_R3")) {
-			updater = new Update_1_8_R3();
-			
-		} else if (version.equals("v1_8_R2")) {
-			updater = new Update_1_8_R2();
-			
-		} else if (version.equals("v1_8_R1")) {
-			updater = new Update_1_8_R1();
+		switch (version) {
+			case "v1_10_R1":
+				updater = new Update_1_10_R1();
+				
+				break;
+			case "v1_9_R2":
+				updater = new Update_1_9_R2();
+				
+				break;
+			case "v1_9_R1":
+				updater = new Update_1_9_R1();
+				
+				break;
+			case "v1_8_R3":
+				updater = new Update_1_8_R3();
+				
+				break;
+			case "v1_8_R2":
+				updater = new Update_1_8_R2();
+				
+				break;
+			case "v1_8_R1":
+				updater = new Update_1_8_R1();
+				break;
 		}
 		return updater != null;
 	}
@@ -112,19 +121,17 @@ public class Main extends JavaPlugin{
     	if (rsp == null) {
     		return false;
     	}
-    	econ = (Economy)rsp.getProvider();
+    	econ = rsp.getProvider();
     	return econ != null;
     }
 	
 	public void reloadConfig(){
 		try { 
 			this.config = YamlConfiguration.loadConfiguration(new InputStreamReader(new FileInputStream(this.con), "UTF-8")); 
-		} catch (UnsupportedEncodingException e) { 
+		} catch (UnsupportedEncodingException | FileNotFoundException e) {
 			e.printStackTrace(); 
-		} catch (FileNotFoundException e) { 
-			e.printStackTrace(); 
-		} 
- 
+		}
+		
 		InputStream defConfigStream = this.getResource("config.yml"); 
 		if (defConfigStream != null){		
 			@SuppressWarnings("deprecation") 
@@ -138,6 +145,10 @@ public class Main extends JavaPlugin{
 	}
 	
 	public void reload(){
+		//shut down all games on reload
+		if(manager != null){
+			manager.shutDown();
+		}
 		if(!con.exists()){
 			this.saveResource("config.yml", false);
 		}
@@ -150,7 +161,16 @@ public class Main extends JavaPlugin{
 		}
 		reloadConfig();
 		
-		// load statsfile
+		// if the statistics file was already loaded: save the newest version as file
+		if(stats!=null){
+			try {
+				this.stats.save(sta);
+			} catch (IOException e) {
+				getLogger().log(Level.SEVERE, "[GemCrush] Could not save statistics", e);
+			}
+		}
+		
+		// load stats file
 		try {
 			this.stats = YamlConfiguration.loadConfiguration(new InputStreamReader(new FileInputStream(this.sta), "UTF-8"));
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
@@ -170,23 +190,21 @@ public class Main extends JavaPlugin{
 				return;
 			}
 			this.price = getConfig().getDouble("economy.cost");
-			/*this.reward = getConfig().getDouble("economy.reward");
-			if(price == null || reward == null || price < 0. || reward < 0.){
-				Bukkit.getConsoleSender().sendMessage(chatColor(prefix + " &4Wrong configuration in section economy!"));
-				getServer().getPluginManager().disablePlugin(this);
-				disabled = true;
-				return;
-			}*/
 		}
+		
+		this.manager = new GameManager(this);
 	}
 
-	public void addWinToStatistics(UUID player) {
+	public void setStatistics(UUID player, int score) {
 		if(this.stats == null) return;
-		if(!stats.isInt(player.toString() + "." + "won")){
-			stats.set(player.toString() + "." + "won", 1);
-			return;
+		if(!stats.isInt(player.toString())){
+			stats.set(player.toString(), score);
+		} else {
+			int oldScore = stats.getInt(player.toString());
+			if(score > oldScore){
+				stats.set(player.toString(), score);
+			}
 		}
-		this.stats.set(player.toString() + "." + "won", (this.stats.getInt(player.toString() + "." + "won")+1));
 	}
 	
 	public FileConfiguration getStatistics(){
@@ -196,10 +214,6 @@ public class Main extends JavaPlugin{
 	public FileConfiguration getConfig() {
 		return config;
 	}
-
-	public void setConfig(FileConfiguration config) {
-		this.config = config;
-	}
 	
     public String chatColor(String message){
     	return ChatColor.translateAlternateColorCodes('&', message);
@@ -207,10 +221,6 @@ public class Main extends JavaPlugin{
     
     public Boolean getEconEnabled(){
     	return this.econEnabled;
-    }
-    
-    public Double getReward(){
-    	return this.reward;
     }
     
     public Double getPrice(){

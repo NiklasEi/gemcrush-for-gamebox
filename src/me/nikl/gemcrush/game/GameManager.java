@@ -20,40 +20,95 @@ public class GameManager implements Listener{
 	private Set<Game> games;
 	private Map<UUID, Integer> clicks;
 	
-	private Map<Integer, Integer> prices;
+	private Map<Integer, Double> prices;
+	private Map<Integer, List<String>> commands;
+	private Map<Integer, List<String>> broadcasts;
+	private Map<Integer, List<String>> messages;
+	
+	private boolean pay, sendMessages, sendBroadcasts, dispatchCommands;
 	//private Language lang;
 	
 	public GameManager(Main plugin){
 		this.plugin = plugin;
 		this.games = new HashSet<>();
 		this.clicks = new HashMap<>();
-		if(plugin.getConfig().isConfigurationSection("economy.reward")) {
-			prices = new HashMap<>();
-			ConfigurationSection priceSec = plugin.getConfig().getConfigurationSection("economy.reward");
-			for(String key : priceSec.getKeys(false)){
-				int keyInt;
-				try{
-					keyInt = Integer.parseInt(key);
-				} catch (NumberFormatException e){
-					Bukkit.getConsoleSender().sendMessage(Main.prefix + " NumberFormatException while getting the rewards from config!");
-					continue;
-				}
-				prices.put(keyInt, priceSec.getInt(key));
-			}
-			
-			// Debug output XXX
-			Bukkit.getConsoleSender().sendMessage("Testing price List: ");
-			for(int i : prices.keySet()){
-				
-				Bukkit.getConsoleSender().sendMessage("Over: " + i + "    Price: " + prices.get(i));
-			}
-			
-		} else {
-			prices = null;
-		}
+		getOnGameEnd();
 		//this.lang = plugin.lang;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
+	
+	private void getOnGameEnd() {
+		if(plugin.getConfig().isConfigurationSection("onGameEnd.scoreIntervals")) {
+			ConfigurationSection onGameEnd = plugin.getConfig().getConfigurationSection("onGameEnd");
+			prices = new HashMap<>();
+			commands = new HashMap<>();
+			broadcasts = new HashMap<>();
+			messages = new HashMap<>();
+			pay = onGameEnd.getBoolean("pay");
+			sendMessages = onGameEnd.getBoolean("sendMessages");
+			sendBroadcasts = onGameEnd.getBoolean("sendBroadcasts");
+			dispatchCommands = onGameEnd.getBoolean("dispatchCommands");
+			onGameEnd = plugin.getConfig().getConfigurationSection("onGameEnd.scoreIntervals");
+			for (String key : onGameEnd.getKeys(false)) {
+				int keyInt;
+				try {
+					keyInt = Integer.parseInt(key);
+				} catch (NumberFormatException e) {
+					Bukkit.getLogger().warning("[GemCrush] NumberFormatException while getting the rewards from config!");
+					continue;
+				}
+				if (onGameEnd.isSet(key + ".money") && (onGameEnd.isDouble(key + ".money") || onGameEnd.isInt(key + ".money"))) {
+					prices.put(keyInt, onGameEnd.getDouble(key + ".money"));
+				} else {
+					prices.put(keyInt, 0.);
+				}
+				
+				if (onGameEnd.isSet(key + ".broadcast") && onGameEnd.isList(key + ".broadcast")) {
+					broadcasts.put(keyInt, onGameEnd.getStringList(key + ".broadcast"));
+				} else {
+					broadcasts.put(keyInt, null);
+				}
+				
+				if (onGameEnd.isSet(key + ".messages") && onGameEnd.isList(key + ".messages")) {
+					messages.put(keyInt, onGameEnd.getStringList(key + ".messages"));
+				} else {
+					messages.put(keyInt, null);
+				}
+				
+				if (onGameEnd.isSet(key + ".commands") && onGameEnd.isList(key + ".commands")) {
+					commands.put(keyInt, onGameEnd.getStringList(key + ".commands"));
+				} else {
+					commands.put(keyInt, null);
+				}
+			}
+			
+			if(Main.debug){
+				Bukkit.getConsoleSender().sendMessage("Testing onGameEnd: ");
+				
+				Bukkit.getConsoleSender().sendMessage("pay: " + pay + "  sendMe: " + sendMessages + "   sendB: " + sendBroadcasts + "    dispatch: " + dispatchCommands);
+				for (int i : prices.keySet()) {
+					
+					Bukkit.getConsoleSender().sendMessage("Over: " + i + "    reward: " + prices.get(i));
+					Bukkit.getConsoleSender().sendMessage("    broadcasts: " + broadcasts.get(i));
+					Bukkit.getConsoleSender().sendMessage("    messages: " + messages.get(i));
+					Bukkit.getConsoleSender().sendMessage("    commands: " + commands.get(i));
+				}
+				
+				Bukkit.getConsoleSender().sendMessage(" ");
+				Bukkit.getConsoleSender().sendMessage("Run some tests: ");
+				Random rand = new Random();
+				for (int i = 0; i < 10; i++) {
+					int score = rand.nextInt(600);
+					Bukkit.getConsoleSender().sendMessage("Random score: " + score);
+					Bukkit.getConsoleSender().sendMessage("Key: " + getKey(score));
+				}
+				Bukkit.getConsoleSender().sendMessage("Random score: " + 100);
+				Bukkit.getConsoleSender().sendMessage("Key: " + getKey(100));
+			}
+			
+		}
+	}
+	
 	
 	@EventHandler
 	public void onInvClick(InventoryClickEvent e){
@@ -77,10 +132,16 @@ public class GameManager implements Listener{
 		// get Player and Game objects
 		Player player = (Player) e.getWhoClicked();
 		Game game = getGame(player.getUniqueId());
-		
+		if(game == null){
+			clicks.remove(player.getUniqueId());
+			player.closeInventory();
+			games.remove(game);
+			return;
+		}
 		int slot = e.getSlot();
 		
-		// switch with gamemode
+		// switch with getState
+		if(game.getState() == null) return;
 		switch(game.getState()){
 			
 			
@@ -88,7 +149,7 @@ public class GameManager implements Listener{
 				if(this.clicks.containsKey(player.getUniqueId())){
 					int oldSlot = clicks.get(player.getUniqueId());
 					if(slot == oldSlot + 1 || slot == oldSlot - 1 || slot == oldSlot + 9 || slot == oldSlot - 9){
-						//player.sendMessage("Switching Gems " + slot + " and " + oldSlot);
+						if(Main.debug)player.sendMessage("Switching Gems " + slot + " and " + oldSlot);
 						if(game.switchGems(slot < oldSlot ? slot : oldSlot, slot > oldSlot ? slot : oldSlot)){
 							clicks.remove(player.getUniqueId());
 						}
@@ -96,17 +157,20 @@ public class GameManager implements Listener{
 						break;
 					} else {
 						clicks.put(player.getUniqueId(), slot);
-						//player.sendMessage("overwritten click in " + oldSlot + " with click in " + slot);
+						game.shine(slot, true);
+						game.shine(oldSlot, false);
+						if(Main.debug)player.sendMessage("overwritten click in " + oldSlot + " with click in " + slot);
 					}
 				} else {
-					//player.sendMessage("saved first click in slot " + slot);
+					if(Main.debug)player.sendMessage("saved first click in slot " + slot);
 					this.clicks.put(player.getUniqueId(), slot);
+					game.shine(slot, true);
 				}
-				//player.sendMessage("saved click: " + clicks.get(player.getUniqueId()));
-				//player.sendMessage("Columns:");
-				//player.sendMessage(game.scanColumns().toString());
-				//player.sendMessage("Rows:");
-				//player.sendMessage(game.scanRows().toString());
+				if(Main.debug)player.sendMessage("saved click: " + clicks.get(player.getUniqueId()));
+				if(Main.debug)player.sendMessage("Columns:");
+				if(Main.debug)player.sendMessage(game.scanColumns().toString());
+				if(Main.debug)player.sendMessage("Rows:");
+				if(Main.debug)player.sendMessage(game.scanRows().toString());
 				break;
 			
 			case FILLING:
@@ -121,9 +185,8 @@ public class GameManager implements Listener{
 	
 
 	private Game getGame(UUID uuid) {
-		for(Iterator<Game> gameI = games.iterator(); gameI.hasNext();){
-			Game game = gameI.next();
-			if(isPlayer(uuid, game)){
+		for (Game game : games) {
+			if (isPlayer(uuid, game)) {
 				return game;
 			}
 		}
@@ -135,7 +198,8 @@ public class GameManager implements Listener{
 		if(!isIngame(e.getPlayer().getUniqueId())){
 			return;
 		}
-		//e.getPlayer().sendMessage("Inventory was closed");//XXX
+		if(Main.debug)e.getPlayer().sendMessage("Inventory was closed");//XXX
+		getGame(e.getPlayer().getUniqueId()).shutDown();
 		removeGame(getGame(e.getPlayer().getUniqueId()));
 	}
 
@@ -152,11 +216,7 @@ public class GameManager implements Listener{
 		games.add(new Game(plugin, playerUUID));
 	}
 	
-	public Main getPlugin(){
-		return this.plugin;
-	}
-	
-	public boolean isIngame(UUID uuid){
+	private boolean isIngame(UUID uuid){
 		for(Game game : games){
 			if(isPlayer(uuid, game)){
 				return true;
@@ -165,31 +225,79 @@ public class GameManager implements Listener{
 		return false;
 	}
 	
-	public boolean isPlayer(UUID uuid, Game game){
-		if(game.getUUID().equals(uuid)){
-			return true;
-		}
-		return false;
+	private boolean isPlayer(UUID uuid, Game game){
+		return game.getUUID().equals(uuid);
 	}
 
-	public void removeGame(Game game) {
+	void removeGame(Game game) {
 		clicks.remove(game.getUUID());
 		game.shutDown();
 		games.remove(game);
 	}
 	
-	public int getReward(int score){
-		if(prices == null || prices.size() == 0) return 0;
-		int price = 0;
+	private int getKey(int score){
+		int distance = -1;
 		for(int key : prices.keySet()) {
-			while (score > key){
-				price = prices.get(key);
+			if((score - key) >= 0 && (distance < 0 || distance > (score - key))){
+				distance = score - key;
 			}
 		}
-		return price;
+		if(distance > -1)
+			return score - distance;
+		return -1;
 	}
 	
-	String chatColor(String message){
+	void onGameEnd(int score, Player player){
+		onGameEnd(score, player, true, true, true, true);
+	}
+	
+	private void onGameEnd(int score, Player player, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts){
+		plugin.setStatistics(player.getUniqueId(), score);
+		int key = getKey(score);
+		if(Main.debug) Bukkit.getConsoleSender().sendMessage("Key in onGameEnd: " + key);
+		if(Main.debug)Bukkit.getConsoleSender().sendMessage("pay: " + payOut + "  sendMe: " + sendMessages + "   sendB: " + sendBroadcasts + "    dispatch: " + dispatchCommands);
+		
+		if(payOut && this.pay){
+			double reward = prices.get(key);
+			if(Main.debug) Bukkit.getConsoleSender().sendMessage("Reward is: " + reward);
+			if(plugin.getEconEnabled() && reward > 0){
+				Main.econ.depositPlayer(player, reward);
+				player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_FINISHED_WITH_PAY.replaceAll("%score%", score +"").replaceAll("%reward%", reward + "")));
+			} else {
+				player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
+			}
+		} else {
+			player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
+		}
+		
+		if(sendMessages && this.sendMessages && messages.get(key) != null && messages.get(key).size() > 0){
+			for(String message : messages.get(key)){
+				player.sendMessage(chatColor(Main.prefix + " " + message.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
+			}
+		}
+		
+		if(dispatchCommands && this.dispatchCommands && commands.get(key) != null && commands.get(key).size() > 0){
+			for(String cmd : commands.get(key)){
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replaceAll("%player%", player.getName()).replaceAll("%score%", score + ""));
+			}
+		}
+		
+		if(sendBroadcasts && this.sendBroadcasts && broadcasts.get(key) != null && broadcasts.get(key).size() > 0){
+			for(String broadcast: broadcasts.get(key)){
+				Bukkit.broadcastMessage(chatColor(Main.prefix + " " + broadcast.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
+			}
+		}
+		
+	}
+	
+	private String chatColor(String message){
 		return ChatColor.translateAlternateColorCodes('&', message);
+	}
+	
+	
+	public void shutDown(){
+		for (Game game : games){
+			removeGame(game);
+		}
 	}
 }

@@ -1,8 +1,12 @@
 name: GemCrush
 author: Nikl
 main: me.nikl.gemcrush.Main
-version: 0.3
+version: 1.1
 commands:
+  gemcrushtop:
+    description: display the top 10
+    usage: /gemcrushtop
+    aliases: [gctop]
   gemcrush:
     description: play the game
     usage: /gemcrush
@@ -18,9 +22,13 @@ permissions:
     children:
       gemcrush.play: true
       gemcrush.reload: true
+      gemcrush.top: true
   gemcrush.play:
     description: You are allowed to start a game
     default: true
   gemcrush.reload:
     description: You can reload the plugin
+  gemcrush.top:
+    description: You can use /gctop
+    default: true
     

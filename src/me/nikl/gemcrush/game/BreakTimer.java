@@ -7,13 +7,15 @@ import java.util.ArrayList;
 
 /**
  * Created by niklas on 10/6/16.
+ *
+ * Timer Class used to break matched Gems with a small delay
  */
-public class BreakTimer extends BukkitRunnable{
+class BreakTimer extends BukkitRunnable{
 	
-	ArrayList<Integer> toBreak;
-	Game game;
+	private ArrayList<Integer> toBreak;
+	private Game game;
 	
-	public BreakTimer(Game game, ArrayList<Integer> toBreak, int breakTicks){
+	BreakTimer(Game game, ArrayList<Integer> toBreak, int breakTicks){
 		this.toBreak = toBreak;
 		this.game = game;
 		

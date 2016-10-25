@@ -21,12 +21,13 @@ public class Language {
 	private FileConfiguration langFile;
 	
 	public String CMD_NO_PERM, CMD_ONLY_PLAYER, CMD_RELOADED;
-	public String GAME_PAYED, GAME_NOT_ENOUGH_MONEY, GAME_FINISHED;
+	public String CMD_NO_TOP_LIST, CMD_TOP_HEAD, CMD_TOP_TAIL, CMD_TOP_STRUCTURE;
+	public String GAME_PAYED, GAME_NOT_ENOUGH_MONEY, GAME_FINISHED_NO_PAY, GAME_FINISHED_WITH_PAY;
 	public String TITLE_GAME;
 	public List<String> CMD_HELP;
 	private YamlConfiguration defaultLang;
 	
-	public Language(Main plugin){
+	Language(Main plugin){
 		this.plugin = plugin;
 		if(!getLangFile()){
 			Bukkit.getPluginManager().disablePlugin(plugin);
@@ -48,7 +49,8 @@ public class Language {
 		
 		this.GAME_PAYED = getString("game.econ.payed");	
 		this.GAME_NOT_ENOUGH_MONEY = getString("game.econ.notEnoughMoney");
-		this.GAME_FINISHED = getString("game.finished");
+		this.GAME_FINISHED_NO_PAY = getString("game.finishedWithoutPayout");
+		this.GAME_FINISHED_WITH_PAY = getString("game.finishedWithPayout");
 		
 	}
 
@@ -57,6 +59,12 @@ public class Language {
 		this.CMD_NO_PERM = getString("commandMessages.noPermission");
 		this.CMD_ONLY_PLAYER = getString("commandMessages.onlyAsPlayer");
 		this.CMD_RELOADED = getString("commandMessages.pluginReloaded");
+		
+		
+		this.CMD_NO_TOP_LIST = getString("commandMessages.noTopList");
+		this.CMD_TOP_HEAD = getString("commandMessages.topListHead");
+		this.CMD_TOP_TAIL = getString("commandMessages.topListTail");
+		this.CMD_TOP_STRUCTURE = getString("commandMessages.topListStructure");
 		
 
 		this.CMD_HELP = getStringList("commandMessages.help");		
@@ -92,7 +100,7 @@ public class Language {
 			defaultFile.getParentFile().mkdirs();
 			outputStream = new FileOutputStream(defaultFile);
 
-			int read = 0;
+			int read;
 			byte[] bytes = new byte[1024];
 
 			while ((read = inputStream.read(bytes)) != -1) {

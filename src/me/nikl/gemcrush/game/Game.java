@@ -1,7 +1,9 @@
 package me.nikl.gemcrush.game;
 
 import java.util.*;
+import java.util.logging.Level;
 
+import me.nikl.gemcrush.gems.Bomb;
 import me.nikl.gemcrush.gems.Gem;
 import me.nikl.gemcrush.gems.NormalGem;
 import me.nikl.gemcrush.nms.InvTitle;
@@ -10,19 +12,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.nikl.gemcrush.Language;
 import me.nikl.gemcrush.Main;
+import org.bukkit.scheduler.BukkitScheduler;
 
 
-public class Game extends BukkitRunnable{
+class Game extends BukkitRunnable{
 
 	private GameState state;
 	private GameManager manager;
@@ -44,6 +43,8 @@ public class Game extends BukkitRunnable{
 	
 	// map with all gems
 	private Map<String, Gem> gems;
+	// map with all normal gems that are used in this game
+	private Map<String, Gem> usedNormalGems;
 	
 	private Main plugin;
 	
@@ -51,6 +52,11 @@ public class Game extends BukkitRunnable{
 	
 	private int moves, points;
 	private int moveTicks, breakTicks;
+	
+	private int gemsNum;
+	
+	private int nextBombSlot;
+	private int explodingBomb;
 	
 	// check for existing move every x cycles
 	// reset cycles to 0 on breaking/filling state and add one every run in case PLAY
@@ -65,8 +71,19 @@ public class Game extends BukkitRunnable{
 		this.player = Bukkit.getPlayer(playerUUID);
 		this.grid = new Gem[54];
 		this.gems = new HashMap<>();
+		this.usedNormalGems = new HashMap<>();
 		this.moves = 20;
 		this.points = 0;
+		
+		// otherwise a bomb will be spawned
+		this.nextBombSlot = -1;
+		
+		// no exploding bomb at the beginning;
+		explodingBomb = -1;
+		
+		this.gemsNum = 9; // 6
+		
+		
 		
 		this.updater = plugin.getUpdater();
 		
@@ -82,20 +99,19 @@ public class Game extends BukkitRunnable{
 			return;
 		}
 		
-		if(!loadGems()){
-			Bukkit.getConsoleSender().sendMessage("Failed to load gems from config! Cannot start a game.");//XXX
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &2Configuration error. Please contact the server owner!"));
-			return;
-		}
-		
 		if(!loadOptions()){
 			Bukkit.getConsoleSender().sendMessage("You are missing options in the configuration file.");//XXX
 			Bukkit.getConsoleSender().sendMessage("Game will be started with defaults. Please get an up to date config file.");//XXX
 		}
 		
+		if(!loadGems()){
+			player.sendMessage(chatColor(Main.prefix + " &2Configuration error. Please contact the server owner!"));
+			return;
+		}
+		
 		
 		this.title = lang.TITLE_GAME;
-		this.inv = Bukkit.getServer().createInventory(null, 54, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%points%", points + "")));
+		this.inv = Bukkit.getServer().createInventory(null, 54, chatColor(title.replaceAll("%moves%", moves + "").replaceAll("%score%", points + "")));
 		
 		// this basically starts the game
 		this.state = GameState.FILLING;
@@ -111,10 +127,16 @@ public class Game extends BukkitRunnable{
 			this.moveTicks = 5;
 		}
 		
+		if(this.config.isSet("game.numberOfNormalGems") && this.config.isInt("game.numberOfNormalGems")){
+			this.gemsNum = config.getInt("game.numberOfNormalGems");
+		} else {
+			this.gemsNum = 8;
+		}
+		
 		if(this.config.isSet("game.ticksBetweenSwitchAndDestroy") && this.config.isInt("game.ticksBetweenSwitchAndDestroy")){
 			this.breakTicks = config.getInt("game.ticksBetweenSwitchAndDestroy");
 		} else {
-			this.breakTicks = 5;
+			this.breakTicks = 10;
 		}
 		
 		if(this.config.isSet("game.moves") && this.config.isInt("game.moves")){
@@ -150,7 +172,7 @@ public class Game extends BukkitRunnable{
 				c++;
 				slot ++;
 				
-				while(c<9 && slot<54 && name.equals(grid[slot].getName())){
+				while(c<9 && slot<54 && (name.equals(grid[slot].getName()) || name.equalsIgnoreCase("bomb"))){
 					colorInRow++;
 					c++;
 					slot++;
@@ -158,6 +180,8 @@ public class Game extends BukkitRunnable{
 				if(colorInRow < 3){
 					if(c<9)
 						name = grid[slot].getName();
+					if(name.equalsIgnoreCase("bomb") && c<8)
+						name = grid[slot + 1].getName();
 					continue;
 				} else {
 					for(int breakSlot = slot - 1; breakSlot >= slot - colorInRow; breakSlot -- ){
@@ -195,6 +219,9 @@ public class Game extends BukkitRunnable{
 					this.grid[slot + i] = oldGem;
 		
 					if(!scanColumns().isEmpty() || !scanRows().isEmpty()){
+						oldGem = this.grid[slot];
+						this.grid[slot] = this.grid[slot + i];
+						this.grid[slot + i] = oldGem;
 						return true;
 					}
 					
@@ -223,7 +250,7 @@ public class Game extends BukkitRunnable{
 				c++;
 				slot = i + c*9;
 				
-				while(c<6 && slot<54 && name.equals(grid[slot].getName())){
+				while(c<6 && slot<54 && (name.equals(grid[slot].getName()) || name.equalsIgnoreCase("bomb"))){
 					colorInRow++;
 					c++;
 					slot = i + c*9;
@@ -231,6 +258,8 @@ public class Game extends BukkitRunnable{
 				if(colorInRow < 3){
 					if(c<6)
 						name = grid[slot].getName();
+					if(name.equalsIgnoreCase("bomb") && c<5)
+						name = grid[slot + 9].getName();
 					continue;
 				} else {
 					for(int breakSlot = slot - 9; breakSlot >= slot - colorInRow*9; breakSlot -= 9 ){
@@ -244,113 +273,33 @@ public class Game extends BukkitRunnable{
 	}
 	
 	
-
-
-	@Override
-	public void run() {
-		switch(this.state){
-			case FILLING:
-				checkCycles = 0;
-				Random rand = new Random();
-				for(int column = 8 ; column > -1 ; column--){
-					for(int row = 5; row > -1 ; row --){
-						int slot = row*9 + column;
-						if(this.grid[slot] == null){
-							if(row == 0){
-								grid[slot] = new NormalGem((NormalGem) gems.get(Integer.toString(rand.nextInt(6) + 1)));
-								// with break the filling is slower
-								//break;
-								row--;
-								continue;
-							} else {
-								if(this.grid[slot-9] != null){
-									
-									this.grid[slot] = this.grid[slot-9];
-									this.grid[slot-9] = null;
-									row--;
-									continue;
-									// use break instead to get a slower filling
-									//break;
-								} else {
-									continue;
-								}
-							}
-						}
-					}
-				}
-				setInventory();
-				if(!hasToBeFilled()){
-					if(!this.breakAll()) {
-						if(moves > 0) {
-							this.setState(GameState.PLAY);
-						} else {
-							this.setState(GameState.FINISHED);
-							won(points);
-						}
-					}
-				}
-				break;
-			case FINISHED:
-				break;
-			case PLAY:
-				if(checkCycles > 5){
-					if(!moveLeft()){
-						refill();
-						checkCycles = 0;
-					}
-				} else {
-					checkCycles ++;
-				}
-				break;
-			case BREAKING:
-				break;
-			default:
-				break;
-		}
-	}
-	
-	private void refill() {
-		for(int i = 0; i < 54 ; i++){
-			grid[i] = null;
-		}
-		this.state = GameState.FILLING;
-	}
-	
-	private boolean breakAll() {
-		ArrayList<Integer> toBreak = new ArrayList<>();
-		toBreak.addAll(this.scanColumns());
-		toBreak.addAll(this.scanRows());
-		if(toBreak.isEmpty()) return false;
-		
-		/*
-		for(int i : toBreak){
-			grid[i].shine(true);
-		}*/
-		
-		//setInventory();
-		breakTimer = new BreakTimer(this, toBreak, breakTicks);
-		setState(GameState.BREAKING);
-		return true;
-	}
-	
-	private void setInventory() {
-		for(int i=0;i<54;i++){
-			this.inv.setItem(i, this.grid[i] == null ? null : this.grid[i].getItem());
-		}
-		updater.updateTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%points%", points+"")));
-	}
 	
 	private boolean loadGems() {
 		boolean worked = true;
 		
 		Material mat = null;
 		int data = 0;
-		int index = 1;
-		ConfigurationSection section = this.config.getConfigurationSection("items");
+		int index = 0;
+		
+		if(!this.config.isConfigurationSection("normalGems")){
+			Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Outdated configuration file! Game cannot be started.");
+			return false;
+		}
+		
+		ConfigurationSection section = this.config.getConfigurationSection("normalGems");
+		
 		for(String key : section.getKeys(false)){
-			
-			if(!section.isSet(key + ".material")) return false;
-			if(!section.isSet(key + ".displayName") || !section.isString(key + ".displayName")) return false;
+			if(Main.debug)Bukkit.getConsoleSender().sendMessage("getting " + key);
+			if(!section.isSet(key + ".material")){
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Problem in: " + key);
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Skipping the gem. Is the material set?");
+				continue;
+			}
+			if(!section.isSet(key + ".displayName") || !section.isString(key + ".displayName")){
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Problem in: " + key);
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Skipping the gem. Is the displayName set?");
+				continue;
+			}
 			
 			String value = section.getString(key + ".material");
 			String[] obj = value.split(":");
@@ -375,17 +324,200 @@ public class Game extends BukkitRunnable{
 					worked = false; // material name doesn't exist
 				}
 			}
-			if(mat == null) return false;
+			if(mat == null){
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Problem in: " + "normalGems." + key );
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "The material is not valid! Maybe your minecraft version is too old for it?");
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Change the material or delete the gem. Skipping..." );
+				continue;
+			}
+			
+			if(Main.debug){
+				Bukkit.getConsoleSender().sendMessage("saving gem " + name + " as " + index);
+			}
+			
 			if(obj.length == 1){
 				this.gems.put(Integer.toString(index), new NormalGem(mat, name));
 			} else {
 				this.gems.put(Integer.toString(index), new NormalGem(mat, name, (short) data));
 			}
+			if(section.isSet(key + ".pointsOnBreak") && section.isInt(key + ".pointsOnBreak")){
+				this.gems.get(Integer.toString(index)).setPointsOnBreak(section.getInt(key + ".pointsOnBreak"));
+			}
+			if(section.isSet(key + ".probability") && (section.isDouble(key + ".probability") || section.isInt(key + ".probability"))){
+				if(Main.debug)Bukkit.getConsoleSender().sendMessage("set probability of " + name + " to " + section.getDouble(key + ".probability"));
+				((NormalGem) this.gems.get(Integer.toString(index))).setPossibility(section.getDouble(key + ".probability"));
+			}
 			index++;
 		}
+		
+		if(Main.debug){
+			Bukkit.getConsoleSender().sendMessage("number of loaded gems: " + gems.size());
+			Bukkit.getConsoleSender().sendMessage("using " + gemsNum + " gems");
+		}
+		
+		if(gemsNum > gems.size()){
+			Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] Could not load enough gems! Quiting game.");
+			Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] You can add some in the config file ;)");
+			return false;
+		}
+		
+		ArrayList<Integer> savedGems = new ArrayList<>();
+		int key;
+		for(int i = 0; i < gemsNum; i++){
+			key = getKeyWithWeights(savedGems);
+			
+			if(key<0){
+				Bukkit.getLogger().log(Level.WARNING, "[GemCrush] Problem while choosing the gems");
+				gemsNum --;
+				continue;
+			}
+			
+			if(gems.get(Integer.toString(key)) == null){
+				Bukkit.getConsoleSender().sendMessage("gem " + key + " is null!");
+				return false;
+			}
+			
+			if(Main.debug){
+				Bukkit.getConsoleSender().sendMessage("chose gem with the number " + key);
+				Bukkit.getConsoleSender().sendMessage("using: " + gems.get(Integer.toString(key)).getName());
+			}
+			
+			this.usedNormalGems.put(Integer.toString(i), gems.get(Integer.toString(key)));
+			savedGems.add(key);
+		}
+		
 		return worked;
 	}
 	
+	private int getKeyWithWeights(ArrayList<Integer> savedGems) {
+		int key;
+		Random rand = new Random();
+		double totalWeight = 0;
+		for(String gemName : gems.keySet()){
+			if(!savedGems.contains(Integer.parseInt(gemName)))
+				totalWeight += ((NormalGem)gems.get(gemName)).getPossibility();
+		}
+		double weightedKey = rand.nextDouble() * totalWeight;
+		for(String gemName : gems.keySet()){
+			if(savedGems.contains(Integer.parseInt(gemName))) continue;
+			totalWeight -= ((NormalGem)gems.get(gemName)).getPossibility();
+			if(totalWeight < weightedKey){
+				key = Integer.parseInt(gemName);
+				if(Main.debug)Bukkit.getConsoleSender().sendMessage("Key: " + key + "   totalWeight was: " + totalWeight);
+				return key;
+			}
+		}
+		return -1;
+	}
+	
+	
+	@Override
+	public void run() {
+		//if(Main.debug)Bukkit.getConsoleSender().sendMessage("Current state: " + this.state.toString());
+		switch(this.state){
+			case FILLING:
+				checkCycles = 0;
+				Random rand = new Random();
+				boolean spawnBomb = false;
+				for(int column = 8 ; column > -1 ; column--){
+					for(int row = 5; row > -1 ; row --){
+						int slot = row*9 + column;
+						if(this.grid[slot] == null){
+							if(row == 0){
+									grid[slot] = new NormalGem((NormalGem) usedNormalGems.get(Integer.toString(rand.nextInt(gemsNum))));
+									// with break the filling is slower
+									//break;
+									this.inv.setItem(slot, grid[slot].getItem());
+									row--;
+									continue;
+								} else {
+								if(this.grid[slot-9] != null){
+									if(this.grid[slot-9].getName().equalsIgnoreCase("bomb") && ((Bomb) this.grid[slot-9]).isExploding()){
+										//the bomb that is being moved was ignited already and will explode after the gamestate is changed from filling
+										// track the bomb!
+										this.explodingBomb = slot;
+									}
+									this.grid[slot] = this.grid[slot-9];
+									this.inv.setItem(slot, grid[slot-9].getItem());
+									this.grid[slot-9] = null;
+									this.inv.setItem(slot-9, null);
+									row--;
+									continue;
+								} else {
+									continue;
+								}
+							}
+						}
+					}
+				}
+				//setInventory(); // maybe flickering gets fixed here?
+				if(!hasToBeFilled()){
+					if(explodingBomb > -1){
+						// explode the bomb!
+						ArrayList<Integer> toBreak = new ArrayList<>();//toDo
+						toBreak.add(explodingBomb);
+						new BreakTimer(this, toBreak, breakTicks);
+						setState(GameState.BREAKING);
+						explodingBomb = -1;
+						break;
+					}
+					if(!this.breakAll()) {
+						if(moves > 0) {
+							this.setState(GameState.PLAY);
+						} else {
+							this.setState(GameState.FINISHED);
+							won();
+						}
+					}
+				}
+				break;
+			case FINISHED:
+				break;
+			case PLAY:
+				if(checkCycles > 5){
+					if(!moveLeft()){
+						refill();
+						checkCycles = 0;
+					}
+				} else {
+					checkCycles ++;
+				}
+				break;
+			case BREAKING:
+				break;
+			default:
+				break;
+		}
+	}
+	
+	private void refill() {
+		if(Main.debug)Bukkit.getConsoleSender().sendMessage("Refilling...");
+		for(int i = 0; i < 54 ; i++){
+			grid[i] = null;
+		}
+		this.inv.clear();
+		this.state = GameState.FILLING;
+	}
+	
+	private boolean breakAll() {
+		ArrayList<Integer> toBreak = new ArrayList<>();
+		toBreak.addAll(this.scanColumns());
+		toBreak.addAll(this.scanRows());
+		if(Main.debug)Bukkit.getConsoleSender().sendMessage("scheduled " + toBreak + " for breaking");
+		if(toBreak.isEmpty()) return false;
+		
+		breakTimer = new BreakTimer(this, toBreak, breakTicks);
+		setState(GameState.BREAKING);
+		return true;
+	}
+	
+	/*
+	private void setInventory() {
+		for(int i=0;i<54;i++){
+			this.inv.setItem(i, this.grid[i] == null ? null : this.grid[i].getItem());
+		}
+		updater.updateTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
+	}*/
 	
 	
 	private String chatColor(String string) {
@@ -394,42 +526,8 @@ public class Game extends BukkitRunnable{
 	
 	
 	
-	public void won(int score) {
-		player.sendMessage(chatColor(Main.prefix + lang.GAME_FINISHED.replaceAll("%points%", score +"")));
-		
-		if(plugin.getEconEnabled()){
-			int reward = manager.getReward(score);
-			Main.econ.depositPlayer(player, reward);
-			player.sendMessage(chatColor(Main.prefix + lang.GAME_FINISHED.replaceAll("%points%", score +"")));
-			player.sendMessage(chatColor(Main.prefix + " &2You won &4" + reward + "&2!"));
-		} else {
-			player.sendMessage(chatColor(Main.prefix + lang.GAME_FINISHED.replaceAll("%points%", score +"")));
-		}
-		// execute commands on game end
-		onGameEnd();
-	}
-	
-	public void onGameEnd(){
-		String path = "onGameEnd.dispatchCommands";
-		// if commands are enabled fetch the list of commands and dispatch them
-		if(config.getBoolean(path + ".enabled")){
-			List<String> cmdList = config.getStringList(path + ".commands");
-			if(cmdList != null && !cmdList.isEmpty()){
-				for(String cmd : cmdList){
-					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replaceAll("%player%", player.getName()));
-				}
-			}
-		}
-		path = "onGameEnd.broadcast";
-		// if broadcast is enabled fetch broadcast messages and send them
-		if(config.getBoolean(path + ".enabled")){
-			List<String> broadcastList = config.getStringList(path + ".messages");
-			if(broadcastList != null && !broadcastList.isEmpty()){
-				for(String message : broadcastList){
-					Bukkit.broadcastMessage(chatColor(Main.prefix + " " + message.replaceAll("%player%", player.getName())));
-				}
-			}
-		}
+	public void won() {
+		manager.onGameEnd(points, player);
 	}
 	
 	
@@ -468,24 +566,59 @@ public class Game extends BukkitRunnable{
 		}
 		
 		moves --;
-		
-		setInventory();
+		this.inv.setItem(lowerSlot, grid[lowerSlot].getItem());
+		this.inv.setItem(higherSlot, grid[higherSlot].getItem());
+		//setInventory();
+		updater.updateTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
 		return true;
 	}
 	
 	public void breakGems(ArrayList<Integer> toBreak) {
 		for(int i : toBreak) {
-			points += 10;
-			this.grid[i] = null;
+			if(grid[i] != null){
+				if(grid[i] instanceof Bomb){
+					if(((Bomb) grid[i]).isExploding()){
+						explodingBomb = i;
+					} else {
+						((Bomb) grid[i]).setExploding(true);
+					}
+				} else {
+					points += grid[i].getPointsOnBreak();
+					this.grid[i] = null;
+					this.inv.setItem(i, null);
+				}
+			} else {//If a gem is null here already a slot has to be broken twice and will spawn a bomb
+				grid[i] = new Bomb();
+			}
 		}
-		setInventory();
+		updater.updateTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
+		//setInventory(); get rid of flicker
 		setState(GameState.FILLING);
 	}
 	
 	public void shutDown() {
-		this.cancel();
-		if(breakTimer != null)
-			this.breakTimer.cancel();
-		
+		if(Bukkit.getScheduler().isCurrentlyRunning(this.getTaskId()))
+			this.cancel();
+		this.inv = Bukkit.createInventory(null, 54, "Game was shut down!");
+		if(breakTimer != null) {
+			if (Bukkit.getScheduler().isCurrentlyRunning(this.getTaskId()))
+				this.breakTimer.cancel();
+			this.breakTimer = null;
+		}
+		//player.closeInventory();
+	}
+	
+	public void shine(int slot, boolean b) {
+		if(b){
+			//this.grid[slot].shine(b);
+			if(grid[slot] instanceof NormalGem) {
+				grid[slot].setItem(updater.addGlow(grid[slot].getItem()));
+			}
+		} else {
+			if(grid[slot] instanceof NormalGem) {
+				grid[slot].setItem(updater.removeGlow(grid[slot].getItem()));
+			}
+		}
+		this.inv.setItem(slot, grid[slot].getItem());
 	}
 }

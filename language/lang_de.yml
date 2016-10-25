@@ -6,16 +6,30 @@ game:
     # benutze %cost% fuer den Preis
     payed: " &2Du hast &4%cost% gezahlt"
     notEnoughMoney: " &4Du hast nicht genug Geld!"
+  # benutze %score% fuer die Anzahl der Punkte am Ende des Spiels
+  finishedWithoutPayout: " Du hast das Spiel mit &2%score%&r Punkten beendet."
+  # benutze %score% fuer die Anzahl der Punkte und %reward% fuer den Lohn
+  #   der Lohn wird im config file festgelegt!
+  # diese Nachricht wird anstatt von 'finishedWithoutPayout' wenn Lohn > 0 ist
+  finishedWithPayout: " Du hast das Spiel mit &2%score%&r Punkten beendet und &2%score%&r Dollar gewonnen!"
+
 
 inventoryTitles:
-  title: " GemCrush Beta"
+  title: "GemCrush  Z\u00fcge: %moves%  Punkte: %score%"
 
 
 
-# Messages related to commands
+# Befehl-Nachrichten
 commandMessages:
-  noPermission: " &4 Du hast keine Befugniss!"
-  onlyAsPlayer: " &4 Nur als Spieler möglich!"
+  noPermission: " &4Du hast keine Befugniss!"
+  onlyAsPlayer: " &4Nur als Spieler möglich!"
   pluginReloaded: " &aPlugin wurde neu geladen"
   help:
   - " &2Starte ein Spiel mit /gc"
+  # Nachricht an den Spieler wenn es noch keine Statistik gibt
+  noTopList: " &4Noch keine Statistik vorhanden!"
+  # Hier kannst du die Darstellung der Top-liste selber einstellen
+  topListHead: "&a+ - + -  &3GemCrush  Top 10  &a- + - +"
+  # %rank% -> Rang des Spielers      %name% Name des Spielers       %score% Punkterekord des Spielers
+  topListStructure: "%rank%. &6 %name%    &1Rekord: %score%"
+  topListTail: "&a+ - + - + - + - + - + - + - + - + - +"
