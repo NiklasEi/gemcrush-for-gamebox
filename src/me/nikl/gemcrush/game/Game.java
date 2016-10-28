@@ -303,7 +303,7 @@ class Game extends BukkitRunnable{
 			
 			String value = section.getString(key + ".material");
 			String[] obj = value.split(":");
-			String name = section.getString(key + ".displayName");
+			String name = chatColor(section.getString(key + ".displayName"));
 			
 			if (obj.length == 2) {
 				try {
