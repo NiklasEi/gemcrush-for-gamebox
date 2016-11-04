@@ -91,7 +91,8 @@ onGameEnd:
 normalGems:
   gem1:
     material: 'Diamond'
-    displayName: "Diamond"
+    # use & for colors
+    displayName: "&dDiamond"
     # optional custom number of points per destroyed gem of this type
     #   the default is 10 and is used if this option is not set
     pointsOnBreak: 10
@@ -102,36 +103,36 @@ normalGems:
     probability: 2
   gem2:
     material: 'EMERALD'
-    displayName: 'Emerald'
+    displayName: '&2Emerald'
     pointsOnBreak: 10
     probability: 1
   gem3:
     material: 'BLAZE_POWDER'
-    displayName: 'Sparks'
+    displayName: '&eSparks'
     pointsOnBreak: 10
     probability: 1
   gem4:
     material: 'clay_ball'
-    displayName: 'Pearl'
+    displayName: '&7Pearl'
   gem5:
     material: 'gold_block'
-    displayName: 'Gold'
+    displayName: '&6Gold'
   gem6:
     material: 'iron_block'
-    displayName: 'Iron'
+    displayName: '&fIron'
   gem7:
     material: 'bone'
-    displayName: 'Fossil'
+    displayName: '&5Fossil'
   gem8:
     material: 'apple'
-    displayName: 'Apple'
+    displayName: '&cApple'
   gem9:
     material: 'anvil'
-    displayName: 'Anvil'
+    displayName: '&8Anvil'
   gem10:
     material: 'void_structure'
-    displayName: 'Wheel'
+    displayName: '&2Wheel'
   gem11:
     material: 'double_plant'
-    displayName: 'Amber'
+    displayName: '&6Amber'
 
