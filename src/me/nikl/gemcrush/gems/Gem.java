@@ -1,7 +1,8 @@
 package me.nikl.gemcrush.gems;
 
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemFlag;
+//import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -27,8 +28,8 @@ public abstract class Gem{
 	Gem(Material material, String name){
 		this.item = new ItemStack(material, 1);
 		ItemMeta meta = item.getItemMeta();
-		meta.setDisplayName(name);
-		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+		//meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		if(lore != null && lore.size() > 0){
 			meta.setLore(lore);
 		}
