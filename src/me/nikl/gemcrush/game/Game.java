@@ -588,7 +588,7 @@ class Game extends BukkitRunnable{
 					this.inv.setItem(i, null);
 				}
 			} else {//If a gem is null here already a slot has to be broken twice and will spawn a bomb
-				grid[i] = new Bomb();
+				//grid[i] = new Bomb(); // ToDo !!!!!!!
 			}
 		}
 		updater.updateTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
