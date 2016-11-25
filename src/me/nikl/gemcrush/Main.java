@@ -24,7 +24,7 @@ import me.nikl.gemcrush.game.GameManager;
 import net.milkbowl.vault.economy.Economy;
 
 public class Main extends JavaPlugin{
-	public final static boolean debug = true;
+	public final static boolean debug = false;
 
 	private GameManager manager;
 	private FileConfiguration config, stats;
@@ -104,6 +104,11 @@ public class Main extends JavaPlugin{
 				break;
 			case "v1_8_R1":
 				updater = new Update_1_8_R1();
+				
+				break;
+			case "v1_11_R1":
+				updater = new Update_1_11_R1();
+				
 				break;
 		}
 		return updater != null;
