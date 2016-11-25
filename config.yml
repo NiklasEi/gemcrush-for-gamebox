@@ -22,6 +22,21 @@ game:
   #   This number HAS TO BE equal or smaller then the number of gems defined in the section normalGems below
   #   8 or 7 are good numbers. 7 is easier and the game has to shuffle less but 8 is a bit more challenging
   numberOfNormalGems: 8
+  # customise bombs here
+  #   they are spawned if you combine gems to the following kind of forms
+  #
+  #   xxx      xxx
+  #    x       x
+  #    x       x
+  #
+  bombs:
+    enabled: true
+    # ticks until the bomb explodes (startes counting AFTER all gems fell down and nothing else can break)
+    ticksTillExplosion: 15
+    pointsOnBreak: 20
+    displayName: '&4Bomb'
+    lore:
+    - '&4Caution: &6explosive!'
 
 
 
@@ -59,18 +74,18 @@ onGameEnd:
       - ' &2you can do better than that...'
       - ' &4try again &1;)'
     100:
-      money: 100
+      money: 10
     200:
-      money: 200
+      money: 20
     300:
-      money: 300
+      money: 30
     400:
-      money: 400
+      money: 40
       commands:
       - 'tell %player% congrats ;)'
       - 'tell %player% you scored %score%!'
     500:
-      money: 500
+      money: 50
       messages:
       - ' &2%score% wow! &1Thats not bad ^^'
       # - ' &2You won a diamond'
@@ -130,7 +145,7 @@ normalGems:
     material: 'anvil'
     displayName: '&8Anvil'
   gem10:
-    material: 'void_structure'
+    material: 'structure_void'
     displayName: '&2Wheel'
   gem11:
     material: 'double_plant'
