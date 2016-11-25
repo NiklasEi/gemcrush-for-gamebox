@@ -101,5 +101,16 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Dependencies/BuildTools/spigot-1.11.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$USER_HOME$/Dependencies/BuildTools/spigot-1.11.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>
