@@ -1,0 +1,9 @@
+v 1.1.0:
+- implemented bombs
+-   they will spawn glowing and explode later
+-   added section in config: 'game.bombs' for customisation of bombs
+-     without that section bombs are disabled be default!
+- fixed glow bug for versions below 1.1.0
+-   glow stayed after clicking if the clicked gem was switched but not destroyed
+- added glow to all gems scheduled to break
+- fixed glow for version 1.11
