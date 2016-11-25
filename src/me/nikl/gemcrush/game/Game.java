@@ -55,12 +55,18 @@ class Game extends BukkitRunnable{
 	
 	private int gemsNum;
 	
-	private int nextBombSlot;
-	private int explodingBomb;
-	
 	// check for existing move every x cycles
 	// reset cycles to 0 on breaking/filling state and add one every run in case PLAY
 	private int checkCycles;
+	
+	// bomb options
+	private boolean enableBombs;
+	private ArrayList<String> bombLore;
+	private int bombPointsOnBreak;
+	private String bombDisplayName;
+	private int ticksTillExplosion;
+	// Bomb was spawned, to be checked in next run
+	private ArrayList<Integer> bombSpawned;
 	
 	public Game(Main plugin, UUID playerUUID){
 		this.plugin = plugin;
@@ -75,11 +81,8 @@ class Game extends BukkitRunnable{
 		this.moves = 20;
 		this.points = 0;
 		
-		// otherwise a bomb will be spawned
-		this.nextBombSlot = -1;
+		this.bombSpawned = new ArrayList<>();
 		
-		// no exploding bomb at the beginning;
-		explodingBomb = -1;
 		
 		this.gemsNum = 9; // 6
 		
@@ -145,6 +148,24 @@ class Game extends BukkitRunnable{
 			this.moves = 20;
 		}
 		
+		
+		if(this.config.isSet("game.bombs.enabled") && this.config.isBoolean("game.bombs.enabled")){
+			this.enableBombs = config.getBoolean("game.bombs.enabled", false);
+		} else {
+			this.enableBombs = false;
+		}
+		
+		this.bombDisplayName = config.getString("game.bombs.displayName", "&4Bomb");
+		this.bombPointsOnBreak = config.getInt("game.bombs.pointsOnBreak", 10);
+		this.ticksTillExplosion = config.getInt("game.bombs.ticksTillExplosion", 15);
+		if(this.config.isSet("game.bombs.lore") && this.config.isList("game.bombs.lore")) {
+			this.bombLore = new ArrayList<>(config.getStringList("game.bombs.lore"));
+		} else {
+			this.bombLore = new ArrayList<>();
+			bombLore.add("&4Caution: &6explosive!");
+		}
+		
+		
 		return true;
 	}
 	
@@ -172,7 +193,7 @@ class Game extends BukkitRunnable{
 				c++;
 				slot ++;
 				
-				while(c<9 && slot<54 && (name.equals(grid[slot].getName()) || name.equalsIgnoreCase("bomb"))){
+				while(c<9 && slot<54 && name.equals(grid[slot].getName())){
 					colorInRow++;
 					c++;
 					slot++;
@@ -180,9 +201,6 @@ class Game extends BukkitRunnable{
 				if(colorInRow < 3){
 					if(c<9)
 						name = grid[slot].getName();
-					if(name.equalsIgnoreCase("bomb") && c<8)
-						name = grid[slot + 1].getName();
-					continue;
 				} else {
 					for(int breakSlot = slot - 1; breakSlot >= slot - colorInRow; breakSlot -- ){
 						toBreak.add(breakSlot);
@@ -250,7 +268,7 @@ class Game extends BukkitRunnable{
 				c++;
 				slot = i + c*9;
 				
-				while(c<6 && slot<54 && (name.equals(grid[slot].getName()) || name.equalsIgnoreCase("bomb"))){
+				while(c<6 && slot<54 && name.equals(grid[slot].getName())){
 					colorInRow++;
 					c++;
 					slot = i + c*9;
@@ -258,9 +276,6 @@ class Game extends BukkitRunnable{
 				if(colorInRow < 3){
 					if(c<6)
 						name = grid[slot].getName();
-					if(name.equalsIgnoreCase("bomb") && c<5)
-						name = grid[slot + 9].getName();
-					continue;
 				} else {
 					for(int breakSlot = slot - 9; breakSlot >= slot - colorInRow*9; breakSlot -= 9 ){
 						toBreak.add(breakSlot);
@@ -418,7 +433,6 @@ class Game extends BukkitRunnable{
 			case FILLING:
 				checkCycles = 0;
 				Random rand = new Random();
-				boolean spawnBomb = false;
 				for(int column = 8 ; column > -1 ; column--){
 					for(int row = 5; row > -1 ; row --){
 						int slot = row*9 + column;
@@ -432,13 +446,12 @@ class Game extends BukkitRunnable{
 									continue;
 								} else {
 								if(this.grid[slot-9] != null){
-									if(this.grid[slot-9].getName().equalsIgnoreCase("bomb") && ((Bomb) this.grid[slot-9]).isExploding()){
-										//the bomb that is being moved was ignited already and will explode after the gamestate is changed from filling
-										// track the bomb!
-										this.explodingBomb = slot;
+									if(grid[slot-9] instanceof Bomb){
+										bombSpawned.remove(Integer.valueOf(slot-9));
+										bombSpawned.add(slot);
 									}
 									this.grid[slot] = this.grid[slot-9];
-									this.inv.setItem(slot, grid[slot-9].getItem());
+									this.inv.setItem(slot, grid[slot - 9].getItem());
 									this.grid[slot-9] = null;
 									this.inv.setItem(slot-9, null);
 									row--;
@@ -450,24 +463,34 @@ class Game extends BukkitRunnable{
 						}
 					}
 				}
-				//setInventory(); // maybe flickering gets fixed here?
+				
 				if(!hasToBeFilled()){
-					if(explodingBomb > -1){
-						// explode the bomb!
-						ArrayList<Integer> toBreak = new ArrayList<>();//toDo
-						toBreak.add(explodingBomb);
-						new BreakTimer(this, toBreak, breakTicks);
-						setState(GameState.BREAKING);
-						explodingBomb = -1;
-						break;
-					}
-					if(!this.breakAll()) {
+					if(!this.breakAll(true) && bombSpawned.isEmpty()) {
 						if(moves > 0) {
 							this.setState(GameState.PLAY);
 						} else {
 							this.setState(GameState.FINISHED);
 							won();
 						}
+					} else if(!this.breakAll(false) && !bombSpawned.isEmpty()){
+						ArrayList<Integer> toBreak = new ArrayList<>();
+						ArrayList<Integer> addToBreak;
+						for(int bombSlot : bombSpawned){
+							addToBreak = getSurroundingSlots(bombSlot);
+							for(int slot : addToBreak){
+								if(!toBreak.contains(slot)){
+									toBreak.add(slot);
+								}
+							}
+							if(!toBreak.contains(bombSlot)){
+								toBreak.add(bombSlot);
+							}
+						}
+						bombSpawned.clear();
+						if(Main.debug)Bukkit.getConsoleSender().sendMessage("scheduled " + toBreak + " for breaking");
+						
+						breakTimer = new BreakTimer(this, toBreak, ticksTillExplosion);
+						setState(GameState.BREAKING);
 					}
 				}
 				break;
@@ -477,6 +500,8 @@ class Game extends BukkitRunnable{
 				if(checkCycles > 5){
 					if(!moveLeft()){
 						refill();
+						checkCycles = 0;
+					} else {
 						checkCycles = 0;
 					}
 				} else {
@@ -490,6 +515,50 @@ class Game extends BukkitRunnable{
 		}
 	}
 	
+	private ArrayList<Integer> getSurroundingSlots(int slot){
+		ArrayList<Integer> surroundingSlots = new ArrayList<>();
+		
+		for(int i : getAdd(slot)){
+			surroundingSlots.add(slot + i);
+		}
+		return surroundingSlots;
+	}
+	
+	private ArrayList<Integer> getAdd(int slot){
+		ArrayList<Integer> add = new ArrayList<>();
+		if(slot == 0){// corner left top
+			add.addAll(Arrays.asList(1, 9, 10));
+			
+		} else if (slot == 8){// corner top right
+			add.addAll(Arrays.asList(-1, 8, 9));
+			
+		} else if (slot == 45){// corner bottom left
+			add.addAll(Arrays.asList(-9, -8, 1));
+			
+		} else if (slot == 53){// corner bottom right
+			add.addAll(Arrays.asList(-10, -9, -1));
+			
+		} else if(slot>0 && slot<8){// edge top
+			add.addAll(Arrays.asList(-1, 1, 8, 9, 10));
+			
+		} else if(slot == 17 || slot == 26 || slot == 35 || slot == 44){// edge right
+			add.addAll(Arrays.asList(-10, -9, -1, 8, 9));
+			
+		} else if(slot>45 && slot<53){// edge bottom
+			add.addAll(Arrays.asList(-1, -10, -9, -8, 1));
+			
+		} else if(slot == 9 || slot == 18 || slot == 27 || slot == 36){// edge left
+			add.addAll(Arrays.asList(-9, -8, 1, 9, 10));
+			
+		} else {
+			add.addAll(Arrays.asList(-10, -9, -8, -1, 1, 8, 9, 10));
+		}
+		
+		return add;
+	}
+	
+	
+	
 	private void refill() {
 		if(Main.debug)Bukkit.getConsoleSender().sendMessage("Refilling...");
 		for(int i = 0; i < 54 ; i++){
@@ -499,25 +568,30 @@ class Game extends BukkitRunnable{
 		this.state = GameState.FILLING;
 	}
 	
-	private boolean breakAll() {
+	private boolean breakAll(boolean schedule) {
 		ArrayList<Integer> toBreak = new ArrayList<>();
 		toBreak.addAll(this.scanColumns());
 		toBreak.addAll(this.scanRows());
 		if(Main.debug)Bukkit.getConsoleSender().sendMessage("scheduled " + toBreak + " for breaking");
 		if(toBreak.isEmpty()) return false;
-		
-		breakTimer = new BreakTimer(this, toBreak, breakTicks);
-		setState(GameState.BREAKING);
+		if(schedule) {
+			ArrayList<Integer> all = new ArrayList<>();
+			for (int i = 0; i < inv.getSize(); i++) {
+				if (bombSpawned.contains(i))
+					continue;
+				all.add(i);
+			}
+			shine(all, false);
+			shine(toBreak, true);
+			player.updateInventory();
+			for(int slot : toBreak){
+				inv.setItem(slot, grid[slot].getItem());
+			}
+			breakTimer = new BreakTimer(this, toBreak, breakTicks);
+			setState(GameState.BREAKING);
+		}
 		return true;
 	}
-	
-	/*
-	private void setInventory() {
-		for(int i=0;i<54;i++){
-			this.inv.setItem(i, this.grid[i] == null ? null : this.grid[i].getItem());
-		}
-		updater.updateTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
-	}*/
 	
 	
 	private String chatColor(String string) {
@@ -558,7 +632,7 @@ class Game extends BukkitRunnable{
 		breakAll() will set the state to BREAKING and will start the timer if there are blocks to break
 		otherwise it will return false and the following if block will reset the grid
 		*/
-		if(!breakAll()){
+		if(!breakAll(true)){
 			oldGem = this.grid[lowerSlot];
 			this.grid[lowerSlot] = this.grid[higherSlot];
 			this.grid[higherSlot] = oldGem;
@@ -576,19 +650,14 @@ class Game extends BukkitRunnable{
 	public void breakGems(ArrayList<Integer> toBreak) {
 		for(int i : toBreak) {
 			if(grid[i] != null){
-				if(grid[i] instanceof Bomb){
-					if(((Bomb) grid[i]).isExploding()){
-						explodingBomb = i;
-					} else {
-						((Bomb) grid[i]).setExploding(true);
-					}
-				} else {
-					points += grid[i].getPointsOnBreak();
-					this.grid[i] = null;
-					this.inv.setItem(i, null);
-				}
-			} else {//If a gem is null here already a slot has to be broken twice and will spawn a bomb
-				//grid[i] = new Bomb(); // ToDo !!!!!!!
+				points += grid[i].getPointsOnBreak();
+				this.grid[i] = null;
+				this.inv.setItem(i, null);
+			} else if(this.enableBombs){//If a gem is null here already a slot has to be broken twice and will spawn a bomb
+				grid[i] = new Bomb(bombDisplayName, bombLore, bombPointsOnBreak);
+				grid[i].setItem(updater.addGlow(grid[i].getItem()));
+				this.inv.setItem(i, grid[i].getItem());
+				bombSpawned.add(i);
 			}
 		}
 		updater.updateTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
@@ -620,5 +689,11 @@ class Game extends BukkitRunnable{
 			}
 		}
 		this.inv.setItem(slot, grid[slot].getItem());
+	}
+	
+	public void shine(ArrayList<Integer> slots, boolean b) {
+		for (int slot : slots){
+			shine(slot, b);
+		}
 	}
 }
