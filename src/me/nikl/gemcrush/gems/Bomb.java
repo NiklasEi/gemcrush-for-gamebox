@@ -12,18 +12,19 @@ import java.util.ArrayList;
  *
  */
 public class Bomb extends Gem {
-	private boolean isExploding;
 	
-	public Bomb(){
+	public Bomb(String displayName, ArrayList<String> lore, int pointsOnBreak){
 		super(Material.TNT, "Bomb");
-		ArrayList<String> lore = new ArrayList<>();
-		lore.add(ChatColor.translateAlternateColorCodes('&',"&2Matchable with any gems"));
-		lore.add(ChatColor.translateAlternateColorCodes('&',"&4Caution: explosive!"));
 		ItemMeta meta = item.getItemMeta();
-		meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',"&4Bomb"));
-		meta.setLore(lore);
+		if(displayName != null) {
+			meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+		} else {
+			meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&4Bomb"));
+		}
+		if(lore != null && !lore.isEmpty())
+			meta.setLore(lore);
 		item.setItemMeta(meta);
-		isExploding = false;
+		this.pointsOnBreak = pointsOnBreak;
 	}
 	
 	@Override
@@ -33,13 +34,5 @@ public class Bomb extends Gem {
 	
 	public String getName(){
 		return "Bomb";
-	}
-	
-	public boolean isExploding(){
-		return isExploding;
-	}
-	
-	public void setExploding(boolean isExploding){
-		this.isExploding = isExploding;
 	}
 }
