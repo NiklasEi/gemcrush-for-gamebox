@@ -112,7 +112,7 @@ public class GameManager implements Listener{
 	
 	@EventHandler
 	public void onInvClick(InventoryClickEvent e){
-		if(!isIngame(e.getWhoClicked().getUniqueId()) || e.getClickedInventory() == null || e.getCurrentItem() == null || !(e.getWhoClicked() instanceof Player)){
+		if(!isIngame(e.getWhoClicked().getUniqueId()) || e.getInventory() == null || e.getCurrentItem() == null || !(e.getWhoClicked() instanceof Player)){
 			return;
 		}
 		
