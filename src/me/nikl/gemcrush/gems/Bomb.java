@@ -21,8 +21,9 @@ public class Bomb extends Gem {
 		} else {
 			meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&4Bomb"));
 		}
-		if(lore != null && !lore.isEmpty())
+		if(lore != null && !lore.isEmpty()) {
 			meta.setLore(lore);
+		}
 		item.setItemMeta(meta);
 		this.pointsOnBreak = pointsOnBreak;
 	}
