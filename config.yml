@@ -34,8 +34,9 @@ game:
     # ticks until the bomb explodes (startes counting AFTER all gems fell down and nothing else can break)
     ticksTillExplosion: 15
     pointsOnBreak: 20
-    displayName: '&4Bomb'
+    displayName: '&cBomb'
     lore:
+    - '&r'
     - '&4Caution: &6explosive!'
 
 
