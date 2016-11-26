@@ -164,6 +164,9 @@ class Game extends BukkitRunnable{
 			this.bombLore = new ArrayList<>();
 			bombLore.add("&4Caution: &6explosive!");
 		}
+		for(int i = 0 ; i < bombLore.size(); i++){
+			bombLore.set(i, chatColor(bombLore.get(i)));
+		}
 		
 		
 		return true;
