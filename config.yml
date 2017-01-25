@@ -25,9 +25,9 @@ game:
   # customise bombs here
   #   they are spawned if you combine gems to the following kind of forms
   #
-  #   xxx      xxx
-  #    x       x
-  #    x       x
+  #   x x x      x x x
+  #     x        x
+  #     x        x
   #
   bombs:
     enabled: true
@@ -38,6 +38,7 @@ game:
     lore:
     - '&r'
     - '&4Caution: &6explosive!'
+  playSounds: true
 
 
 
@@ -54,6 +55,29 @@ onGameEnd:
   sendMessages: false
   sendBroadcasts: false
   dispatchCommands: false
+  giveItems: false
+  restrictions:
+    # players with bypass permission do not have to pay. Here you can set whether they also do not get any rewards.
+    playersWithBypassDontGetRewards: true
+    # restrict rewards to be only given one in a specific time frame
+    #   times in this section have to be integers and are in MINUTES!
+    #   to always pay out all rewards use 0
+    timeIntervals:
+      # cooldown for getting moneyrewards
+      money: 0
+      # cooldown for item rewards
+      items: 0
+
+  itemRewards:
+    exampleItem:
+      material: Stone:2
+      lore:
+      - "&3testing"
+      - "blub"
+      displayName: "Test &4item"
+      count: 1
+
+
   scoreIntervals:
     # all keys have to be integers otherwise they will be ignored and a warning will be printed in the console
 
@@ -96,6 +120,9 @@ onGameEnd:
       broadcast:
       - '%player% finished a game of &2GemCrush&r with &2%score% &rpoints!'
       - 'Do &2/gc &rto prove that you are better ;)'
+      items:
+      - 'exampleItem'
+      #- 'yourOwnDefinedItemStack(define above in section onGameEnd.itemRewards)'
 
 
 

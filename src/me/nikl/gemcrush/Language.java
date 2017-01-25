@@ -20,9 +20,10 @@ public class Language {
 	private Main plugin;
 	private FileConfiguration langFile;
 	
-	public String CMD_NO_PERM, CMD_ONLY_PLAYER, CMD_RELOADED;
+	public String CMD_NO_PERM, CMD_ONLY_PLAYER, CMD_RELOADED, CMD_RESET;
 	public String CMD_NO_TOP_LIST, CMD_TOP_HEAD, CMD_TOP_TAIL, CMD_TOP_STRUCTURE;
 	public String GAME_PAYED, GAME_NOT_ENOUGH_MONEY, GAME_FINISHED_NO_PAY, GAME_FINISHED_WITH_PAY;
+	public String GAME_REWARD_COOLDOWN_MONEY, GAME_REWARD_COOLDOWN_ITEMS;
 	public String TITLE_GAME;
 	public List<String> CMD_HELP;
 	private YamlConfiguration defaultLang;
@@ -34,6 +35,7 @@ public class Language {
 			plugin.disabled = true;
 			return;
 		}
+		Main.prefix = getString("prefix");
 		getCommandMessages();
 		getGameMessages();
 		getInvTitles();
@@ -47,6 +49,8 @@ public class Language {
 
 	private void getGameMessages() {
 		
+		this.GAME_REWARD_COOLDOWN_MONEY = getString("game.rewardCooldownMoney");
+		this.GAME_REWARD_COOLDOWN_ITEMS = getString("game.rewardCooldownItems");
 		this.GAME_PAYED = getString("game.econ.payed");	
 		this.GAME_NOT_ENOUGH_MONEY = getString("game.econ.notEnoughMoney");
 		this.GAME_FINISHED_NO_PAY = getString("game.finishedWithoutPayout");
@@ -59,6 +63,7 @@ public class Language {
 		this.CMD_NO_PERM = getString("commandMessages.noPermission");
 		this.CMD_ONLY_PLAYER = getString("commandMessages.onlyAsPlayer");
 		this.CMD_RELOADED = getString("commandMessages.pluginReloaded");
+		this.CMD_RESET = getString("commandMessages.statsReset");
 		
 		
 		this.CMD_NO_TOP_LIST = getString("commandMessages.noTopList");

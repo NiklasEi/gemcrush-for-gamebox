@@ -14,6 +14,7 @@ class BreakTimer extends BukkitRunnable{
 	
 	private ArrayList<Integer> toBreak;
 	private Game game;
+	private boolean isBomb = false;
 	
 	BreakTimer(Game game, ArrayList<Integer> toBreak, int breakTicks){
 		this.toBreak = toBreak;
@@ -22,9 +23,19 @@ class BreakTimer extends BukkitRunnable{
 		this.runTaskLater(Main.getPlugin(Main.class), breakTicks);
 	}
 	
+	BreakTimer(Game game, ArrayList<Integer> toBreak, int breakTicks, boolean isBomb){
+		this(game, toBreak, breakTicks);
+		this.isBomb = isBomb;
+	}
+	
 	
 	@Override
 	public void run() {
 		game.breakGems(toBreak);
+		if(!isBomb){
+			game.playBreakSound();
+		} else {
+			game.playExplodingBomb();
+		}
 	}
 }

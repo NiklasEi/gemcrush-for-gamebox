@@ -14,6 +14,7 @@ import me.nikl.gemcrush.cmds.TopCommand;
 import me.nikl.gemcrush.nms.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -31,6 +32,7 @@ public class Main extends JavaPlugin{
 	private File con, sta;
 	public static Economy econ = null;
 	public static String prefix = "[&3GemCrush&r]";
+	public static boolean playSounds = true;
 	public Boolean econEnabled;
 	public Double price;
 	public Language lang;
@@ -166,6 +168,9 @@ public class Main extends JavaPlugin{
 		}
 		reloadConfig();
 		
+		if(config.isBoolean("playSounds"))
+			playSounds = config.getBoolean("playSounds");
+		
 		// if the statistics file was already loaded: save the newest version as file
 		if(stats!=null){
 			try {
@@ -202,14 +207,36 @@ public class Main extends JavaPlugin{
 
 	public void setStatistics(UUID player, int score) {
 		if(this.stats == null) return;
-		if(!stats.isInt(player.toString())){
-			stats.set(player.toString(), score);
+		if(stats.isInt(player.toString())) stats.set(player.toString() + ".stat", stats.getInt(player.toString()));
+		if(!stats.isInt(player.toString() + ".stat")){
+			stats.set(player.toString() + ".stat", score);
 		} else {
-			int oldScore = stats.getInt(player.toString());
+			int oldScore = stats.getInt(player.toString() + ".stat");
 			if(score > oldScore){
-				stats.set(player.toString(), score);
+				stats.set(player.toString() + ".stat", score);
 			}
 		}
+	}
+	
+	/**
+	 * Set a timestamp for the specified player and action
+	 * @param player Player to set the timestamp for
+	 * @param action Action to set the timestamp for
+	 */
+	public void setTimestamp(UUID player, String action) {
+		if(this.stats == null) return;
+		stats.set(player.toString() + ".timestamps." + action, System.currentTimeMillis());
+		Bukkit.getConsoleSender().sendMessage("set Timestamp to: " + stats.getLong(player.toString() + ".timestamps." + action, 0));
+	}
+	
+	/**
+	 * Get the specified timestamp from the stats file
+	 * @param player Player
+	 * @param action Action
+	 * @return timestamp for the specified player and action
+	 */
+	public long getTimestamp(UUID player, String action){
+		return stats.getLong(player.toString() + ".timestamps." + action, 0);
 	}
 	
 	public FileConfiguration getStatistics(){
@@ -231,6 +258,11 @@ public class Main extends JavaPlugin{
     public Double getPrice(){
     	return this.price;
     }
-
+	
+	public void resetStatistics() {
+		for(String uuid : stats.getKeys(false)){
+			if(stats.isInt(uuid + ".stat")) stats.set(uuid + ".stat", 0);
+		}
+	}
 }
 

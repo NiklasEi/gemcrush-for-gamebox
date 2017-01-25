@@ -12,6 +12,10 @@ game:
   #   der Lohn wird im config file festgelegt!
   # diese Nachricht wird anstatt von 'finishedWithoutPayout' wenn Lohn > 0 ist
   finishedWithPayout: " Du hast das Spiel mit &2%score%&r Punkten beendet und &2%score%&r Dollar gewonnen!"
+  # diese Nachrichten werden gesendet wenn der Spieler aufgrund eines Cooldowns keine Belohnung bekommt
+  #   %time% wird mit der uebrigen Wartezeit ersetzt    format: min:sec
+  rewardCooldownMoney: "&4Du musst noch &1%min%:%sec%&4 warten, bis du wieder Geld gewinnen kannst"
+  rewardCooldownItems: "&4Du musst noch &1%min%:%sec%&4 warten, bis du wieder Gegenstaende gewinnen kannst"
 
 
 inventoryTitles:
@@ -24,6 +28,7 @@ commandMessages:
   noPermission: " &4Du hast keine Befugniss!"
   onlyAsPlayer: " &4Nur als Spieler möglich!"
   pluginReloaded: " &aPlugin wurde neu geladen"
+  statsReset: " &2Statistik wurde geloescht!"
   help:
   - " &2Starte ein Spiel mit /gc"
   # Nachricht an den Spieler wenn es noch keine Statistik gibt
@@ -33,3 +38,5 @@ commandMessages:
   # %rank% -> Rang des Spielers      %name% Name des Spielers       %score% Punkterekord des Spielers
   topListStructure: "%rank%. &6 %name%    &1Rekord: %score%"
   topListTail: "&a+ - + - + - + - + - + - + - + - + - +"
+
+prefix: "[&3GemCrush&r]"

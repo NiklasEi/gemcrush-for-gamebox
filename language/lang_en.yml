@@ -13,6 +13,10 @@ game:
   #   rewards are set in the config!
   # this message will be send instead of the above 'finishedWithoutPayout' if the money reward is > 0
   finishedWithPayout: " You finished with &2%score%&r points and won &2%reward%&r dollar!"
+  # this message will be send if rewards are not being payed/given because of a cooldown
+  #   %time% will be replaced with the time left    format: min:sec
+  rewardCooldownMoney: "&4You have to wait &1%min%:%sec%&4 until you can win money again"
+  rewardCooldownItems: "&4You have to wait &1%min%:%sec%&4 until you can win items again"
 
 inventoryTitles:
   title: "GemCrush  Moves: %moves%  Score: %score%"
@@ -21,9 +25,10 @@ inventoryTitles:
 
 # Messages related to commands
 commandMessages:
-  noPermission: " &4 You do not have the required permission!"
+  noPermission: " &4You do not have the required permission!"
   onlyAsPlayer: " &4You can only do that as a player!"
   pluginReloaded: " &aPlugin was reloaded"
+  statsReset: " &2Statistics were emptied!"
   help:
   - " &2To start a game do /gc"
   # message send if there are no saved stats
@@ -33,4 +38,7 @@ commandMessages:
   # %rank% -> Rank of the player      %name% name of the player       %score% top score of the player
   topListStructure: "%rank%. &6 %name%    &1Score: %score%"
   topListTail: "&a+ - + - + - + - + - + - + - + - + - +"
+
+
+prefix: "[&3GemCrush&r]"
   

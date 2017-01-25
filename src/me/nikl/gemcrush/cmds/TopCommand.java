@@ -39,7 +39,7 @@ public class TopCommand implements CommandExecutor {
 			return true;
 		}
 		Map<UUID, Integer> scores = new HashMap<>();
-		stats.getKeys(false).stream().filter(uuid -> stats.isInt(uuid)).forEach(uuid -> scores.put(UUID.fromString(uuid), stats.getInt(uuid)));
+		stats.getKeys(false).stream().filter(uuid -> stats.isInt(uuid + ".stat")).forEach(uuid -> scores.put(UUID.fromString(uuid), stats.getInt(uuid + ".stat")));
 		if(scores.size() == 0){
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + lang.CMD_NO_TOP_LIST));
 			return true;

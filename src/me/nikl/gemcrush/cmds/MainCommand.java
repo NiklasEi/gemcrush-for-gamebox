@@ -57,6 +57,15 @@ public class MainCommand implements CommandExecutor {
 				sender.sendMessage(plugin.chatColor(Main.prefix + lang.CMD_NO_PERM));
 				return true;
 			}
+		} else if(args.length == 1 && args[0].equalsIgnoreCase("reset")){
+			if(sender.hasPermission("gemcrush.reset")){
+				plugin.resetStatistics();
+				sender.sendMessage(plugin.chatColor(Main.prefix + lang.CMD_RESET));
+				return true;
+			} else {
+				sender.sendMessage(plugin.chatColor(Main.prefix + lang.CMD_NO_PERM));
+				return true;
+			}
 		}
 		for(String message :  lang.CMD_HELP)
 			sender.sendMessage(plugin.chatColor(Main.prefix + message));

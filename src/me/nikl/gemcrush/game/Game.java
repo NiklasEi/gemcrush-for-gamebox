@@ -3,6 +3,7 @@ package me.nikl.gemcrush.game;
 import java.util.*;
 import java.util.logging.Level;
 
+import me.nikl.gemcrush.Sounds;
 import me.nikl.gemcrush.gems.Bomb;
 import me.nikl.gemcrush.gems.Gem;
 import me.nikl.gemcrush.gems.NormalGem;
@@ -22,7 +23,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 
 class Game extends BukkitRunnable{
-
+	
 	private GameState state;
 	private GameManager manager;
 	private UUID playerUUID;
@@ -68,6 +69,11 @@ class Game extends BukkitRunnable{
 	// Bomb was spawned, to be checked in next run
 	private ArrayList<Integer> bombSpawned;
 	
+	private Random rand = new Random();
+	double randDouble;
+	
+	private boolean payOut, sendMessages, dispatchCommands, sendBroadcasts, giveItemRewards;
+	
 	public Game(Main plugin, UUID playerUUID){
 		this.plugin = plugin;
 		this.lang = plugin.lang;
@@ -86,7 +92,11 @@ class Game extends BukkitRunnable{
 		
 		this.gemsNum = 9; // 6
 		
-		
+		payOut = true;
+		sendMessages = true;
+		dispatchCommands = true;
+		sendBroadcasts = true;
+		giveItemRewards = true;
 		
 		this.updater = plugin.getUpdater();
 		
@@ -120,7 +130,19 @@ class Game extends BukkitRunnable{
 		this.state = GameState.FILLING;
 		player.openInventory(this.inv);
 		//player.sendMessage("Game was started"); //XXX
+		player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), 10f, 1f);
+		
 		this.runTaskTimer(Main.getPlugin(Main.class), 0, this.moveTicks);
+	}
+	
+	public Game(Main plugin, UUID playerUUID, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItemRewards){
+		this(plugin, playerUUID);
+		
+		this.payOut = payOut;
+		this.sendMessages = sendMessages;
+		this.dispatchCommands = dispatchCommands;
+		this.sendBroadcasts = sendBroadcasts;
+		this.giveItemRewards = giveItemRewards;
 	}
 	
 	private boolean loadOptions() {
@@ -435,7 +457,6 @@ class Game extends BukkitRunnable{
 		switch(this.state){
 			case FILLING:
 				checkCycles = 0;
-				Random rand = new Random();
 				for(int column = 8 ; column > -1 ; column--){
 					for(int row = 5; row > -1 ; row --){
 						int slot = row*9 + column;
@@ -446,7 +467,6 @@ class Game extends BukkitRunnable{
 									//break;
 									this.inv.setItem(slot, grid[slot].getItem());
 									row--;
-									continue;
 								} else {
 								if(this.grid[slot-9] != null){
 									if(grid[slot-9] instanceof Bomb){
@@ -458,9 +478,23 @@ class Game extends BukkitRunnable{
 									this.grid[slot-9] = null;
 									this.inv.setItem(slot-9, null);
 									row--;
-									continue;
-								} else {
-									continue;
+								}
+							}
+							
+							if (Main.playSounds) {
+								double randDouble = rand.nextDouble();
+								if(randDouble < 0.50) {
+									if (randDouble < 0.25) {
+										player.playSound(player.getLocation(), Sounds.NOTE_STICKS.bukkitSound(), 10f, 1f);
+									} else if (randDouble < 0.50) {
+										player.playSound(player.getLocation(), Sounds.NOTE_PLING.bukkitSound(), 10f, 1f);
+									/*} else if(randDouble < 0.09){
+										player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), 10f, 1f);
+									} else if(randDouble < 0.12){
+										player.playSound(player.getLocation(), Sounds.FIREWORK_LAUNCH.bukkitSound(), 10f, 1f);
+									} else {
+										player.playSound(player.getLocation(), Sounds.FIREWORK_TWINKLE.bukkitSound(), 10f, 1f);
+									*/}
 								}
 							}
 						}
@@ -492,7 +526,7 @@ class Game extends BukkitRunnable{
 						bombSpawned.clear();
 						if(Main.debug)Bukkit.getConsoleSender().sendMessage("scheduled " + toBreak + " for breaking");
 						
-						breakTimer = new BreakTimer(this, toBreak, ticksTillExplosion);
+						breakTimer = new BreakTimer(this, toBreak, ticksTillExplosion, true);
 						setState(GameState.BREAKING);
 					}
 				}
@@ -604,7 +638,7 @@ class Game extends BukkitRunnable{
 	
 	
 	public void won() {
-		manager.onGameEnd(points, player);
+		manager.onGameEnd(points, player, payOut, sendMessages, dispatchCommands, sendBroadcasts, giveItemRewards);
 	}
 	
 	
@@ -658,6 +692,7 @@ class Game extends BukkitRunnable{
 				this.inv.setItem(i, null);
 			} else if(this.enableBombs){//If a gem is null here already a slot has to be broken twice and will spawn a bomb
 				grid[i] = new Bomb(bombDisplayName, bombLore, bombPointsOnBreak);
+				if(Main.playSounds)player.playSound(player.getLocation(), Sounds.FUSE.bukkitSound(), 10f, 1f);
 				grid[i].setItem(updater.addGlow(grid[i].getItem()));
 				this.inv.setItem(i, grid[i].getItem());
 				bombSpawned.add(i);
@@ -698,5 +733,13 @@ class Game extends BukkitRunnable{
 		for (int slot : slots){
 			shine(slot, b);
 		}
+	}
+	
+	public void playExplodingBomb() {
+		player.playSound(player.getLocation(), Sounds.EXPLODE.bukkitSound(), 10f, 1f);
+	}
+	
+	public void playBreakSound() {
+		player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), 10f, 1f);
 	}
 }
