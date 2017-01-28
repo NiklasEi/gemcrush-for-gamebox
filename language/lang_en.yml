@@ -15,8 +15,8 @@ game:
   finishedWithPayout: " You finished with &2%score%&r points and won &2%reward%&r dollar!"
   # this message will be send if rewards are not being payed/given because of a cooldown
   #   %time% will be replaced with the time left    format: min:sec
-  rewardCooldownMoney: "&4You have to wait &1%min%:%sec%&4 until you can win money again"
-  rewardCooldownItems: "&4You have to wait &1%min%:%sec%&4 until you can win items again"
+  rewardCooldownMoney: " &4You have to wait &1%min%:%sec%&4 until you can win money again"
+  rewardCooldownItems: " &4You have to wait &1%min%:%sec%&4 until you can win items again"
 
 inventoryTitles:
   title: "GemCrush  Moves: %moves%  Score: %score%"

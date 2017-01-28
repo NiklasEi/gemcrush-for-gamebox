@@ -69,12 +69,15 @@ onGameEnd:
       items: 0
 
   itemRewards:
+    # add as many items as you want
+    #   use the key (in the example below it's 'exampleItem') to set it as a reward in the scoreIntervals
     exampleItem:
       material: Stone:2
       lore:
       - "&3testing"
       - "blub"
       displayName: "Test &4item"
+      # number of items
       count: 1
 
 
@@ -87,7 +90,7 @@ onGameEnd:
     #   the given reward/messages/commands/broadcasts will always be used if the game is finished with a score between the key and the
     #   next higher key. For the highest key the intervall goes to infinity
     # You can add a money-reward with money: x; messages to send to the player with messages: (as list);
-    #   commands: (as a list); broadcast: (as list)
+    #   commands: (as a list); broadcast: (as list); items: (as a list of previously under 'onGameEnd.itemRewards' defined itemstacks)
 
     # use %player% for the players name and %score% for the score
 
@@ -121,7 +124,7 @@ onGameEnd:
       - '%player% finished a game of &2GemCrush&r with &2%score% &rpoints!'
       - 'Do &2/gc &rto prove that you are better ;)'
       items:
-      - 'exampleItem'
+      #- 'exampleItem'
       #- 'yourOwnDefinedItemStack(define above in section onGameEnd.itemRewards)'
 
 

@@ -14,8 +14,8 @@ game:
   finishedWithPayout: " Du hast das Spiel mit &2%score%&r Punkten beendet und &2%score%&r Dollar gewonnen!"
   # diese Nachrichten werden gesendet wenn der Spieler aufgrund eines Cooldowns keine Belohnung bekommt
   #   %time% wird mit der uebrigen Wartezeit ersetzt    format: min:sec
-  rewardCooldownMoney: "&4Du musst noch &1%min%:%sec%&4 warten, bis du wieder Geld gewinnen kannst"
-  rewardCooldownItems: "&4Du musst noch &1%min%:%sec%&4 warten, bis du wieder Gegenstaende gewinnen kannst"
+  rewardCooldownMoney: " &4Du musst noch &1%min%:%sec%&4 warten, bis du wieder Geld gewinnen kannst"
+  rewardCooldownItems: " &4Du musst noch &1%min%:%sec%&4 warten, bis du wieder Gegenstaende gewinnen kannst"
 
 
 inventoryTitles:

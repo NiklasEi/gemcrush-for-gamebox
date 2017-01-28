@@ -365,6 +365,32 @@ public class GameManager implements Listener{
 		if(Main.debug)Bukkit.getConsoleSender().sendMessage("pay: " + payOut + "  sendMe: " + sendMessages + "   sendB: " + sendBroadcasts + "    dispatch: " + dispatchCommands);
 		
 		
+		giveItems:
+		if(giveItems && this.giveItems &&(!player.hasPermission("gemcrush.bypass") || rewardBypass)){
+			if(itemRewardTimeframe > 0){
+				long timeStamp = plugin.getTimestamp(player.getUniqueId(), "itemReward");
+				if(System.currentTimeMillis() - timeStamp < (itemRewardTimeframe*60000)){
+					long diff = System.currentTimeMillis() - timeStamp;
+					int min = (int)(diff/1000.)/60;
+					int sec = (int)(diff/1000.)%60;
+					if((this.items.get(key) != null && !this.items.get(key).isEmpty()))player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_REWARD_COOLDOWN_ITEMS.replaceAll("%min%", String.valueOf(min)).replaceAll("%sec%", String.valueOf(sec))));
+					break giveItems;
+				}
+			}
+			if(this.items.get(key) == null) break giveItems;
+			for(ItemStack item : this.items.get(key)){
+				player.getInventory().addItem(item);
+			}
+			plugin.setTimestamp(player.getUniqueId(), "itemReward");
+		}
+		
+		if(sendMessages && this.sendMessages && messages.get(key) != null && messages.get(key).size() > 0){
+			for(String message : messages.get(key)){
+				player.sendMessage(chatColor(Main.prefix + " " + message.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
+			}
+		}
+		
+		
 		payMoney:
 		if(payOut && this.pay && plugin.getEconEnabled() && (!player.hasPermission("gemcrush.bypass") || rewardBypass)){
 			if(moneyTimeframe > 0){
@@ -391,30 +417,6 @@ public class GameManager implements Listener{
 			player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
 		}
 		
-		giveItems:
-		if(giveItems && this.giveItems &&(!player.hasPermission("gemcrush.bypass") || rewardBypass)){
-			if(itemRewardTimeframe > 0){
-				long timeStamp = plugin.getTimestamp(player.getUniqueId(), "itemReward");
-				if(System.currentTimeMillis() - timeStamp < (itemRewardTimeframe*60000)){
-					long diff = System.currentTimeMillis() - timeStamp;
-					int min = (int)(diff/1000.)/60;
-					int sec = (int)(diff/1000.)%60;
-					if((this.items.get(key) != null && !this.items.get(key).isEmpty()))player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_REWARD_COOLDOWN_ITEMS.replaceAll("%min%", String.valueOf(min)).replaceAll("%sec%", String.valueOf(sec))));
-					break giveItems;
-				}
-			}
-			if(this.items.get(key) == null) break giveItems;
-			for(ItemStack item : this.items.get(key)){
-				player.getInventory().addItem(item);
-			}
-			plugin.setTimestamp(player.getUniqueId(), "itemReward");
-		}
-		
-		if(sendMessages && this.sendMessages && messages.get(key) != null && messages.get(key).size() > 0){
-			for(String message : messages.get(key)){
-				player.sendMessage(chatColor(Main.prefix + " " + message.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
-			}
-		}
 		
 		if(dispatchCommands && this.dispatchCommands && commands.get(key) != null && commands.get(key).size() > 0){
 			for(String cmd : commands.get(key)){

@@ -1,7 +1,5 @@
 package me.nikl.gemcrush.nms;
 
-import me.nikl.gemcrush.gems.Gem;
-import me.nikl.gemcrush.gems.NormalGem;
 import net.minecraft.server.v1_8_R1.*;
 import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;

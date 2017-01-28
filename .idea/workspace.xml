@@ -7,22 +7,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="91796b3b-9a47-4953-b60a-43c3a9798c42" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/Permission.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/Sounds.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config.yml" afterPath="$PROJECT_DIR$/config.yml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/language/lang_de.yml" afterPath="$PROJECT_DIR$/language/lang_de.yml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/language/lang_en.yml" afterPath="$PROJECT_DIR$/language/lang_en.yml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plugin.yml" afterPath="$PROJECT_DIR$/plugin.yml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/Language.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/Language.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/Main.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/cmds/MainCommand.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/cmds/MainCommand.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/cmds/TopCommand.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/cmds/TopCommand.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/BreakTimer.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/BreakTimer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/gems/Bomb.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/gems/Bomb.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/gems/Gem.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/gems/Gem.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_8_R1.java" afterPath="$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_8_R1.java" />
     </list>
     <ignored path="GemCrush.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -43,11 +33,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Game.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Game.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="487" column="49" selection-start-line="487" selection-start-column="0" selection-end-line="488" selection-end-column="0" />
+            <state relative-caret-position="396">
+              <caret line="490" column="67" selection-start-line="490" selection-start-column="67" selection-end-line="490" selection-end-column="67" />
               <folding />
             </state>
           </provider>
@@ -56,19 +46,9 @@
       <file leaf-file-name="GameManager.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1764">
-              <caret line="117" column="38" selection-start-line="117" selection-start-column="38" selection-end-line="117" selection-end-column="38" />
-              <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#11142#11143#0" expanded="false" />
-                <element signature="e#11188#11189#0" expanded="false" />
-                <element signature="e#11379#11380#0" expanded="false" />
-                <element signature="e#11420#11421#0" expanded="false" />
-                <element signature="e#11837#11838#0" expanded="false" />
-                <element signature="e#11898#11899#0" expanded="false" />
-                <element signature="e#15705#15706#0" expanded="false" />
-                <element signature="e#15771#15772#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="342">
+              <caret line="351" column="25" selection-start-line="351" selection-start-column="25" selection-end-line="351" selection-end-column="25" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -76,8 +56,8 @@
       <file leaf-file-name="lang_en.yml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/language/lang_en.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="522">
-              <caret line="29" column="42" selection-start-line="29" selection-start-column="42" selection-end-line="30" selection-end-column="43" />
+            <state relative-caret-position="324">
+              <caret line="18" column="25" selection-start-line="18" selection-start-column="25" selection-end-line="18" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -88,9 +68,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="2952">
               <caret line="177" column="43" selection-start-line="177" selection-start-column="43" selection-end-line="177" selection-end-column="43" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -98,8 +76,8 @@
       <file leaf-file-name="config.yml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/config.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1116">
-              <caret line="62" column="25" selection-start-line="62" selection-start-column="25" selection-end-line="62" selection-end-column="25" />
+            <state relative-caret-position="342">
+              <caret line="64" column="17" selection-start-line="64" selection-start-column="4" selection-end-line="64" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -108,37 +86,9 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="37" column="25" selection-start-line="37" selection-start-column="25" selection-end-line="37" selection-end-column="25" />
-              <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#3008#3009#0" expanded="false" />
-                <element signature="e#3034#3035#0" expanded="false" />
-                <element signature="e#3963#3964#0" expanded="false" />
-                <element signature="e#3984#3985#0" expanded="false" />
-                <element signature="e#6620#6621#0" expanded="false" />
-                <element signature="e#6644#6645#0" expanded="false" />
-                <element signature="e#6685#6686#0" expanded="false" />
-                <element signature="e#6705#6706#0" expanded="false" />
-                <element signature="e#6752#6753#0" expanded="false" />
-                <element signature="e#6824#6825#0" expanded="false" />
-                <element signature="e#6866#6867#0" expanded="false" />
-                <element signature="e#6902#6903#0" expanded="false" />
-                <element signature="e#6937#6938#0" expanded="false" />
-                <element signature="e#6967#6968#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TopCommand.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/cmds/TopCommand.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="702">
-              <caret line="50" column="37" selection-start-line="50" selection-start-column="37" selection-end-line="50" selection-end-column="37" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
+            <state relative-caret-position="436">
+              <caret line="265" column="5" selection-start-line="265" selection-start-column="5" selection-end-line="265" selection-end-column="5" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -146,8 +96,8 @@
       <file leaf-file-name="lang_de.yml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/language/lang_de.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="468">
-              <caret line="26" column="16" selection-start-line="26" selection-start-column="16" selection-end-line="26" selection-end-column="16" />
+            <state relative-caret-position="306">
+              <caret line="17" column="25" selection-start-line="17" selection-start-column="25" selection-end-line="17" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -158,9 +108,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1080">
               <caret line="67" column="13" selection-start-line="67" selection-start-column="13" selection-end-line="67" selection-end-column="13" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -168,9 +116,21 @@
       <file leaf-file-name="plugin.yml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/plugin.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="504">
-              <caret line="28" column="17" selection-start-line="28" selection-start-column="17" selection-end-line="28" selection-end-column="17" />
+            <state relative-caret-position="166">
+              <caret line="20" column="9" selection-start-line="20" selection-start-column="9" selection-end-line="20" selection-end-column="9" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Update_1_8_R1.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_8_R1.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -218,16 +178,16 @@
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/Permissions.java" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/Permission.java" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/game/BreakTimer.java" />
-        <option value="$PROJECT_DIR$/config.yml" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/cmds/TopCommand.java" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/cmds/MainCommand.java" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/Language.java" />
-        <option value="$PROJECT_DIR$/language/lang_en.yml" />
-        <option value="$PROJECT_DIR$/language/lang_de.yml" />
         <option value="$PROJECT_DIR$/plugin.yml" />
-        <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/Main.java" />
         <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java" />
+        <option value="$PROJECT_DIR$/config.yml" />
+        <option value="$PROJECT_DIR$/language/lang_de.yml" />
+        <option value="$PROJECT_DIR$/language/lang_en.yml" />
+        <option value="$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java" />
       </list>
     </option>
   </component>
@@ -262,8 +222,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -301,6 +259,28 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="gemcrush" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="GemCrush" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="GemCrush" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="gemcrush" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nms" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -364,6 +344,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -649,6 +631,7 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32884902" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="true" content_ui="tabs" />
@@ -665,7 +648,6 @@
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32884902" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -697,17 +679,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
           <caret line="24" column="29" selection-start-line="24" selection-start-column="29" selection-end-line="24" selection-end-column="29" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#11142#11143#0" expanded="false" />
-            <element signature="e#11188#11189#0" expanded="false" />
-            <element signature="e#11379#11380#0" expanded="false" />
-            <element signature="e#11420#11421#0" expanded="false" />
-            <element signature="e#11837#11838#0" expanded="false" />
-            <element signature="e#11898#11899#0" expanded="false" />
-            <element signature="e#15705#15706#0" expanded="false" />
-            <element signature="e#15771#15772#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -744,17 +716,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="846">
           <caret line="62" column="16" selection-start-line="62" selection-start-column="16" selection-end-line="62" selection-end-column="16" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#11142#11143#0" expanded="false" />
-            <element signature="e#11188#11189#0" expanded="false" />
-            <element signature="e#11379#11380#0" expanded="false" />
-            <element signature="e#11420#11421#0" expanded="false" />
-            <element signature="e#11837#11838#0" expanded="false" />
-            <element signature="e#11898#11899#0" expanded="false" />
-            <element signature="e#15705#15706#0" expanded="false" />
-            <element signature="e#15771#15772#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -848,13 +810,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="213">
           <caret line="41" column="35" selection-start-line="41" selection-start-column="35" selection-end-line="41" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_8_R1.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="90" column="1" selection-start-line="90" selection-start-column="1" selection-end-line="90" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -957,45 +912,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1116">
-          <caret line="62" column="25" selection-start-line="62" selection-start-column="25" selection-end-line="62" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/language/lang_en.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="522">
-          <caret line="29" column="42" selection-start-line="29" selection-start-column="42" selection-end-line="30" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/language/lang_de.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
-          <caret line="26" column="16" selection-start-line="26" selection-start-column="16" selection-end-line="26" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/plugin.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="28" column="17" selection-start-line="28" selection-start-column="17" selection-end-line="28" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/cmds/TopCommand.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="702">
           <caret line="50" column="37" selection-start-line="50" selection-start-column="37" selection-end-line="50" selection-end-column="37" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1003,51 +924,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1080">
           <caret line="67" column="13" selection-start-line="67" selection-start-column="13" selection-end-line="67" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1764">
-          <caret line="117" column="38" selection-start-line="117" selection-start-column="38" selection-end-line="117" selection-end-column="38" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#11142#11143#0" expanded="false" />
-            <element signature="e#11188#11189#0" expanded="false" />
-            <element signature="e#11379#11380#0" expanded="false" />
-            <element signature="e#11420#11421#0" expanded="false" />
-            <element signature="e#11837#11838#0" expanded="false" />
-            <element signature="e#11898#11899#0" expanded="false" />
-            <element signature="e#15705#15706#0" expanded="false" />
-            <element signature="e#15771#15772#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="37" column="25" selection-start-line="37" selection-start-column="25" selection-end-line="37" selection-end-column="25" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#3008#3009#0" expanded="false" />
-            <element signature="e#3034#3035#0" expanded="false" />
-            <element signature="e#3963#3964#0" expanded="false" />
-            <element signature="e#3984#3985#0" expanded="false" />
-            <element signature="e#6620#6621#0" expanded="false" />
-            <element signature="e#6644#6645#0" expanded="false" />
-            <element signature="e#6685#6686#0" expanded="false" />
-            <element signature="e#6705#6706#0" expanded="false" />
-            <element signature="e#6752#6753#0" expanded="false" />
-            <element signature="e#6824#6825#0" expanded="false" />
-            <element signature="e#6866#6867#0" expanded="false" />
-            <element signature="e#6902#6903#0" expanded="false" />
-            <element signature="e#6937#6938#0" expanded="false" />
-            <element signature="e#6967#6968#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1055,17 +932,73 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2952">
           <caret line="177" column="43" selection-start-line="177" selection-start-column="43" selection-end-line="177" selection-end-column="43" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/game/Game.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="487" column="49" selection-start-line="487" selection-start-column="0" selection-end-line="488" selection-end-column="0" />
+        <state relative-caret-position="396">
+          <caret line="490" column="67" selection-start-line="490" selection-start-column="67" selection-end-line="490" selection-end-column="67" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="436">
+          <caret line="265" column="5" selection-start-line="265" selection-start-column="5" selection-end-line="265" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="64" column="17" selection-start-line="64" selection-start-column="4" selection-end-line="64" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/language/lang_de.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="17" column="25" selection-start-line="17" selection-start-column="25" selection-end-line="17" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/language/lang_en.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="18" column="25" selection-start-line="18" selection-start-column="25" selection-end-line="18" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/game/GameManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="351" column="25" selection-start-line="351" selection-start-column="25" selection-end-line="351" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plugin.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="166">
+          <caret line="20" column="9" selection-start-line="20" selection-start-column="9" selection-end-line="20" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/me/nikl/gemcrush/nms/Update_1_8_R1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
