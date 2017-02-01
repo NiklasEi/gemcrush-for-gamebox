@@ -46,44 +46,4 @@ public class Update_1_8_R1 implements InvTitle{
 		return CraftItemStack.asCraftMirror(nmsStack);
 	}
 	
-	/*
-	@Override
-	public ItemStack addGlow(NormalGem gem) {
-		return addGlow(gem);
-	}
-	
-	@Override
-	public ItemStack removeGlow(NormalGem gem) {
-		return removeGlow(gem);
-	}
-	
-	@Override
-	public ItemStack addGlow(Gem gem) {
-		net.minecraft.server.v1_8_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(gem);
-		NBTTagCompound tag = null;
-		if (!nmsStack.hasTag()) {
-			tag = new NBTTagCompound();
-			nmsStack.setTag(tag);
-		}
-		if (tag == null) tag = nmsStack.getTag();
-		NBTTagList ench = new NBTTagList();
-		tag.set("ench", ench);
-		nmsStack.setTag(tag);
-		return ((Gem)((ItemStack) CraftItemStack.asCraftMirror(nmsStack)));
-	}
-	
-	
-	@Override
-	public ItemStack removeGlow(Gem gem) {
-		net.minecraft.server.v1_8_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(gem);
-		NBTTagCompound tag = null;
-		if (nmsStack.hasTag()) {
-			tag = nmsStack.getTag();
-			tag.remove("ench");
-			nmsStack.setTag(tag);
-			return ((Gem)((ItemStack) CraftItemStack.asCraftMirror(nmsStack)));
-		}
-		return gem;
-	}*/
-	
 }
