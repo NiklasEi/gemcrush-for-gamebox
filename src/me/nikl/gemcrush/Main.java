@@ -55,12 +55,25 @@ public class Main extends JavaPlugin{
 		this.sta = new File(this.getDataFolder().toString() + File.separatorChar + "stats.yml");
 
 		reload();
+		checkStatsStructure();
 		if(disabled) return;
 
         this.getCommand("gemcrush").setExecutor(new MainCommand(this));
 		this.getCommand("gemcrushtop").setExecutor(new TopCommand(this));
 	}
-
+	
+	private void checkStatsStructure() {
+		if(this.stats.isString("structure")){
+			if(this.stats.getString("structure").equals("v1.2.1")) return;
+		}
+		for(String key: stats.getKeys(false)){
+			if(stats.isInt(key)){
+				stats.set(key + ".stat", stats.getInt(key));
+			}
+		}
+		stats.set("structure", "v1.2.1");
+	}
+	
 	@Override
 	public void onDisable(){
 		if(stats!=null){
@@ -196,6 +209,7 @@ public class Main extends JavaPlugin{
 			if (!setupEconomy()){
 				Bukkit.getConsoleSender().sendMessage(chatColor(prefix + " &4No economy found!"));
 				getServer().getPluginManager().disablePlugin(this);
+				econEnabled = false;
 				disabled = true;
 				return;
 			}
@@ -207,13 +221,16 @@ public class Main extends JavaPlugin{
 
 	public void setStatistics(UUID player, int score) {
 		if(this.stats == null) return;
-		if(stats.isInt(player.toString())) stats.set(player.toString() + ".stat", stats.getInt(player.toString()));
-		if(!stats.isInt(player.toString() + ".stat")){
-			stats.set(player.toString() + ".stat", score);
+		String uuid = player.toString();
+		if(stats.isInt(uuid)){
+			stats.set(uuid + ".stat", stats.getInt(uuid));
+		}
+		if(!stats.isInt(uuid + ".stat")){
+			stats.set(uuid + ".stat", score);
 		} else {
-			int oldScore = stats.getInt(player.toString() + ".stat");
+			int oldScore = stats.getInt(uuid + ".stat");
 			if(score > oldScore){
-				stats.set(player.toString() + ".stat", score);
+				stats.set(uuid + ".stat", score);
 			}
 		}
 	}
@@ -226,7 +243,7 @@ public class Main extends JavaPlugin{
 	public void setTimestamp(UUID player, String action) {
 		if(this.stats == null) return;
 		stats.set(player.toString() + ".timestamps." + action, System.currentTimeMillis());
-		Bukkit.getConsoleSender().sendMessage("set Timestamp to: " + stats.getLong(player.toString() + ".timestamps." + action, 0));
+		if(debug)Bukkit.getConsoleSender().sendMessage("set Timestamp to: " + stats.getLong(player.toString() + ".timestamps." + action, 0));
 	}
 	
 	/**
@@ -261,7 +278,11 @@ public class Main extends JavaPlugin{
 	
 	public void resetStatistics() {
 		for(String uuid : stats.getKeys(false)){
-			if(stats.isInt(uuid + ".stat")) stats.set(uuid + ".stat", 0);
+			if(stats.isInt(uuid)){
+				stats.set(uuid + ".stat", 0);
+			} else if(stats.isInt(uuid + ".stat")){
+				stats.set(uuid + ".stat", 0);
+			}
 		}
 	}
 }
