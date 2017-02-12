@@ -33,6 +33,8 @@ public class GameManager implements Listener{
 	private Map<Integer, List<String>> messages;
 	private Map<Integer, List<ItemStack>> items;
 	private Map<String, ItemStack> itemRewards;
+
+	private float volume;
 	
 	private boolean pay, sendMessages, sendBroadcasts, dispatchCommands, rewardBypass, giveItems;
 	
@@ -43,6 +45,8 @@ public class GameManager implements Listener{
 		this.plugin = plugin;
 		this.games = new HashSet<>();
 		this.clicks = new HashMap<>();
+		this.volume = (float) plugin.getConfig().getDouble("game.soundVolume", 0.5);
+
 		getOnGameEnd();
 		//this.lang = plugin.lang;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -252,10 +256,10 @@ public class GameManager implements Listener{
 						if(Main.debug)player.sendMessage("Switching Gems " + slot + " and " + oldSlot);
 						if(game.switchGems(slot < oldSlot ? slot : oldSlot, slot > oldSlot ? slot : oldSlot)){
 							clicks.remove(player.getUniqueId());
-							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.NOTE_BASS.bukkitSound(), 10f, 1f);
+							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.NOTE_BASS.bukkitSound(), volume, 1f);
 						} else {
-							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.VILLAGER_HIT.bukkitSound(), 10f, 1f);
-							//if(Main.playSounds)player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), 10f, 1f);
+							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.VILLAGER_HIT.bukkitSound(), volume, 1f);
+							//if(Main.playSounds)player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), volume, 1f);
 							
 						}
 					} else if(slot == oldSlot){
@@ -264,12 +268,12 @@ public class GameManager implements Listener{
 						clicks.put(player.getUniqueId(), slot);
 						game.shine(slot, true);
 						game.shine(oldSlot, false);
-						if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), 10f, 1f);
+						if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
 						if(Main.debug)player.sendMessage("overwritten click in " + oldSlot + " with click in " + slot);
 					}
 				} else {
 					if(Main.debug)player.sendMessage("saved first click in slot " + slot);
-					if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), 10f, 1f);
+					if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
 					this.clicks.put(player.getUniqueId(), slot);
 					game.shine(slot, true);
 				}
