@@ -25,9 +25,9 @@ game:
   # customise bombs here
   #   they are spawned if you combine gems to the following kind of forms
   #
-  #   x x x      x x x
-  #     x        x
-  #     x        x
+  #   x x x      x x x      x
+  #     x        x        x x x
+  #     x        x          x
   #
   bombs:
     enabled: true
@@ -39,6 +39,8 @@ game:
     - '&r'
     - '&4Caution: &6explosive!'
   playSounds: true
+  # if you want you can change the sound volume here
+  soundVolume: 0.5
 
 
 
