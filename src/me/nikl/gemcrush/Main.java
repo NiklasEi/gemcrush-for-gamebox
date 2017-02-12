@@ -1,28 +1,20 @@
 package me.nikl.gemcrush;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.util.UUID;
-import java.util.logging.Level;
-
+import me.nikl.gemcrush.cmds.MainCommand;
 import me.nikl.gemcrush.cmds.TopCommand;
+import me.nikl.gemcrush.game.GameManager;
 import me.nikl.gemcrush.nms.*;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.nikl.gemcrush.cmds.MainCommand;
-import me.nikl.gemcrush.game.GameManager;
-import net.milkbowl.vault.economy.Economy;
+import java.io.*;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class Main extends JavaPlugin{
 	public final static boolean debug = false;
