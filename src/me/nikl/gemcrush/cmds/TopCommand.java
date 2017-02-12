@@ -23,12 +23,10 @@ public class TopCommand implements CommandExecutor {
 	private Main plugin;
 	private FileConfiguration stats;
 	private Language lang;
-	private String structure;
 	
 	public TopCommand(Main plugin){
 		this.plugin = plugin;
 		this.lang = plugin.lang;
-		this.structure = lang.CMD_TOP_STRUCTURE;
 	}
 	
 	@Override
@@ -38,9 +36,9 @@ public class TopCommand implements CommandExecutor {
 			return true;
 		}
 		Map<UUID, Integer> scores = new HashMap<>();
-		this.stats = plugin.getStatistics();
+		this.stats = plugin.getStatistics(); // otherwise changes in the statistics only apply after a reload
 		stats.getKeys(false).stream().filter(uuid -> stats.isInt(uuid + ".stat")).forEach(uuid -> scores.put(UUID.fromString(uuid), stats.getInt(uuid + ".stat")));
-		
+		this.lang = plugin.lang; // otherwise changes in the top list structure need a restart/reload of the server to apply
 		if(scores.size() == 0){
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + lang.CMD_NO_TOP_LIST));
 			return true;
@@ -49,6 +47,7 @@ public class TopCommand implements CommandExecutor {
 		String[] messages = new String[length];
 		UUID bestRecord = null;
 		int record;
+		String structure = lang.CMD_TOP_STRUCTURE;
 		for(int i = 0; i<length;i++){
 			record = 0;
 			for(UUID current : scores.keySet()){
