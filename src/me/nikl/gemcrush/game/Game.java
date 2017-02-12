@@ -216,20 +216,21 @@ class Game extends BukkitRunnable{
 			name = grid[i*9].getName();
 			colorInRow = 1;
 			c++;
-			Bukkit.getConsoleSender().sendMessage("row: " + i);
+			//Bukkit.getConsoleSender().sendMessage("row: " + i);
 			while(c<9){
 				slot = i*9 + c;
-				Bukkit.getConsoleSender().sendMessage("slot: " + slot + " (column: "+ c + ")   current name: " + name);
+				//Bukkit.getConsoleSender().sendMessage("slot: " + slot + " (column: "+ c + ")   current name: " + name);
 				while(c<9 && slot<54 && name.equals(grid[slot].getName())){
-					Bukkit.getConsoleSender().sendMessage("same name in column: " + c);
+					//Bukkit.getConsoleSender().sendMessage("same name in column: " + c);
 					colorInRow++;
 					c++;
 					slot++;
 				}
-				Bukkit.getConsoleSender().sendMessage("new name in column: "+ c + "   exited with " + colorInRow + " in a row");
+				//Bukkit.getConsoleSender().sendMessage("new name in column: "+ c + "   exited with " + colorInRow + " in a row");
 				if(colorInRow >= 3){
 					for(int breakSlot = slot - 1; breakSlot >= slot - colorInRow; breakSlot -- ){
-						Bukkit.getConsoleSender().sendMessage("schedule: " + breakSlot);
+						// continue for not matchable gems
+						if(grid[breakSlot].getName().equalsIgnoreCase("Bomb")) continue;
 						toBreak.add(breakSlot);
 					}
 				}
@@ -302,6 +303,8 @@ class Game extends BukkitRunnable{
 				}
 				if(colorInRow >= 3){
 					for(int breakSlot = slot - 9; breakSlot >= slot - colorInRow*9; breakSlot -= 9 ){
+						// continue for not matchable gems
+						if(grid[breakSlot].getName().equalsIgnoreCase("Bomb")) continue;
 						toBreak.add(breakSlot);
 					}
 				}
