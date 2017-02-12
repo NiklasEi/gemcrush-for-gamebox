@@ -71,6 +71,8 @@ class Game extends BukkitRunnable{
 	
 	private Random rand = new Random();
 	double randDouble;
+
+	private float volume;
 	
 	private boolean payOut, sendMessages, dispatchCommands, sendBroadcasts, giveItemRewards;
 	
@@ -86,6 +88,8 @@ class Game extends BukkitRunnable{
 		this.usedNormalGems = new HashMap<>();
 		this.moves = 20;
 		this.points = 0;
+
+		this.volume = (float) config.getDouble("game.soundVolume", 0.5);
 		
 		this.bombSpawned = new ArrayList<>();
 		
@@ -130,7 +134,7 @@ class Game extends BukkitRunnable{
 		this.state = GameState.FILLING;
 		player.openInventory(this.inv);
 		//player.sendMessage("Game was started"); //XXX
-		player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), 10f, 1f);
+		player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), volume, 1f);
 		
 		this.runTaskTimer(Main.getPlugin(Main.class), 0, this.moveTicks);
 	}
@@ -210,28 +214,28 @@ class Game extends BukkitRunnable{
 			// scan row number i
 			c = 0;
 			name = grid[i*9].getName();
+			colorInRow = 1;
+			c++;
+			Bukkit.getConsoleSender().sendMessage("row: " + i);
 			while(c<9){
 				slot = i*9 + c;
-				colorInRow = 1;
-				
-				
-				c++;
-				slot ++;
-				
+				Bukkit.getConsoleSender().sendMessage("slot: " + slot + " (column: "+ c + ")   current name: " + name);
 				while(c<9 && slot<54 && name.equals(grid[slot].getName())){
+					Bukkit.getConsoleSender().sendMessage("same name in column: " + c);
 					colorInRow++;
 					c++;
 					slot++;
 				}
-				if(colorInRow < 3){
-					if(c<9)
-						name = grid[slot].getName();
-				} else {
+				Bukkit.getConsoleSender().sendMessage("new name in column: "+ c + "   exited with " + colorInRow + " in a row");
+				if(colorInRow >= 3){
 					for(int breakSlot = slot - 1; breakSlot >= slot - colorInRow; breakSlot -- ){
+						Bukkit.getConsoleSender().sendMessage("schedule: " + breakSlot);
 						toBreak.add(breakSlot);
 					}
 				}
-				
+				if(c<9)name = grid[slot].getName();
+				colorInRow = 1;
+				c++;
 			}
 		}
 		return toBreak;
@@ -286,11 +290,9 @@ class Game extends BukkitRunnable{
 			// scan column number i
 			c = 0;
 			name = grid[i].getName();
+			c++;
+			colorInRow = 1;
 			while(c<6){
-				colorInRow = 1;
-				
-				
-				c++;
 				slot = i + c*9;
 				
 				while(c<6 && slot<54 && name.equals(grid[slot].getName())){
@@ -298,15 +300,14 @@ class Game extends BukkitRunnable{
 					c++;
 					slot = i + c*9;
 				}
-				if(colorInRow < 3){
-					if(c<6)
-						name = grid[slot].getName();
-				} else {
+				if(colorInRow >= 3){
 					for(int breakSlot = slot - 9; breakSlot >= slot - colorInRow*9; breakSlot -= 9 ){
 						toBreak.add(breakSlot);
 					}
 				}
-				
+				if(c<6)name = grid[slot].getName();
+				colorInRow = 1;
+				c++;
 			}
 		}
 		return toBreak;
@@ -484,16 +485,18 @@ class Game extends BukkitRunnable{
 							if (Main.playSounds) {
 								double randDouble = rand.nextDouble();
 								if(randDouble < 0.50) {
-									if (randDouble < 0.25) {
-										player.playSound(player.getLocation(), Sounds.NOTE_STICKS.bukkitSound(), 10f, 1f);
+									if (randDouble < 0.20) {
+										player.playSound(player.getLocation(), Sounds.NOTE_STICKS.bukkitSound(), volume, 1f);
+									} else if (randDouble < 0.35) {
+										player.playSound(player.getLocation(), Sounds.NOTE_PLING.bukkitSound(), volume, 1f);
 									} else if (randDouble < 0.50) {
-										player.playSound(player.getLocation(), Sounds.NOTE_PLING.bukkitSound(), 10f, 1f);
+										player.playSound(player.getLocation(), Sounds.NOTE_PLING.bukkitSound(), volume, 0.5f);
 									/*} else if(randDouble < 0.09){
-										player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), 10f, 1f);
+										player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), volume, 1f);
 									} else if(randDouble < 0.12){
-										player.playSound(player.getLocation(), Sounds.FIREWORK_LAUNCH.bukkitSound(), 10f, 1f);
+										player.playSound(player.getLocation(), Sounds.FIREWORK_LAUNCH.bukkitSound(), volume, 1f);
 									} else {
-										player.playSound(player.getLocation(), Sounds.FIREWORK_TWINKLE.bukkitSound(), 10f, 1f);
+										player.playSound(player.getLocation(), Sounds.FIREWORK_TWINKLE.bukkitSound(), volume, 1f);
 									*/}
 								}
 							}
@@ -692,7 +695,7 @@ class Game extends BukkitRunnable{
 				this.inv.setItem(i, null);
 			} else if(this.enableBombs){//If a gem is null here already a slot has to be broken twice and will spawn a bomb
 				grid[i] = new Bomb(bombDisplayName, bombLore, bombPointsOnBreak);
-				if(Main.playSounds)player.playSound(player.getLocation(), Sounds.FUSE.bukkitSound(), 10f, 1f);
+				if(Main.playSounds)player.playSound(player.getLocation(), Sounds.FUSE.bukkitSound(), volume, 1f);
 				grid[i].setItem(updater.addGlow(grid[i].getItem()));
 				this.inv.setItem(i, grid[i].getItem());
 				bombSpawned.add(i);
@@ -704,14 +707,12 @@ class Game extends BukkitRunnable{
 	}
 	
 	public void shutDown() {
-		if(Bukkit.getScheduler().isCurrentlyRunning(this.getTaskId()))
-			this.cancel();
-		this.inv = Bukkit.createInventory(null, 54, "Game was shut down!");
+		this.cancel();
 		if(breakTimer != null) {
-			if (Bukkit.getScheduler().isCurrentlyRunning(this.getTaskId()))
-				this.breakTimer.cancel();
+			this.breakTimer.cancel();
 			this.breakTimer = null;
 		}
+		this.inv = Bukkit.createInventory(null, 54, "Game was shut down!");
 		//player.closeInventory();
 	}
 	
@@ -736,10 +737,10 @@ class Game extends BukkitRunnable{
 	}
 	
 	public void playExplodingBomb() {
-		player.playSound(player.getLocation(), Sounds.EXPLODE.bukkitSound(), 10f, 1f);
+		player.playSound(player.getLocation(), Sounds.EXPLODE.bukkitSound(), volume, 1f);
 	}
 	
 	public void playBreakSound() {
-		player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), 10f, 1f);
+		player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), volume, 1f);
 	}
 }
