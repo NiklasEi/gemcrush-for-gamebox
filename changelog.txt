@@ -1,3 +1,12 @@
+v 1.2.2:
+- configurable sound volume in the configuration file
+- changes in the structure of the top list apply after gc reload now
+- improved matching algorithm
+--- fixed wrong matching of different gem in between 2 triplets of the same gem
+- fixed that sometimes the runnable of a game continued running after the inventory was closed. This did not cause any problems apart from unnecessary load.
+- fixed matching of bombs
+
+
 v 1.1.0:
 - implemented bombs
 -   they will spawn glowing and explode later
