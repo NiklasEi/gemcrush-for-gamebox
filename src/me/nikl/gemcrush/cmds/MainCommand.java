@@ -34,7 +34,7 @@ public class MainCommand implements CommandExecutor {
 				sender.sendMessage(plugin.chatColor(Main.prefix + lang.CMD_NO_PERM));
 				return true;				
 			}
-			if(plugin.getEconEnabled() && !player.hasPermission("gemcrush.bypass")){
+			if(plugin.getEconEnabled() && !player.hasPermission("gemcrush.bypass") && plugin.getPrice() > 0.0){
 				if(Main.econ.getBalance(player) >= plugin.getPrice()){
 					Main.econ.withdrawPlayer(player, plugin.getPrice());
 					sender.sendMessage(plugin.chatColor(Main.prefix + lang.GAME_PAYED.replaceAll("%cost%", plugin.getPrice()+"")));
