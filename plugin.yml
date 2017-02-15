@@ -1,39 +1,10 @@
 name: GemCrush
 author: Nikl
 main: me.nikl.gemcrush.Main
-version: 1.2.2
+version: 2.0.0
+depend: [GameBox]
 commands:
   gemcrushtop:
     description: display the top 10
     usage: /gemcrushtop
     aliases: [gctop]
-  gemcrush:
-    description: play the game
-    usage: /gemcrush
-    aliases: [gc]
-permissions:
-  gemcrush.*:
-    description: Gives all permissions
-    children:
-      gemcrush.admin: true
-  gemcrush.admin:
-    description: Gives all permissions
-    default: op
-    children:
-      gemcrush.play: true
-      gemcrush.reload: true
-      gemcrush.top: true
-      gemcrush.bypass: true
-  gemcrush.play:
-    description: You are allowed to start a game
-    default: true
-  gemcrush.reload:
-    description: You can reload the plugin
-  gemcrush.reset:
-    description: You can delete the statistics
-  gemcrush.top:
-    description: You can use /gctop
-    default: true
-  gemcrush.bypass:
-    description: players with this perm can bypass the cost of a game (optional in config that they also do not get rewards)
-    default: false
