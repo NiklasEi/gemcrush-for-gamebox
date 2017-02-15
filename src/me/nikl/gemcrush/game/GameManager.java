@@ -1,7 +1,10 @@
 package me.nikl.gemcrush.game;
 
+import me.nikl.gamebox.game.IGameManager;
 import me.nikl.gemcrush.Main;
 import me.nikl.gemcrush.Sounds;
+import me.nikl.gemcrush.gems.Gem;
+import me.nikl.gemcrush.gems.NormalGem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -21,7 +24,7 @@ import org.bukkit.material.MaterialData;
 import java.util.*;
 import java.util.logging.Level;
 
-public class GameManager implements Listener{
+public class GameManager implements IGameManager{
 
 	private Main plugin;
 	private Set<Game> games;
@@ -34,12 +37,19 @@ public class GameManager implements Listener{
 	private Map<Integer, List<ItemStack>> items;
 	private Map<String, ItemStack> itemRewards;
 
+	private Map<Integer, ItemStack> hotbarItems = new HashMap<>();
+
+
+	private Map<String,GameRules> gameTypes;
+
+	// map with all gems
+	private Map<String, Gem> gems = new HashMap<>();
+
 	private float volume;
 	
 	private boolean pay, sendMessages, sendBroadcasts, dispatchCommands, rewardBypass, giveItems;
 	
 	private int moneyTimeframe, itemRewardTimeframe;
-	//private Language lang;
 	
 	public GameManager(Main plugin){
 		this.plugin = plugin;
@@ -47,9 +57,16 @@ public class GameManager implements Listener{
 		this.clicks = new HashMap<>();
 		this.volume = (float) plugin.getConfig().getDouble("game.soundVolume", 0.5);
 
+		hotbarItems = plugin.gameBox.getPluginManager().getHotbarButtons();
+
 		getOnGameEnd();
-		//this.lang = plugin.lang;
-		plugin.getServer().getPluginManager().registerEvents(this, plugin);
+
+
+
+		if(!loadGems()){
+			Bukkit.getLogger().log(Level.SEVERE, " problem while loading the gems from the configuration file");
+		}
+
 	}
 	
 	private void getOnGameEnd() {
@@ -213,87 +230,93 @@ public class GameManager implements Listener{
 		@SuppressWarnings("deprecation") MaterialData toReturn = new MaterialData(mat, data);
 		return toReturn;
 	}
-	
-	@EventHandler
-	public void onInvClick(InventoryClickEvent e){
-		if(!isIngame(e.getWhoClicked().getUniqueId()) || e.getInventory() == null || e.getCurrentItem() == null || !(e.getWhoClicked() instanceof Player)){
-			return;
+
+
+
+	private boolean loadGems() {
+		boolean worked = true;
+
+		Material mat = null;
+		int data = 0;
+		int index = 0;
+
+		if (!plugin.getConfig().isConfigurationSection("normalGems")) {
+			Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Outdated configuration file! Game cannot be started.");
+			return false;
 		}
-		
-		// player is inGame, clicked inside an inventory and the clicked item is not null
-		
-		// cancel event and return if it's not a right/left click
-		e.setCancelled(true);
-		if(!e.getAction().equals(InventoryAction.PICKUP_ALL) && !e.getAction().equals(InventoryAction.PICKUP_HALF)) {
-			return;
-		}
-		
-		// check whether the clicked inventory is the top inventory
-		if(e.getRawSlot() != e.getSlot()){
-			return;
-		}
-		
-		// get Player and Game objects
-		Player player = (Player) e.getWhoClicked();
-		Game game = getGame(player.getUniqueId());
-		if(game == null){
-			clicks.remove(player.getUniqueId());
-			player.closeInventory();
-			games.remove(game);
-			return;
-		}
-		int slot = e.getSlot();
-		
-		// switch with getState
-		if(game.getState() == null) return;
-		switch(game.getState()){
-			
-			
-			case PLAY:
-				if(this.clicks.containsKey(player.getUniqueId())){
-					int oldSlot = clicks.get(player.getUniqueId());
-					if(slot == oldSlot + 1 || slot == oldSlot - 1 || slot == oldSlot + 9 || slot == oldSlot - 9){
-						if(Main.debug)player.sendMessage("Switching Gems " + slot + " and " + oldSlot);
-						if(game.switchGems(slot < oldSlot ? slot : oldSlot, slot > oldSlot ? slot : oldSlot)){
-							clicks.remove(player.getUniqueId());
-							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.NOTE_BASS.bukkitSound(), volume, 1f);
-						} else {
-							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.VILLAGER_HIT.bukkitSound(), volume, 1f);
-							//if(Main.playSounds)player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), volume, 1f);
-							
-						}
-					} else if(slot == oldSlot){
-						break;
-					} else {
-						clicks.put(player.getUniqueId(), slot);
-						game.shine(slot, true);
-						game.shine(oldSlot, false);
-						if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
-						if(Main.debug)player.sendMessage("overwritten click in " + oldSlot + " with click in " + slot);
-					}
-				} else {
-					if(Main.debug)player.sendMessage("saved first click in slot " + slot);
-					if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
-					this.clicks.put(player.getUniqueId(), slot);
-					game.shine(slot, true);
+
+		ConfigurationSection section = plugin.getConfig().getConfigurationSection("normalGems");
+
+		for (String key : section.getKeys(false)) {
+			if (Main.debug) Bukkit.getConsoleSender().sendMessage("getting " + key);
+			if (!section.isSet(key + ".material")) {
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Problem in: " + key);
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Skipping the gem. Is the material set?");
+				continue;
+			}
+			if (!section.isSet(key + ".displayName") || !section.isString(key + ".displayName")) {
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Problem in: " + key);
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Skipping the gem. Is the displayName set?");
+				continue;
+			}
+
+			String value = section.getString(key + ".material");
+			String[] obj = value.split(":");
+			String name = chatColor(section.getString(key + ".displayName"));
+
+			if (obj.length == 2) {
+				try {
+					mat = Material.matchMaterial(obj[0]);
+				} catch (Exception e) {
+					worked = false; // material name doesn't exist
 				}
-				if(Main.debug)player.sendMessage("saved click: " + clicks.get(player.getUniqueId()));
-				if(Main.debug)player.sendMessage("Columns:");
-				if(Main.debug)player.sendMessage(game.scanColumns().toString());
-				if(Main.debug)player.sendMessage("Rows:");
-				if(Main.debug)player.sendMessage(game.scanRows().toString());
-				break;
-			
-			case FILLING:
-				break;
-					
-		
-			default:
-				break;
-			
+
+				try {
+					data = Integer.valueOf(obj[1]);
+				} catch (NumberFormatException e) {
+					worked = false; // data not a number
+				}
+			} else {
+				try {
+					mat = Material.matchMaterial(value);
+				} catch (Exception e) {
+					worked = false; // material name doesn't exist
+				}
+			}
+			if (mat == null) {
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Problem in: " + "normalGems." + key);
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "The material is not valid! Maybe your minecraft version is too old for it?");
+				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Change the material or delete the gem. Skipping...");
+				continue;
+			}
+
+			if (Main.debug) {
+				Bukkit.getConsoleSender().sendMessage("saving gem " + name + " as " + index);
+			}
+
+			if (obj.length == 1) {
+				this.gems.put(Integer.toString(index), new NormalGem(mat, name));
+			} else {
+				this.gems.put(Integer.toString(index), new NormalGem(mat, name, (short) data));
+			}
+			if (section.isSet(key + ".pointsOnBreak") && section.isInt(key + ".pointsOnBreak")) {
+				this.gems.get(Integer.toString(index)).setPointsOnBreak(section.getInt(key + ".pointsOnBreak"));
+			}
+			if (section.isSet(key + ".probability") && (section.isDouble(key + ".probability") || section.isInt(key + ".probability"))) {
+				if (Main.debug)
+					Bukkit.getConsoleSender().sendMessage("set probability of " + name + " to " + section.getDouble(key + ".probability"));
+				((NormalGem) this.gems.get(Integer.toString(index))).setPossibility(section.getDouble(key + ".probability"));
+			}
+			index++;
 		}
+		return worked;
 	}
-	
+
+
+
+
+
+
 
 	private Game getGame(UUID uuid) {
 		for (Game game : games) {
@@ -304,41 +327,29 @@ public class GameManager implements Listener{
 		return null;
 	}
 
-	@EventHandler
-	public void onInvClose(InventoryCloseEvent e){
-		if(!isIngame(e.getPlayer().getUniqueId())){
-			return;
-		}
-		if(Main.debug)e.getPlayer().sendMessage("Inventory was closed");//XXX
-		getGame(e.getPlayer().getUniqueId()).shutDown();
-		removeGame(getGame(e.getPlayer().getUniqueId()));
-	}
-
+	/*
+	// not needed since the inventory gets closed before a player leaves => there will be an InventoryCloseEvent
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e){
 		if(!isIngame(e.getPlayer().getUniqueId())){
 			return;
 		}
 		removeGame(getGame(e.getPlayer().getUniqueId()));
-	}
-	
-	
-	public void startGame(UUID playerUUID){
-		games.add(new Game(plugin, playerUUID));
-	}
-	
-	private boolean isIngame(UUID uuid){
-		for(Game game : games){
-			if(isPlayer(uuid, game)){
-				return true;
-			}
-		}
-		return false;
-	}
+	}*/
 	
 	private boolean isPlayer(UUID uuid, Game game){
 		return game.getUUID().equals(uuid);
 	}
+
+	void removeGame(UUID uuid){
+		Game game = getGame(uuid);
+		if(game != null){
+			removeGame(getGame(uuid));
+		} else if(Main.debug){
+			Bukkit.getConsoleSender().sendMessage(" game was already closed O.o");
+		}
+	}
+
 
 	void removeGame(Game game) {
 		clicks.remove(game.getUUID());
@@ -396,7 +407,7 @@ public class GameManager implements Listener{
 		
 		
 		payMoney:
-		if(payOut && this.pay && plugin.getEconEnabled() && (!player.hasPermission("gemcrush.bypass") || rewardBypass)){
+		if(payOut && this.pay && plugin.getEconEnabled() && (!player.hasPermission("gamebox.bypass." + Main.gameID) && (!player.hasPermission("gamebox.bypass")) || rewardBypass)){
 			if(moneyTimeframe > 0){
 				long timeStamp = plugin.getTimestamp(player.getUniqueId(), "moneyReward");
 				if(System.currentTimeMillis() - timeStamp < (moneyTimeframe*60000)){
@@ -445,5 +456,161 @@ public class GameManager implements Listener{
 		for (Game game : games){
 			removeGame(game);
 		}
+	}
+
+
+	@Override
+	public boolean onInventoryClick(InventoryClickEvent event) {
+
+		if(!isInGame(event.getWhoClicked().getUniqueId()) || event.getInventory() == null || event.getCurrentItem() == null || !(event.getWhoClicked() instanceof Player)){
+			return true;
+		}
+
+		// player is inGame, clicked inside an inventory and the clicked item is not null
+
+		// cancel event and return if it's not a right/left click
+		event.setCancelled(true);
+		if(!event.getAction().equals(InventoryAction.PICKUP_ALL) && !event.getAction().equals(InventoryAction.PICKUP_HALF)) {
+			return true;
+		}
+
+		// check whether the clicked inventory is the top inventory
+		if(event.getRawSlot() != event.getSlot()){
+			return true;
+		}
+
+		// get Player and Game objects
+		Player player = (Player) event.getWhoClicked();
+		Game game = getGame(player.getUniqueId());
+		if(game == null){
+			clicks.remove(player.getUniqueId());
+			player.closeInventory();
+			games.remove(game);
+			return true;
+		}
+		int slot = event.getSlot();
+
+		// switch with getState
+		if(game.getState() == null) return true;
+
+		switch(game.getState()){
+
+
+			case PLAY:
+				if(this.clicks.containsKey(player.getUniqueId())){
+					int oldSlot = clicks.get(player.getUniqueId());
+					if(slot == oldSlot + 1 || slot == oldSlot - 1 || slot == oldSlot + 9 || slot == oldSlot - 9){
+						if(Main.debug)player.sendMessage("Switching Gems " + slot + " and " + oldSlot);
+						if(game.switchGems(slot < oldSlot ? slot : oldSlot, slot > oldSlot ? slot : oldSlot)){
+							clicks.remove(player.getUniqueId());
+							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.NOTE_BASS.bukkitSound(), volume, 1f);
+						} else {
+							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.VILLAGER_HIT.bukkitSound(), volume, 1f);
+							//if(Main.playSounds)player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), volume, 1f);
+
+						}
+					} else if(slot == oldSlot){
+						break;
+					} else {
+						clicks.put(player.getUniqueId(), slot);
+						game.shine(slot, true);
+						game.shine(oldSlot, false);
+						if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
+						if(Main.debug)player.sendMessage("overwritten click in " + oldSlot + " with click in " + slot);
+					}
+				} else {
+					if(Main.debug)player.sendMessage("saved first click in slot " + slot);
+					if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
+					this.clicks.put(player.getUniqueId(), slot);
+					game.shine(slot, true);
+				}
+				if(Main.debug)player.sendMessage("saved click: " + clicks.get(player.getUniqueId()));
+				if(Main.debug)player.sendMessage("Columns:");
+				if(Main.debug)player.sendMessage(game.scanColumns().toString());
+				if(Main.debug)player.sendMessage("Rows:");
+				if(Main.debug)player.sendMessage(game.scanRows().toString());
+				break;
+
+			case FILLING:
+				break;
+
+
+			default:
+				break;
+
+		}
+		return true;
+	}
+
+
+	@Override
+	public boolean onInventoryClose(InventoryCloseEvent inventoryCloseEvent) {
+		if(!isInGame(inventoryCloseEvent.getPlayer().getUniqueId())){
+			return true;
+		}
+		if(Main.debug)inventoryCloseEvent.getPlayer().sendMessage("Inventory was closed");//XXX
+		getGame(inventoryCloseEvent.getPlayer().getUniqueId()).shutDown();
+		removeGame(getGame(inventoryCloseEvent.getPlayer().getUniqueId()));
+		return true;
+	}
+
+	@Override
+	public boolean isInGame(UUID uuid) {
+		for(Game game : games){
+			if(isPlayer(uuid, game)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean startGame(Player[] players, String... strings) {
+		if(strings == null || strings.length < 1) {
+			new Exception("cc").printStackTrace();
+			Bukkit.getLogger().log(Level.WARNING, " Error while starting a game");
+			return false;
+		} else if(strings.length == 1){
+			// strings[0] should be a registered game type
+			for(String id : gameTypes.keySet()){
+				if(!id.equalsIgnoreCase(strings[0])) continue;
+				GameRules rules = gameTypes.get(id);
+				if(!pay(players, rules.getCost())){
+					return false;
+				}
+				games.add(new Game(plugin, players[0].getUniqueId(), rules.getMoves(), rules.isBombs(), rules.getNumberOfGemTypes(), gems));
+				for(int slot : hotbarItems.keySet()){
+					players[0].getInventory().setItem(slot, hotbarItems.get(slot));
+				}
+				return true;
+			}
+
+		}
+		Bukkit.getLogger().log(Level.WARNING, "not supported number of arguments to start a game");
+		return false;
+	}
+
+	@Override
+	public void removeFromGame(UUID uuid) {
+		removeGame(uuid);
+	}
+
+	private boolean pay(Player[] player, double cost) {
+		if (plugin.getEconEnabled() && !player[0].hasPermission("gamebox.bypass." + Main.gameID) && !player[0].hasPermission("gamebox.bypass") && cost > 0.0) {
+			if (Main.econ.getBalance(player[0]) >= cost) {
+				Main.econ.withdrawPlayer(player[0], cost);
+				player[0].sendMessage(plugin.chatColor(Main.prefix + plugin.lang.GAME_PAYED.replaceAll("%cost%", String.valueOf(cost))));
+				return true;
+			} else {
+				player[0].sendMessage(plugin.chatColor(Main.prefix + plugin.lang.GAME_NOT_ENOUGH_MONEY));
+				return false;
+			}
+		} else {
+			return true;
+		}
+	}
+
+	public void setGameTypes(Map<String,GameRules> gameTypes) {
+		this.gameTypes = gameTypes;
 	}
 }
