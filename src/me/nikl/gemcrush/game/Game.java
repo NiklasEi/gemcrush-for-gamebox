@@ -41,9 +41,10 @@ class Game extends BukkitRunnable{
 	
 	// current inventory title
 	private String title;
-	
+
 	// map with all gems
 	private Map<String, Gem> gems;
+
 	// map with all normal gems that are used in this game
 	private Map<String, Gem> usedNormalGems;
 	
@@ -76,7 +77,7 @@ class Game extends BukkitRunnable{
 	
 	private boolean payOut, sendMessages, dispatchCommands, sendBroadcasts, giveItemRewards;
 	
-	public Game(Main plugin, UUID playerUUID){
+	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems){
 		this.plugin = plugin;
 		this.lang = plugin.lang;
 		this.config = plugin.getConfig();
@@ -84,17 +85,19 @@ class Game extends BukkitRunnable{
 		this.playerUUID = playerUUID;
 		this.player = Bukkit.getPlayer(playerUUID);
 		this.grid = new Gem[54];
-		this.gems = new HashMap<>();
 		this.usedNormalGems = new HashMap<>();
-		this.moves = 20;
+		this.moves = moves;
 		this.points = 0;
+		this.enableBombs = bombs;
+
+		this.gems = gems;
 
 		this.volume = (float) config.getDouble("game.soundVolume", 0.5);
 		
 		this.bombSpawned = new ArrayList<>();
 		
 		
-		this.gemsNum = 9; // 6
+		this.gemsNum = gemNums;
 		
 		payOut = true;
 		sendMessages = true;
@@ -138,9 +141,9 @@ class Game extends BukkitRunnable{
 		
 		this.runTaskTimer(Main.getPlugin(Main.class), 0, this.moveTicks);
 	}
-	
-	public Game(Main plugin, UUID playerUUID, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItemRewards){
-		this(plugin, playerUUID);
+
+	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItemRewards){
+		this(plugin, playerUUID, moves, bombs, gemNums, gems);
 		
 		this.payOut = payOut;
 		this.sendMessages = sendMessages;
@@ -156,29 +159,10 @@ class Game extends BukkitRunnable{
 			this.moveTicks = 5;
 		}
 		
-		if(this.config.isSet("game.numberOfNormalGems") && this.config.isInt("game.numberOfNormalGems")){
-			this.gemsNum = config.getInt("game.numberOfNormalGems");
-		} else {
-			this.gemsNum = 8;
-		}
-		
 		if(this.config.isSet("game.ticksBetweenSwitchAndDestroy") && this.config.isInt("game.ticksBetweenSwitchAndDestroy")){
 			this.breakTicks = config.getInt("game.ticksBetweenSwitchAndDestroy");
 		} else {
 			this.breakTicks = 10;
-		}
-		
-		if(this.config.isSet("game.moves") && this.config.isInt("game.moves")){
-			this.moves = config.getInt("game.moves");
-		} else {
-			this.moves = 20;
-		}
-		
-		
-		if(this.config.isSet("game.bombs.enabled") && this.config.isBoolean("game.bombs.enabled")){
-			this.enableBombs = config.getBoolean("game.bombs.enabled", false);
-		} else {
-			this.enableBombs = false;
 		}
 		
 		this.bombDisplayName = config.getString("game.bombs.displayName", "&4Bomb");
@@ -193,8 +177,6 @@ class Game extends BukkitRunnable{
 		for(int i = 0 ; i < bombLore.size(); i++){
 			bombLore.set(i, chatColor(bombLore.get(i)));
 		}
-		
-		
 		return true;
 	}
 	
@@ -315,121 +297,50 @@ class Game extends BukkitRunnable{
 		}
 		return toBreak;
 	}
-	
-	
-	
+
+
+
 	private boolean loadGems() {
 		boolean worked = true;
-		
-		Material mat = null;
-		int data = 0;
-		int index = 0;
-		
-		if(!this.config.isConfigurationSection("normalGems")){
-			Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Outdated configuration file! Game cannot be started.");
-			return false;
-		}
-		
-		ConfigurationSection section = this.config.getConfigurationSection("normalGems");
-		
-		for(String key : section.getKeys(false)){
-			if(Main.debug)Bukkit.getConsoleSender().sendMessage("getting " + key);
-			if(!section.isSet(key + ".material")){
-				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Problem in: " + key);
-				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Skipping the gem. Is the material set?");
-				continue;
-			}
-			if(!section.isSet(key + ".displayName") || !section.isString(key + ".displayName")){
-				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Problem in: " + key);
-				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Skipping the gem. Is the displayName set?");
-				continue;
-			}
-			
-			String value = section.getString(key + ".material");
-			String[] obj = value.split(":");
-			String name = chatColor(section.getString(key + ".displayName"));
-			
-			if (obj.length == 2) {
-				try {
-					mat = Material.matchMaterial(obj[0]);
-				} catch (Exception e) {
-					worked = false; // material name doesn't exist
-				}
-				
-				try {
-					data = Integer.valueOf(obj[1]);
-				} catch (NumberFormatException e) {
-					worked = false; // data not a number
-				}
-			} else {
-				try {
-					mat = Material.matchMaterial(value);
-				} catch (Exception e) {
-					worked = false; // material name doesn't exist
-				}
-			}
-			if(mat == null){
-				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Problem in: " + "normalGems." + key );
-				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "The material is not valid! Maybe your minecraft version is too old for it?");
-				Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] " + "Change the material or delete the gem. Skipping..." );
-				continue;
-			}
-			
-			if(Main.debug){
-				Bukkit.getConsoleSender().sendMessage("saving gem " + name + " as " + index);
-			}
-			
-			if(obj.length == 1){
-				this.gems.put(Integer.toString(index), new NormalGem(mat, name));
-			} else {
-				this.gems.put(Integer.toString(index), new NormalGem(mat, name, (short) data));
-			}
-			if(section.isSet(key + ".pointsOnBreak") && section.isInt(key + ".pointsOnBreak")){
-				this.gems.get(Integer.toString(index)).setPointsOnBreak(section.getInt(key + ".pointsOnBreak"));
-			}
-			if(section.isSet(key + ".probability") && (section.isDouble(key + ".probability") || section.isInt(key + ".probability"))){
-				if(Main.debug)Bukkit.getConsoleSender().sendMessage("set probability of " + name + " to " + section.getDouble(key + ".probability"));
-				((NormalGem) this.gems.get(Integer.toString(index))).setPossibility(section.getDouble(key + ".probability"));
-			}
-			index++;
-		}
-		
+
 		if(Main.debug){
 			Bukkit.getConsoleSender().sendMessage("number of loaded gems: " + gems.size());
 			Bukkit.getConsoleSender().sendMessage("using " + gemsNum + " gems");
 		}
-		
+
 		if(gemsNum > gems.size()){
 			Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] Could not load enough gems! Quiting game.");
 			Bukkit.getLogger().log(Level.SEVERE, "[GemCrush] You can add some in the config file ;)");
+			manager.removeGame(this);
 			return false;
 		}
-		
+
 		ArrayList<Integer> savedGems = new ArrayList<>();
 		int key;
 		for(int i = 0; i < gemsNum; i++){
 			key = getKeyWithWeights(savedGems);
-			
+
 			if(key<0){
 				Bukkit.getLogger().log(Level.WARNING, "[GemCrush] Problem while choosing the gems");
 				gemsNum --;
 				continue;
 			}
-			
+
 			if(gems.get(Integer.toString(key)) == null){
 				Bukkit.getConsoleSender().sendMessage("gem " + key + " is null!");
+				manager.removeGame(this);
 				return false;
 			}
-			
+
 			if(Main.debug){
 				Bukkit.getConsoleSender().sendMessage("chose gem with the number " + key);
 				Bukkit.getConsoleSender().sendMessage("using: " + gems.get(Integer.toString(key)).getName());
 			}
-			
+
 			this.usedNormalGems.put(Integer.toString(i), gems.get(Integer.toString(key)));
 			savedGems.add(key);
 		}
-		
+
 		return worked;
 	}
 	
@@ -710,7 +621,8 @@ class Game extends BukkitRunnable{
 	}
 	
 	public void shutDown() {
-		this.cancel();
+		int id = this.getTaskId();
+		if(Bukkit.getScheduler().isCurrentlyRunning(this.getTaskId()) || Bukkit.getScheduler().isQueued(this.getTaskId()))this.cancel();
 		if(breakTimer != null) {
 			this.breakTimer.cancel();
 			this.breakTimer = null;
