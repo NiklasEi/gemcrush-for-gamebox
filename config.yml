@@ -1,27 +1,74 @@
-# ----------------------------------------------------------------------------#
-#                                                                             #
-#                              GemCrush config                                #
-#                                                                             #
-# ----------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------------------#
+#                                                                                         #
+#                                    GemCrush config                                      #
+#                                                                                         #
+# ----------------------------------------------------------------------------------------#
+
+# this plugin depends on GameBox! It will not work without it.
+
 
 # name of the language file (in the folder 'language')
-#   the default.yml file is overwriten on every server restart! This means you will have to use the other files
+#   the default.yml file is overwritten on every server restart! This means you will have to use the other files
 #     to customize the messages, but since i am adding messages regulary in updates 
 #   You should use the default file if you just want to have the up to date english default messages
 langFile: 'default.yml'
 
+
+gameBox:
+  mainButton:
+    # define the Material and data for the button (format: 'material:data')
+    materialData: "EMERALD"
+    # display name of the button
+    displayName: "&3GemCrush"
+    # lore of the button
+    lore:
+    - ""
+    - "&1It's raining gems..."
+  gameButtons:
+    normalGame:
+      materialData: "EMERALD"
+      displayName: "&3GemCrush"
+      lore:
+      - ""
+      - "&1It's raining gems..."
+      moves: 20
+      # number of different gems in a normal game
+      #   This number HAS TO BE equal or smaller then the number of gems defined in the section normalGems below
+      #   8 or 7 are good numbers. 7 is easier and the game has to shuffle less but 8 is a bit more challenging
+      differentGems: 8
+      # enable/disable bombs for this game
+      bombs: true
+      # slot of the button in the gui
+      #   be careful to not use the same twice ;)
+      slot: 1
+    moreMoves:
+      materialData: "sapling"
+      displayName: "&1only 10..."
+      lore:
+      - ""
+      - "&4moves: &210"
+      moves: 10
+      differentGems: 4
+      bombs: false
+      slot: 5
+    materialdatatest:
+      materialData: "sapling:4"
+      displayName: "special wood"
+      lore:
+      - ""
+      - "is it not oak?"
+      moves: 10
+      differentGems: 4
+      bombs: false
+      slot: 6
+
+
 game:
-  # number of moves in a default game
-  moves: 20
   # time in ticks (20 ticks = 1 second) between two gem movements
   #   this is time each gem needs to fall down one row
   ticksBetweenMovement: 3
   # time in ticks (20 ticks = 1 second) between switching two gems and destroying the matched ones
   ticksBetweenSwitchAndDestroy: 7
-  # number of different gems in a normal game
-  #   This number HAS TO BE equal or smaller then the number of gems defined in the section normalGems below
-  #   8 or 7 are good numbers. 7 is easier and the game has to shuffle less but 8 is a bit more challenging
-  numberOfNormalGems: 8
   # customise bombs here
   #   they are spawned if you combine gems to the following kind of forms
   #
@@ -30,8 +77,7 @@ game:
   #     x        x          x
   #
   bombs:
-    enabled: true
-    # ticks until the bomb explodes (startes counting AFTER all gems fell down and nothing else can break)
+    # ticks until the bomb explodes (starts counting AFTER all gems fell down and nothing else can break)
     ticksTillExplosion: 15
     pointsOnBreak: 20
     displayName: '&cBomb'
@@ -49,7 +95,6 @@ game:
 #   if economy.enabled is true players will pay the cost when starting a game
 economy:
   enabled: false
-  cost: 10
 
 
 onGameEnd:
@@ -65,9 +110,9 @@ onGameEnd:
     #   times in this section have to be integers and are in MINUTES!
     #   to always pay out all rewards use 0
     timeIntervals:
-      # cooldown for getting moneyrewards
+      # cool down for getting money rewards
       money: 0
-      # cooldown for item rewards
+      # cool down for item rewards
       items: 0
 
   itemRewards:
@@ -77,7 +122,7 @@ onGameEnd:
       material: Stone:2
       lore:
       - "&3testing"
-      - "blub"
+      - "second row"
       displayName: "Test &4item"
       # number of items
       count: 1
@@ -88,16 +133,16 @@ onGameEnd:
 
     # money is only paid if economy is enabled
 
-    # You can add as many intervalls as you want to. The order of the intervalls doesn't matter
+    # You can add as many intervals as you want to. The order of the intervals doesn't matter
     #   the given reward/messages/commands/broadcasts will always be used if the game is finished with a score between the key and the
-    #   next higher key. For the highest key the intervall goes to infinity
+    #   next higher key. For the highest key the interval goes to infinity
     # You can add a money-reward with money: x; messages to send to the player with messages: (as list);
-    #   commands: (as a list); broadcast: (as list); items: (as a list of previously under 'onGameEnd.itemRewards' defined itemstacks)
+    #   commands: (as a list); broadcast: (as list); items: (as a list of previously under 'onGameEnd.itemRewards' defined item stacks)
 
     # use %player% for the players name and %score% for the score
 
     # FYI: there is a message in the language file that will always be send after a game
-    #   only add aditional messages in this section
+    #   only add additional messages in this section
     0:
       money: 0
       messages:
@@ -117,13 +162,13 @@ onGameEnd:
     500:
       money: 50
       messages:
-      - ' &2%score% wow! &1Thats not bad ^^'
+      - " &2%score% wow! &1That's not bad ^^"
       # - ' &2You won a diamond'
       commands:
       - 'tell %player% you scored %score%!'
       # - 'give %player% diamond 1'
       broadcast:
-      - '%player% finished a game of &2GemCrush&r with &2%score% &rpoints!'
+      - '%player% finished a game of &2GemCrush&r with &2%score%&r points!'
       - 'Do &2/gc &rto prove that you are better ;)'
       items:
       #- 'exampleItem'
@@ -134,7 +179,7 @@ onGameEnd:
 # use 'Material:data' or 'ID:data'
 # Some materials can not be displayed in an inventory, just test everything after changing
 # You are advised to use different materials.
-# The displaynames have to be different for the game to work!
+# The display names have to be different for the game to work!
 # Add as many gems as you want the game will choose random ones for every round
 normalGems:
   gem1:
