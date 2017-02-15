@@ -1,19 +1,27 @@
 package me.nikl.gemcrush;
 
-import me.nikl.gemcrush.cmds.MainCommand;
-import me.nikl.gemcrush.cmds.TopCommand;
+import me.nikl.gamebox.ClickAction;
+import me.nikl.gamebox.guis.GUIManager;
+import me.nikl.gamebox.guis.button.AButton;
+import me.nikl.gamebox.guis.gui.game.GameGui;
 import me.nikl.gemcrush.game.GameManager;
+import me.nikl.gemcrush.game.GameRules;
 import me.nikl.gemcrush.nms.*;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 
 public class Main extends JavaPlugin{
@@ -26,34 +34,146 @@ public class Main extends JavaPlugin{
 	public static String prefix = "[&3GemCrush&r]";
 	public static boolean playSounds = true;
 	public Boolean econEnabled;
-	public Double price;
 	public Language lang;
-	public boolean disabled;
+	public boolean disabled = false;
+
+	public static final String gameID = "gemcrush";
 	
 	private InvTitle updater;
+
+	public me.nikl.gamebox.GameBox gameBox;
 	
 	@Override
 	public void onEnable(){
 		
 		if (!setupUpdater()) {
 			getLogger().severe("Your server version is not compatible with this plugin!");
+			getLogger().severe("    Please make sure, you are running the newest version");
 			
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
 		}
-        
-		this.disabled = false;
+
+
 		this.con = new File(this.getDataFolder().toString() + File.separatorChar + "config.yml");
 		this.sta = new File(this.getDataFolder().toString() + File.separatorChar + "stats.yml");
 
 		reload();
-		checkStatsStructure();
 		if(disabled) return;
 
-        this.getCommand("gemcrush").setExecutor(new MainCommand(this));
-		this.getCommand("gemcrushtop").setExecutor(new TopCommand(this));
+		hook();
+		if(disabled) return;
+
+
+		checkStatsStructure();
 	}
-	
+
+	private void hook() {
+		if(Bukkit.getPluginManager().getPlugin("GameBox") == null){
+			Bukkit.getLogger().log(Level.WARNING, " GameBox not found");
+			Bukkit.getLogger().log(Level.WARNING, " Continuing as standalone");
+			Bukkit.getPluginManager().disablePlugin(this);
+			disabled = true;
+			return;
+		}
+
+
+
+
+
+		gameBox = (me.nikl.gamebox.GameBox)Bukkit.getPluginManager().getPlugin("GameBox");
+		GUIManager guiManager = gameBox.getPluginManager().getGuiManager();
+
+		this.manager = new GameManager(this);
+
+		gameBox.getPluginManager().registerGame(manager, gameID);
+
+		GameGui gameGui = new GameGui(gameBox, guiManager, 54, gameID, "main");
+
+
+
+		Map<String, GameRules> gameTypes = new HashMap<>();
+
+		if(config.isConfigurationSection("gameBox.gameButtons")){
+			ConfigurationSection gameButtons = config.getConfigurationSection("gameBox.gameButtons");
+			ConfigurationSection buttonSec;
+			int moves, numberOfGems;
+			double cost;
+			boolean bombs;
+
+			String displayName;
+			ArrayList<String> lore;
+
+			GameRules rules;
+
+			for(String buttonID : gameButtons.getKeys(false)){
+				buttonSec = gameButtons.getConfigurationSection(buttonID);
+
+
+				if(!buttonSec.isString("materialData")){
+					Bukkit.getLogger().log(Level.WARNING, " missing material data under: gameBox.gameButtons." + buttonID + "        can not load the button");
+					continue;
+				}
+
+				ItemStack mat = getItemStack(buttonSec.getString("materialData"));
+				if(mat == null){
+					Bukkit.getLogger().log(Level.WARNING, " error loading: gameBox.gameButtons." + buttonID);
+					Bukkit.getLogger().log(Level.WARNING, "     invalid material data");
+					continue;
+				}
+
+
+				AButton button =  new AButton(mat.getData(), 1);
+				ItemMeta meta = button.getItemMeta();
+
+				if(buttonSec.isString("displayName")){
+					displayName = chatColor(buttonSec.getString("displayName"));
+					meta.setDisplayName(displayName);
+				}
+
+				if(buttonSec.isList("lore")){
+					lore = new ArrayList<>(buttonSec.getStringList("lore"));
+					for(int i = 0; i < lore.size();i++){
+						lore.set(i, chatColor(lore.get(i)));
+					}
+					meta.setLore(lore);
+				}
+
+				button.setItemMeta(meta);
+				button.setAction(ClickAction.START_GAME);
+				button.setArgs(gameID, buttonID);
+
+				bombs = buttonSec.getBoolean("bombs", true);
+				moves = buttonSec.getInt("moves", 20);
+				numberOfGems = buttonSec.getInt("differentGems", 8);
+				cost = buttonSec.getDouble("cost", 0.);
+
+
+				rules = new GameRules(moves, numberOfGems, bombs, cost);
+
+				if(buttonSec.isInt("slot")){
+					gameGui.setButton(button, buttonSec.getInt("slot"));
+				} else {
+					gameGui.setButton(button);
+				}
+
+				gameTypes.put(buttonID, rules);
+			}
+		}
+
+
+		this.manager.setGameTypes(gameTypes);
+
+
+		ItemStack gameButton = (new ItemStack(Material.EMERALD));
+		ItemMeta meta = gameButton.getItemMeta();
+		meta.setDisplayName(chatColor("&3GemCrush"));
+		meta.setLore(Arrays.asList(" ", chatColor("&1Play a round of &3GemCrush&1!")));
+		gameButton.setItemMeta(meta);
+
+		guiManager.registerGameGUI(gameID, "main", gameGui, gameButton, "gemcrush", "gc");
+	}
+
 	private void checkStatsStructure() {
 		if(this.stats.isString("structure")){
 			if(this.stats.getString("structure").equals("v1.2.1")) return;
@@ -196,19 +316,14 @@ public class Main extends JavaPlugin{
 		this.lang = new Language(this);
 		
 		this.econEnabled = false;
-		if(getConfig().getBoolean("economy.enabled")){
+		if(config.getBoolean("economy.enabled")){
 			this.econEnabled = true;
-			if (!setupEconomy()){
-				Bukkit.getConsoleSender().sendMessage(chatColor(prefix + " &4No economy found!"));
-				getServer().getPluginManager().disablePlugin(this);
-				econEnabled = false;
-				disabled = true;
-				return;
+			if(!setupEconomy()){
+				Bukkit.getLogger().log(Level.WARNING, " Failed to set up economy...");
+				Bukkit.getLogger().log(Level.WARNING, " Do you have vault and an economy plugin installed?");
+				this.econEnabled = false;
 			}
-			this.price = getConfig().getDouble("economy.cost");
 		}
-		
-		this.manager = new GameManager(this);
 	}
 
 	public void setStatistics(UUID player, int score) {
@@ -263,10 +378,6 @@ public class Main extends JavaPlugin{
     public Boolean getEconEnabled(){
     	return this.econEnabled;
     }
-    
-    public Double getPrice(){
-    	return this.price;
-    }
 	
 	public void resetStatistics() {
 		for(String uuid : stats.getKeys(false)){
@@ -275,6 +386,40 @@ public class Main extends JavaPlugin{
 			} else if(stats.isInt(uuid + ".stat")){
 				stats.set(uuid + ".stat", 0);
 			}
+		}
+	}
+
+	private ItemStack getItemStack(String itemPath){
+    	Material mat; short data;
+		String[] obj = itemPath.split(":");
+
+		if (obj.length == 2) {
+			try {
+				mat = Material.matchMaterial(obj[0]);
+			} catch (Exception e) {
+				return null; // material name doesn't exist
+			}
+
+			try {
+				data = Short.valueOf(obj[1]);
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+				return null; // data not a number
+			}
+
+			//noinspection deprecation
+			if(mat == null) return null;
+			ItemStack stack = new ItemStack(mat);
+			stack.setDurability(data);
+			return stack;
+		} else {
+			try {
+				mat = Material.matchMaterial(obj[0]);
+			} catch (Exception e) {
+				return null; // material name doesn't exist
+			}
+			//noinspection deprecation
+			return (mat == null ? null : new ItemStack(mat));
 		}
 	}
 }
