@@ -1,3 +1,10 @@
+v 2.0.0
+- depends on GameBox!
+- no own starting command anymore
+- highly configurable games (different settings/rules)
+- no payment message when the cost is 0
+
+
 v 1.2.2:
 - configurable sound volume in the configuration file
 - changes in the structure of the top list apply after gc reload now
