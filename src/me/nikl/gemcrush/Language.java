@@ -17,6 +17,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 
 public class Language {
+	public static String prefix = "[&3GemCrush&r]";
+	public static String name = "&3GemCrush&r";
 	private Main plugin;
 	private FileConfiguration langFile;
 	
@@ -35,7 +37,7 @@ public class Language {
 			plugin.disabled = true;
 			return;
 		}
-		Main.prefix = getString("prefix");
+		prefix = getString("prefix");
 		getCommandMessages();
 		getGameMessages();
 		getInvTitles();
@@ -75,18 +77,28 @@ public class Language {
 		this.CMD_HELP = getStringList("commandMessages.help");		
 	}
 
+
 	private List<String> getStringList(String path) {
+		List<String> toReturn;
 		if(!langFile.isList(path)){
-			return defaultLang.getStringList(path);
+			toReturn = defaultLang.getStringList(path);
+			for(int i = 0; i<toReturn.size(); i++){
+				toReturn.set(i, ChatColor.translateAlternateColorCodes('&',toReturn.get(i)));
+			}
+			return toReturn;
 		}
-		return langFile.getStringList(path);
+		toReturn = langFile.getStringList(path);
+		for(int i = 0; i<toReturn.size(); i++){
+			toReturn.set(i, ChatColor.translateAlternateColorCodes('&',toReturn.get(i)));
+		}
+		return toReturn;
 	}
 
 	private String getString(String path) {
 		if(!langFile.isString(path)){
-			return defaultLang.getString(path);
+			return ChatColor.translateAlternateColorCodes('&',defaultLang.getString(path));
 		}
-		return langFile.getString(path);
+		return ChatColor.translateAlternateColorCodes('&',langFile.getString(path));
 	}
 
 	private boolean getLangFile() {
@@ -147,27 +159,27 @@ public class Language {
 		
 		if(!plugin.getConfig().isSet("langFile")){
 			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Language file is missing in the config!"));
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " Add the following to your config:"));
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " langFile: 'lang_en.yml'"));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Language file is missing in the config!"));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " Add the following to your config:"));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " langFile: 'lang_en.yml'"));
 			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Using default language file"));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Using default language file"));
 			this.langFile = defaultLang;
 		} else {
 			if(!plugin.getConfig().isString("langFile")){
 				Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
-				Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Language file is invalid (no String)!"));
+				Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Language file is invalid (no String)!"));
 				Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
-				Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Using default language file"));
+				Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Using default language file"));
 				this.langFile = defaultLang;
 			} else {
 				File languageFile = new File(plugin.getDataFolder().toString() + File.separatorChar + "language" + File.separatorChar + plugin.getConfig().getString("langFile"));
 				if(!languageFile.exists()){
 					languageFile.mkdir();
 					Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
-					Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Language file not found!"));
+					Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Language file not found!"));
 					Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
-					Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Using default language file"));
+					Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Using default language file"));
 					this.langFile = defaultLang;
 				} else {
 					try { 
@@ -175,9 +187,9 @@ public class Language {
 					} catch (UnsupportedEncodingException | FileNotFoundException e) { 
 						e.printStackTrace(); 
 						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
-						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Error while loading language file!"));
+						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Error while loading language file!"));
 						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
-						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Using default language file"));
+						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Using default language file"));
 						this.langFile = defaultLang;
 					}
 				}
@@ -188,21 +200,21 @@ public class Language {
 			if(defaultLang.isString(key)){
 				if(!this.langFile.isString(key)){// there is a message missing
 					if(count == 0){
-						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"));
-						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Missing message(s) in your language file!"));
+						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"));
+						Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Missing message(s) in your language file!"));
 					}
-					Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " " + key));
+					Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " " + key));
 					count++;
 				}
 			}
 		}
 		if(count > 0){
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + ""));
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Game will use default messages for these paths"));
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + ""));
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Please get an updated language file"));
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4Or add the listed paths by hand"));
-			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', Main.prefix + " &4*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + ""));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Game will use default messages for these paths"));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + ""));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Please get an updated language file"));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Or add the listed paths by hand"));
+			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"));
 		}
 		return true;
 		
