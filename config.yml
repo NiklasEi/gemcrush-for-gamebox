@@ -27,10 +27,13 @@ gameBox:
   gameButtons:
     normalGame:
       materialData: "EMERALD"
-      displayName: "&3GemCrush"
+      displayName: "&1It's raining gems"
       lore:
       - ""
-      - "&1It's raining gems..."
+      - "&4moves: &220"
+      - '&4Gems: &28'
+      - '&4Bombs: &2true'
+      - '&4cost: &45'
       moves: 20
       # number of different gems in a normal game
       #   This number HAS TO BE equal or smaller then the number of gems defined in the section normalGems below
@@ -40,27 +43,36 @@ gameBox:
       bombs: true
       # slot of the button in the gui
       #   be careful to not use the same twice ;)
-      slot: 1
-    moreMoves:
-      materialData: "sapling"
-      displayName: "&1only 10..."
+      slot: 0
+      cost: 5
+    lessMovesAndLessGemTypes:
+      materialData: "nether_star"
+      displayName: "&1So much &l&epling"
       lore:
       - ""
       - "&4moves: &210"
+      - '&4Gems: &24'
+      - '&4Bombs: &2true'
+      - '&4cost: &410'
       moves: 10
       differentGems: 4
-      bombs: false
+      bombs: true
       slot: 5
+      cost: 10
     materialdatatest:
-      materialData: "sapling:4"
-      displayName: "special wood"
+      materialData: "nether_star"
+      displayName: "&1The cheaper &l&epling"
       lore:
       - ""
-      - "is it not oak?"
+      - "&4moves: &210"
+      - '&4Gems: &24'
+      - '&4Bombs: &4false'
+      - '&4cost: &45'
       moves: 10
       differentGems: 4
       bombs: false
       slot: 6
+      cost: 5
 
 
 game:
