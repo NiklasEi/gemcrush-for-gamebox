@@ -1,6 +1,7 @@
 package me.nikl.gemcrush;
 
 import me.nikl.gamebox.ClickAction;
+import me.nikl.gamebox.GameBox;
 import me.nikl.gamebox.guis.GUIManager;
 import me.nikl.gamebox.guis.button.AButton;
 import me.nikl.gamebox.guis.gui.game.GameGui;
@@ -31,7 +32,6 @@ public class Main extends JavaPlugin{
 	private FileConfiguration config, stats;
 	private File con, sta;
 	public static Economy econ = null;
-	public static String prefix = "[&3GemCrush&r]";
 	public static boolean playSounds = true;
 	public Boolean econEnabled;
 	public Language lang;
@@ -69,7 +69,7 @@ public class Main extends JavaPlugin{
 	}
 
 	private void hook() {
-		if(Bukkit.getPluginManager().getPlugin("GameBox") == null){
+		if(Bukkit.getPluginManager().getPlugin("GameBox") == null || !Bukkit.getPluginManager().getPlugin("GameBox").isEnabled()){
 			Bukkit.getLogger().log(Level.WARNING, " GameBox not found");
 			Bukkit.getLogger().log(Level.WARNING, " Continuing as standalone");
 			Bukkit.getPluginManager().disablePlugin(this);
@@ -82,11 +82,17 @@ public class Main extends JavaPlugin{
 
 
 		gameBox = (me.nikl.gamebox.GameBox)Bukkit.getPluginManager().getPlugin("GameBox");
+
+
+		// disable economy if it is disabled for either one of the plugins
+		this.econEnabled = this.econEnabled && gameBox.getEconEnabled();
+		playSounds = playSounds && GameBox.playSounds;
+
 		GUIManager guiManager = gameBox.getPluginManager().getGuiManager();
 
 		this.manager = new GameManager(this);
 
-		gameBox.getPluginManager().registerGame(manager, gameID);
+		gameBox.getPluginManager().registerGame(manager, gameID, Language.name);
 
 		GameGui gameGui = new GameGui(gameBox, guiManager, 54, gameID, "main");
 
@@ -165,13 +171,30 @@ public class Main extends JavaPlugin{
 		this.manager.setGameTypes(gameTypes);
 
 
-		ItemStack gameButton = (new ItemStack(Material.EMERALD));
-		ItemMeta meta = gameButton.getItemMeta();
-		meta.setDisplayName(chatColor("&3GemCrush"));
-		meta.setLore(Arrays.asList(" ", chatColor("&1Play a round of &3GemCrush&1!")));
-		gameButton.setItemMeta(meta);
 
-		guiManager.registerGameGUI(gameID, "main", gameGui, gameButton, "gemcrush", "gc");
+		getMainButton:
+		if(config.isConfigurationSection("gameBox.mainButton")){
+			ConfigurationSection mainButtonSec = config.getConfigurationSection("gameBox.mainButton");
+			if(!mainButtonSec.isString("materialData")) break getMainButton;
+
+			ItemStack gameButton = getItemStack(mainButtonSec.getString("materialData"));
+			if(gameButton == null){
+				gameButton = (new ItemStack(Material.EMERALD));
+			}
+			ItemMeta meta = gameButton.getItemMeta();
+			meta.setDisplayName(chatColor(mainButtonSec.getString("displayName","&3GemCrush")));
+			if(mainButtonSec.isList("lore")){
+				ArrayList<String> lore = new ArrayList<>(mainButtonSec.getStringList("lore"));
+				for(int i = 0; i < lore.size();i++){
+					lore.set(i, chatColor(lore.get(i)));
+				}
+				meta.setLore(lore);
+			}
+			gameButton.setItemMeta(meta);
+			guiManager.registerGameGUI(gameID, "main", gameGui, gameButton, "gemcrush", "gc");
+		} else {
+			Bukkit.getLogger().log(Level.WARNING, " Missing or wrong configured main button in the configuration file!");
+		}
 	}
 
 	private void checkStatsStructure() {
