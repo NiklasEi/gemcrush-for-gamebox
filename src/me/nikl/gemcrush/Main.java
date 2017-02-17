@@ -29,8 +29,8 @@ public class Main extends JavaPlugin{
 	public final static boolean debug = false;
 
 	private GameManager manager;
-	private FileConfiguration config, stats;
-	private File con, sta;
+	private FileConfiguration config;
+	private File con;
 	public static Economy econ = null;
 	public static boolean playSounds = true;
 	public Boolean econEnabled;
@@ -56,16 +56,12 @@ public class Main extends JavaPlugin{
 
 
 		this.con = new File(this.getDataFolder().toString() + File.separatorChar + "config.yml");
-		this.sta = new File(this.getDataFolder().toString() + File.separatorChar + "stats.yml");
 
 		reload();
 		if(disabled) return;
 
 		hook();
 		if(disabled) return;
-
-
-		checkStatsStructure();
 	}
 
 	private void hook() {
@@ -196,28 +192,10 @@ public class Main extends JavaPlugin{
 			Bukkit.getLogger().log(Level.WARNING, " Missing or wrong configured main button in the configuration file!");
 		}
 	}
-
-	private void checkStatsStructure() {
-		if(this.stats.isString("structure")){
-			if(this.stats.getString("structure").equals("v1.2.1")) return;
-		}
-		for(String key: stats.getKeys(false)){
-			if(stats.isInt(key)){
-				stats.set(key + ".stat", stats.getInt(key));
-			}
-		}
-		stats.set("structure", "v1.2.1");
-	}
 	
 	@Override
 	public void onDisable(){
-		if(stats!=null){
-			try {
-				this.stats.save(sta);
-			} catch (IOException e) {
-				getLogger().log(Level.SEVERE, "Could not save statistics", e);
-			}		
-		}
+
 	}
 	
 	private boolean setupUpdater() {
@@ -307,33 +285,10 @@ public class Main extends JavaPlugin{
 		if(!con.exists()){
 			this.saveResource("config.yml", false);
 		}
-		if(!sta.exists()){
-			try {
-				sta.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 		reloadConfig();
 		
 		if(config.isBoolean("playSounds"))
 			playSounds = config.getBoolean("playSounds");
-		
-		// if the statistics file was already loaded: save the newest version as file
-		if(stats!=null){
-			try {
-				this.stats.save(sta);
-			} catch (IOException e) {
-				getLogger().log(Level.SEVERE, "[GemCrush] Could not save statistics", e);
-			}
-		}
-		
-		// load stats file
-		try {
-			this.stats = YamlConfiguration.loadConfiguration(new InputStreamReader(new FileInputStream(this.sta), "UTF-8"));
-		} catch (UnsupportedEncodingException | FileNotFoundException e) {
-			e.printStackTrace();
-		} 
 		
 		
 		this.lang = new Language(this);
@@ -349,47 +304,6 @@ public class Main extends JavaPlugin{
 		}
 	}
 
-	public void setStatistics(UUID player, int score) {
-		if(this.stats == null) return;
-		String uuid = player.toString();
-		if(stats.isInt(uuid)){
-			stats.set(uuid + ".stat", stats.getInt(uuid));
-		}
-		if(!stats.isInt(uuid + ".stat")){
-			stats.set(uuid + ".stat", score);
-		} else {
-			int oldScore = stats.getInt(uuid + ".stat");
-			if(score > oldScore){
-				stats.set(uuid + ".stat", score);
-			}
-		}
-	}
-	
-	/**
-	 * Set a timestamp for the specified player and action
-	 * @param player Player to set the timestamp for
-	 * @param action Action to set the timestamp for
-	 */
-	public void setTimestamp(UUID player, String action) {
-		if(this.stats == null) return;
-		stats.set(player.toString() + ".timestamps." + action, System.currentTimeMillis());
-		if(debug)Bukkit.getConsoleSender().sendMessage("set Timestamp to: " + stats.getLong(player.toString() + ".timestamps." + action, 0));
-	}
-	
-	/**
-	 * Get the specified timestamp from the stats file
-	 * @param player Player
-	 * @param action Action
-	 * @return timestamp for the specified player and action
-	 */
-	public long getTimestamp(UUID player, String action){
-		return stats.getLong(player.toString() + ".timestamps." + action, 0);
-	}
-	
-	public FileConfiguration getStatistics(){
-		return this.stats;
-	}
-
 	public FileConfiguration getConfig() {
 		return config;
 	}
@@ -401,16 +315,6 @@ public class Main extends JavaPlugin{
     public Boolean getEconEnabled(){
     	return this.econEnabled;
     }
-	
-	public void resetStatistics() {
-		for(String uuid : stats.getKeys(false)){
-			if(stats.isInt(uuid)){
-				stats.set(uuid + ".stat", 0);
-			} else if(stats.isInt(uuid + ".stat")){
-				stats.set(uuid + ".stat", 0);
-			}
-		}
-	}
 
 	private ItemStack getItemStack(String itemPath){
     	Material mat; short data;
