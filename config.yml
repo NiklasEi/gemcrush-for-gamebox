@@ -118,14 +118,6 @@ onGameEnd:
   restrictions:
     # players with bypass permission do not have to pay. Here you can set whether they also do not get any rewards.
     playersWithBypassDontGetRewards: true
-    # restrict rewards to be only given one in a specific time frame
-    #   times in this section have to be integers and are in MINUTES!
-    #   to always pay out all rewards use 0
-    timeIntervals:
-      # cool down for getting money rewards
-      money: 0
-      # cool down for item rewards
-      items: 0
 
   itemRewards:
     # add as many items as you want
