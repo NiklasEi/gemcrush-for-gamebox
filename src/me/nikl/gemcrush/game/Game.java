@@ -10,8 +10,6 @@ import me.nikl.gemcrush.gems.NormalGem;
 import me.nikl.gemcrush.nms.InvTitle;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -19,7 +17,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import me.nikl.gemcrush.Language;
 import me.nikl.gemcrush.Main;
-import org.bukkit.scheduler.BukkitScheduler;
 
 
 class Game extends BukkitRunnable{
@@ -114,7 +111,7 @@ class Game extends BukkitRunnable{
 			return;
 		}
 		if(config == null){
-			Bukkit.getConsoleSender().sendMessage(Main.prefix + " Failed to load config!");
+			Bukkit.getConsoleSender().sendMessage(Language.prefix + " Failed to load config!");
 			Bukkit.getPluginManager().disablePlugin(plugin);
 			return;
 		}
@@ -125,7 +122,7 @@ class Game extends BukkitRunnable{
 		}
 		
 		if(!loadGems()){
-			player.sendMessage(chatColor(Main.prefix + " &2Configuration error. Please contact the server owner!"));
+			player.sendMessage(chatColor(Language.prefix + " &2Configuration error. Please contact the server owner!"));
 			return;
 		}
 		
@@ -398,12 +395,12 @@ class Game extends BukkitRunnable{
 							
 							if (Main.playSounds) {
 								double randDouble = rand.nextDouble();
-								if(randDouble < 0.50) {
-									if (randDouble < 0.20) {
+								if(randDouble < 0.25) {
+									if (randDouble < 0.10) {
 										player.playSound(player.getLocation(), Sounds.NOTE_STICKS.bukkitSound(), volume, 1f);
-									} else if (randDouble < 0.35) {
+									} else if (randDouble < 0.17) {
 										player.playSound(player.getLocation(), Sounds.NOTE_PLING.bukkitSound(), volume, 1f);
-									} else if (randDouble < 0.50) {
+									} else if (randDouble < 0.25) {
 										player.playSound(player.getLocation(), Sounds.NOTE_PLING.bukkitSound(), volume, 0.5f);
 									/*} else if(randDouble < 0.09){
 										player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), volume, 1f);
