@@ -1,6 +1,7 @@
 package me.nikl.gemcrush.game;
 
 import me.nikl.gamebox.game.IGameManager;
+import me.nikl.gemcrush.Language;
 import me.nikl.gemcrush.Main;
 import me.nikl.gemcrush.Sounds;
 import me.nikl.gemcrush.gems.Gem;
@@ -9,14 +10,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
@@ -37,8 +34,6 @@ public class GameManager implements IGameManager{
 	private Map<Integer, List<ItemStack>> items;
 	private Map<String, ItemStack> itemRewards;
 
-	private Map<Integer, ItemStack> hotbarItems = new HashMap<>();
-
 
 	private Map<String,GameRules> gameTypes;
 
@@ -49,15 +44,12 @@ public class GameManager implements IGameManager{
 	
 	private boolean pay, sendMessages, sendBroadcasts, dispatchCommands, rewardBypass, giveItems;
 	
-	private int moneyTimeframe, itemRewardTimeframe;
-	
 	public GameManager(Main plugin){
 		this.plugin = plugin;
 		this.games = new HashSet<>();
 		this.clicks = new HashMap<>();
 		this.volume = (float) plugin.getConfig().getDouble("game.soundVolume", 0.5);
 
-		hotbarItems = plugin.gameBox.getPluginManager().getHotbarButtons();
 
 		getOnGameEnd();
 
@@ -85,9 +77,6 @@ public class GameManager implements IGameManager{
 		sendBroadcasts = onGameEnd.getBoolean("sendBroadcasts");
 		dispatchCommands = onGameEnd.getBoolean("dispatchCommands");
 		giveItems = onGameEnd.getBoolean("giveItems");
-		
-		moneyTimeframe = onGameEnd.getInt("restrictions.timeIntervals.money", 0);
-		itemRewardTimeframe = onGameEnd.getInt("restrictions.timeIntervals.items", 0);
 		
 		if(onGameEnd.isConfigurationSection("itemRewards")){
 			ConfigurationSection itemRewards = onGameEnd.getConfigurationSection("itemRewards");
@@ -314,10 +303,6 @@ public class GameManager implements IGameManager{
 
 
 
-
-
-
-
 	private Game getGame(UUID uuid) {
 		for (Game game : games) {
 			if (isPlayer(uuid, game)) {
@@ -374,7 +359,6 @@ public class GameManager implements IGameManager{
 	}
 	
 	void onGameEnd(int score, Player player, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItems){
-		plugin.setStatistics(player.getUniqueId(), score);
 		int key = getKey(score);
 		if(Main.debug) Bukkit.getConsoleSender().sendMessage("Key in onGameEnd: " + key);
 		if(Main.debug)Bukkit.getConsoleSender().sendMessage("pay: " + payOut + "  sendMe: " + sendMessages + "   sendB: " + sendBroadcasts + "    dispatch: " + dispatchCommands);
@@ -382,54 +366,32 @@ public class GameManager implements IGameManager{
 		
 		giveItems:
 		if(giveItems && this.giveItems &&(!player.hasPermission("gemcrush.bypass") || rewardBypass)){
-			if(itemRewardTimeframe > 0){
-				long timeStamp = plugin.getTimestamp(player.getUniqueId(), "itemReward");
-				if(System.currentTimeMillis() - timeStamp < (itemRewardTimeframe*60000)){
-					long diff = System.currentTimeMillis() - timeStamp;
-					int min = (int)(diff/1000.)/60;
-					int sec = (int)(diff/1000.)%60;
-					if((this.items.get(key) != null && !this.items.get(key).isEmpty()))player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_REWARD_COOLDOWN_ITEMS.replaceAll("%min%", String.valueOf(min)).replaceAll("%sec%", String.valueOf(sec))));
-					break giveItems;
-				}
-			}
+
 			if(this.items.get(key) == null) break giveItems;
 			for(ItemStack item : this.items.get(key)){
 				player.getInventory().addItem(item);
 			}
-			plugin.setTimestamp(player.getUniqueId(), "itemReward");
 		}
 		
 		if(sendMessages && this.sendMessages && messages.get(key) != null && messages.get(key).size() > 0){
 			for(String message : messages.get(key)){
-				player.sendMessage(chatColor(Main.prefix + " " + message.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
+				player.sendMessage(chatColor(Language.prefix + " " + message.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
 			}
 		}
 		
 		
 		payMoney:
 		if(payOut && this.pay && plugin.getEconEnabled() && (!player.hasPermission("gamebox.bypass." + Main.gameID) && (!player.hasPermission("gamebox.bypass")) || rewardBypass)){
-			if(moneyTimeframe > 0){
-				long timeStamp = plugin.getTimestamp(player.getUniqueId(), "moneyReward");
-				if(System.currentTimeMillis() - timeStamp < (moneyTimeframe*60000)){
-					long diff = System.currentTimeMillis() - timeStamp;
-					int min = (int)(diff/1000.)/60;
-					int sec = (int)(diff/1000.)%60;
-					if(prices.get(key) > 0)player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_REWARD_COOLDOWN_MONEY.replaceAll("%min%", String.valueOf(min)).replaceAll("%sec%", String.valueOf(sec))));
-					player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
-					break payMoney;
-				}
-			}
 			double reward = prices.get(key);
 			if(Main.debug) Bukkit.getConsoleSender().sendMessage("Reward is: " + reward);
 			if(reward > 0){
-				plugin.setTimestamp(player.getUniqueId(), "moneyReward");
 				Main.econ.depositPlayer(player, reward);
-				player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_FINISHED_WITH_PAY.replaceAll("%score%", score +"").replaceAll("%reward%", reward + "")));
+				player.sendMessage(chatColor(Language.prefix + plugin.lang.GAME_FINISHED_WITH_PAY.replaceAll("%score%", score +"").replaceAll("%reward%", reward + "")));
 			} else {
-				player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
+				player.sendMessage(chatColor(Language.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
 			}
 		} else {
-			player.sendMessage(chatColor(Main.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
+			player.sendMessage(chatColor(Language.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
 		}
 		
 		
@@ -441,7 +403,7 @@ public class GameManager implements IGameManager{
 		
 		if(sendBroadcasts && this.sendBroadcasts && broadcasts.get(key) != null && broadcasts.get(key).size() > 0){
 			for(String broadcast: broadcasts.get(key)){
-				Bukkit.broadcastMessage(chatColor(Main.prefix + " " + broadcast.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
+				Bukkit.broadcastMessage(chatColor(Language.prefix + " " + broadcast.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
 			}
 		}
 		
@@ -567,7 +529,7 @@ public class GameManager implements IGameManager{
 	@Override
 	public boolean startGame(Player[] players, String... strings) {
 		if(strings == null || strings.length < 1) {
-			new Exception("cc").printStackTrace();
+			new Exception("No arguments to start a game").printStackTrace();
 			Bukkit.getLogger().log(Level.WARNING, " Error while starting a game");
 			return false;
 		} else if(strings.length == 1){
@@ -579,9 +541,6 @@ public class GameManager implements IGameManager{
 					return false;
 				}
 				games.add(new Game(plugin, players[0].getUniqueId(), rules.getMoves(), rules.isBombs(), rules.getNumberOfGemTypes(), gems));
-				for(int slot : hotbarItems.keySet()){
-					players[0].getInventory().setItem(slot, hotbarItems.get(slot));
-				}
 				return true;
 			}
 
@@ -599,10 +558,10 @@ public class GameManager implements IGameManager{
 		if (plugin.getEconEnabled() && !player[0].hasPermission("gamebox.bypass." + Main.gameID) && !player[0].hasPermission("gamebox.bypass") && cost > 0.0) {
 			if (Main.econ.getBalance(player[0]) >= cost) {
 				Main.econ.withdrawPlayer(player[0], cost);
-				player[0].sendMessage(plugin.chatColor(Main.prefix + plugin.lang.GAME_PAYED.replaceAll("%cost%", String.valueOf(cost))));
+				player[0].sendMessage(plugin.chatColor(Language.prefix + plugin.lang.GAME_PAYED.replaceAll("%cost%", String.valueOf(cost))));
 				return true;
 			} else {
-				player[0].sendMessage(plugin.chatColor(Main.prefix + plugin.lang.GAME_NOT_ENOUGH_MONEY));
+				player[0].sendMessage(plugin.chatColor(Language.prefix + plugin.lang.GAME_NOT_ENOUGH_MONEY));
 				return false;
 			}
 		} else {
