@@ -264,13 +264,15 @@ public class Main extends JavaPlugin{
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
 			e.printStackTrace(); 
 		}
-		
+
+		/*
 		InputStream defConfigStream = this.getResource("config.yml"); 
 		if (defConfigStream != null){		
 			@SuppressWarnings("deprecation") 
 			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream); 
 			this.config.setDefaults(defConfig); 
-		} 
+		}
+		*/
 	} 
 	
 	public GameManager getManager() {
