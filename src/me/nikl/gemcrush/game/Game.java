@@ -57,7 +57,8 @@ class Game extends BukkitRunnable{
 	// check for existing move every x cycles
 	// reset cycles to 0 on breaking/filling state and add one every run in case PLAY
 	private int checkCycles;
-	
+
+
 	// bomb options
 	private boolean enableBombs;
 	private ArrayList<String> bombLore;
@@ -71,11 +72,13 @@ class Game extends BukkitRunnable{
 	double randDouble;
 
 	private float volume;
+	private boolean playSounds;
 	
 	private boolean payOut, sendMessages, dispatchCommands, sendBroadcasts, giveItemRewards;
 	
-	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems){
+	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean playSounds){
 		this.plugin = plugin;
+		this.playSounds= playSounds;
 		this.lang = plugin.lang;
 		this.config = plugin.getConfig();
 		this.manager = plugin.getManager();
@@ -133,14 +136,12 @@ class Game extends BukkitRunnable{
 		// this basically starts the game
 		this.state = GameState.FILLING;
 		player.openInventory(this.inv);
-		//player.sendMessage("Game was started"); //XXX
-		player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), volume, 1f);
 		
 		this.runTaskTimer(Main.getPlugin(Main.class), 0, this.moveTicks);
 	}
 
-	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItemRewards){
-		this(plugin, playerUUID, moves, bombs, gemNums, gems);
+	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean playSounds, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItemRewards){
+		this(plugin, playerUUID, moves, bombs, gemNums, gems, playSounds);
 		
 		this.payOut = payOut;
 		this.sendMessages = sendMessages;
@@ -393,15 +394,17 @@ class Game extends BukkitRunnable{
 								}
 							}
 							
-							if (Main.playSounds) {
+							if (playSounds) {
 								double randDouble = rand.nextDouble();
 								if(randDouble < 0.25) {
-									if (randDouble < 0.10) {
-										player.playSound(player.getLocation(), Sounds.NOTE_STICKS.bukkitSound(), volume, 1f);
-									} else if (randDouble < 0.17) {
+									if (randDouble < 0.06) {
+										player.playSound(player.getLocation(), Sounds.NOTE_STICKS.bukkitSound(), volume, 5f);
+									} else if (randDouble < 0.13) {
+										player.playSound(player.getLocation(), Sounds.NOTE_PLING.bukkitSound(), volume, 3f);
+									} else if (randDouble < 0.19) {
 										player.playSound(player.getLocation(), Sounds.NOTE_PLING.bukkitSound(), volume, 1f);
 									} else if (randDouble < 0.25) {
-										player.playSound(player.getLocation(), Sounds.NOTE_PLING.bukkitSound(), volume, 0.5f);
+										player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), volume, 3f);
 									/*} else if(randDouble < 0.09){
 										player.playSound(player.getLocation(), Sounds.NOTE_PIANO.bukkitSound(), volume, 1f);
 									} else if(randDouble < 0.12){
@@ -606,7 +609,7 @@ class Game extends BukkitRunnable{
 				this.inv.setItem(i, null);
 			} else if(this.enableBombs){//If a gem is null here already a slot has to be broken twice and will spawn a bomb
 				grid[i] = new Bomb(bombDisplayName, bombLore, bombPointsOnBreak);
-				if(Main.playSounds)player.playSound(player.getLocation(), Sounds.FUSE.bukkitSound(), volume, 1f);
+				if(playSounds)player.playSound(player.getLocation(), Sounds.FUSE.bukkitSound(), volume, 1f);
 				grid[i].setItem(updater.addGlow(grid[i].getItem()));
 				this.inv.setItem(i, grid[i].getItem());
 				bombSpawned.add(i);
@@ -649,10 +652,14 @@ class Game extends BukkitRunnable{
 	}
 	
 	public void playExplodingBomb() {
-		player.playSound(player.getLocation(), Sounds.EXPLODE.bukkitSound(), volume, 1f);
+		if(playSounds)player.playSound(player.getLocation(), Sounds.EXPLODE.bukkitSound(), volume, 1f);
 	}
 	
 	public void playBreakSound() {
-		player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), volume, 1f);
+		if(playSounds)player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), volume, 1f);
+	}
+
+	public boolean isPlaySounds() {
+		return playSounds;
 	}
 }
