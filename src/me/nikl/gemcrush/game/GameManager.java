@@ -465,9 +465,9 @@ public class GameManager implements IGameManager{
 						if(Main.debug)player.sendMessage("Switching Gems " + slot + " and " + oldSlot);
 						if(game.switchGems(slot < oldSlot ? slot : oldSlot, slot > oldSlot ? slot : oldSlot)){
 							clicks.remove(player.getUniqueId());
-							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.NOTE_BASS.bukkitSound(), volume, 1f);
+							if(game.isPlaySounds())player.playSound(player.getLocation(), Sounds.NOTE_BASS.bukkitSound(), volume, 1f);
 						} else {
-							if(Main.playSounds)player.playSound(player.getLocation(), Sounds.VILLAGER_HIT.bukkitSound(), volume, 1f);
+							if(game.isPlaySounds())player.playSound(player.getLocation(), Sounds.VILLAGER_HIT.bukkitSound(), volume, 1f);
 							//if(Main.playSounds)player.playSound(player.getLocation(), Sounds.ANVIL_BREAK.bukkitSound(), volume, 1f);
 
 						}
@@ -477,12 +477,12 @@ public class GameManager implements IGameManager{
 						clicks.put(player.getUniqueId(), slot);
 						game.shine(slot, true);
 						game.shine(oldSlot, false);
-						if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
+						if(game.isPlaySounds())player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
 						if(Main.debug)player.sendMessage("overwritten click in " + oldSlot + " with click in " + slot);
 					}
 				} else {
 					if(Main.debug)player.sendMessage("saved first click in slot " + slot);
-					if(Main.playSounds)player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
+					if(game.isPlaySounds())player.playSound(player.getLocation(), Sounds.CLICK.bukkitSound(), volume, 1f);
 					this.clicks.put(player.getUniqueId(), slot);
 					game.shine(slot, true);
 				}
@@ -527,7 +527,7 @@ public class GameManager implements IGameManager{
 	}
 
 	@Override
-	public boolean startGame(Player[] players, String... strings) {
+	public boolean startGame(Player[] players, boolean playSounds, String... strings) {
 		if(strings == null || strings.length < 1) {
 			new Exception("No arguments to start a game").printStackTrace();
 			Bukkit.getLogger().log(Level.WARNING, " Error while starting a game");
@@ -540,7 +540,7 @@ public class GameManager implements IGameManager{
 				if(!pay(players, rules.getCost())){
 					return false;
 				}
-				games.add(new Game(plugin, players[0].getUniqueId(), rules.getMoves(), rules.isBombs(), rules.getNumberOfGemTypes(), gems));
+				games.add(new Game(plugin, players[0].getUniqueId(), rules.getMoves(), rules.isBombs(), rules.getNumberOfGemTypes(), gems, (playSounds && Main.playSounds)));
 				return true;
 			}
 
