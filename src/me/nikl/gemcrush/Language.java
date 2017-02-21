@@ -18,7 +18,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Language {
 	public static String prefix = "[&3GemCrush&r]";
-	public static String name = "&3GemCrush&r";
+	public static String name = "&1GemCrush&r";
 	private Main plugin;
 	private FileConfiguration langFile;
 	
@@ -38,6 +38,7 @@ public class Language {
 			return;
 		}
 		prefix = getString("prefix");
+		name = getString("name");
 		getCommandMessages();
 		getGameMessages();
 		getInvTitles();
@@ -102,50 +103,10 @@ public class Language {
 	}
 
 	private boolean getLangFile() {
-		InputStream inputStream = null;
-		OutputStream outputStream = null;
-
-		File defaultFile = null;
 		try {
-		
-			// read this file into InputStream
 			String fileName = "language/lang_en.yml";
-			inputStream = plugin.getResource(fileName);
-
-			// write the inputStream to a FileOutputStream
-			defaultFile = new File(plugin.getDataFolder().toString() + File.separatorChar + "language" + File.separatorChar + "default.yml");
-			defaultFile.getParentFile().mkdirs();
-			outputStream = new FileOutputStream(defaultFile);
-
-			int read;
-			byte[] bytes = new byte[1024];
-
-			while ((read = inputStream.read(bytes)) != -1) {
-				outputStream.write(bytes, 0, read);
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (outputStream != null) {
-				try {
-					outputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-			}
-		}
-		try {
-			this.defaultLang =  YamlConfiguration.loadConfiguration(new InputStreamReader(new FileInputStream(defaultFile), "UTF-8"));
-		} catch (UnsupportedEncodingException | FileNotFoundException e2) {
+			this.defaultLang =  YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(fileName), "UTF-8"));
+		} catch (UnsupportedEncodingException e2) {
 			e2.printStackTrace();
 		}
 		File defaultEn = new File(plugin.getDataFolder().toString() + File.separatorChar + "language" + File.separatorChar + "lang_en.yml");
@@ -173,7 +134,12 @@ public class Language {
 				Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " &4Using default language file"));
 				this.langFile = defaultLang;
 			} else {
-				File languageFile = new File(plugin.getDataFolder().toString() + File.separatorChar + "language" + File.separatorChar + plugin.getConfig().getString("langFile"));
+				String fileName = plugin.getConfig().getString("langFile");
+				if(fileName.equalsIgnoreCase("default") || fileName.equalsIgnoreCase("default.yml")){
+					this.langFile = defaultLang;
+					return true;
+				}
+				File languageFile = new File(plugin.getDataFolder().toString() + File.separatorChar + "language" + File.separatorChar + fileName);
 				if(!languageFile.exists()){
 					languageFile.mkdir();
 					Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
