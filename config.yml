@@ -30,10 +30,10 @@ gameBox:
       displayName: "&1It's raining gems"
       lore:
       - ""
-      - "&4moves: &220"
+      - "&4Moves: &220"
       - '&4Gems: &28'
       - '&4Bombs: &2true'
-      - '&4cost: &45'
+      - '&4Cost: &45'
       moves: 20
       # number of different gems in a normal game
       #   This number HAS TO BE equal or smaller then the number of gems defined in the section normalGems below
@@ -50,10 +50,10 @@ gameBox:
       displayName: "&1So much &l&epling"
       lore:
       - ""
-      - "&4moves: &210"
+      - "&4Moves: &210"
       - '&4Gems: &24'
       - '&4Bombs: &2true'
-      - '&4cost: &410'
+      - '&4Cost: &410'
       moves: 10
       differentGems: 4
       bombs: true
@@ -64,10 +64,10 @@ gameBox:
       displayName: "&1The cheaper &l&epling"
       lore:
       - ""
-      - "&4moves: &210"
+      - "&4Moves: &210"
       - '&4Gems: &24'
       - '&4Bombs: &4false'
-      - '&4cost: &45'
+      - '&4Cost: &45'
       moves: 10
       differentGems: 4
       bombs: false
@@ -98,7 +98,7 @@ game:
     - '&4Caution: &6explosive!'
   playSounds: true
   # if you want you can change the sound volume here
-  soundVolume: 0.5
+  soundVolume: 0.4
 
 
 
