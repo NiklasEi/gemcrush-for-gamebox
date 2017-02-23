@@ -88,7 +88,7 @@ public class Main extends JavaPlugin{
 
 		this.manager = new GameManager(this);
 
-		gameBox.getPluginManager().registerGame(manager, gameID, Language.name);
+		gameBox.getPluginManager().registerGame(manager, gameID, Language.name, 1);
 
 		GameGui gameGui = new GameGui(gameBox, guiManager, 54, gameID, "main");
 
