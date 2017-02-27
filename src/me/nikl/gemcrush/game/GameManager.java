@@ -1,5 +1,6 @@
 package me.nikl.gemcrush.game;
 
+import me.nikl.gamebox.GameBox;
 import me.nikl.gamebox.game.IGameManager;
 import me.nikl.gemcrush.Language;
 import me.nikl.gemcrush.Main;
@@ -527,26 +528,26 @@ public class GameManager implements IGameManager{
 	}
 
 	@Override
-	public boolean startGame(Player[] players, boolean playSounds, String... strings) {
+	public int startGame(Player[] players, boolean playSounds, String... strings) {
 		if(strings == null || strings.length < 1) {
 			new Exception("No arguments to start a game").printStackTrace();
 			Bukkit.getLogger().log(Level.WARNING, " Error while starting a game");
-			return false;
+			return GameBox.GAME_NOT_STARTED_ERROR;
 		} else if(strings.length == 1){
 			// strings[0] should be a registered game type
 			for(String id : gameTypes.keySet()){
 				if(!id.equalsIgnoreCase(strings[0])) continue;
 				GameRules rules = gameTypes.get(id);
 				if(!pay(players, rules.getCost())){
-					return false;
+					return GameBox.GAME_NOT_ENOUGH_MONEY;
 				}
 				games.add(new Game(plugin, players[0].getUniqueId(), rules.getMoves(), rules.isBombs(), rules.getNumberOfGemTypes(), gems, (playSounds && Main.playSounds)));
-				return true;
+				return GameBox.GAME_STARTED;
 			}
 
 		}
 		Bukkit.getLogger().log(Level.WARNING, "not supported number of arguments to start a game");
-		return false;
+		return GameBox.GAME_NOT_STARTED_ERROR;
 	}
 
 	@Override
