@@ -2,9 +2,11 @@ package me.nikl.gemcrush;
 
 import me.nikl.gamebox.ClickAction;
 import me.nikl.gamebox.GameBox;
+import me.nikl.gamebox.data.SaveType;
 import me.nikl.gamebox.guis.GUIManager;
 import me.nikl.gamebox.guis.button.AButton;
 import me.nikl.gamebox.guis.gui.game.GameGui;
+import me.nikl.gamebox.guis.gui.game.TopListPage;
 import me.nikl.gemcrush.game.GameManager;
 import me.nikl.gemcrush.game.GameRules;
 import me.nikl.gemcrush.nms.*;
@@ -90,7 +92,10 @@ public class Main extends JavaPlugin{
 
 		gameBox.getPluginManager().registerGame(manager, gameID, Language.name, 1);
 
-		GameGui gameGui = new GameGui(gameBox, guiManager, 54, gameID, "main");
+
+		int gameGuiSlots = 54;
+		GameGui gameGui = new GameGui(gameBox, guiManager, gameGuiSlots, gameID, "main");
+		gameGui.setHelpButton(lang.GAME_HELP);
 
 
 
@@ -101,7 +106,7 @@ public class Main extends JavaPlugin{
 			ConfigurationSection buttonSec;
 			int moves, numberOfGems;
 			double cost;
-			boolean bombs;
+			boolean bombs, saveStats;
 
 			String displayName;
 			ArrayList<String> lore;
@@ -149,12 +154,20 @@ public class Main extends JavaPlugin{
 				moves = buttonSec.getInt("moves", 20);
 				numberOfGems = buttonSec.getInt("differentGems", 8);
 				cost = buttonSec.getDouble("cost", 0.);
+				saveStats = buttonSec.getBoolean("saveStats", false);
 
 
-				rules = new GameRules(moves, numberOfGems, bombs, cost);
+				rules = new GameRules(moves, numberOfGems, bombs, cost, saveStats, buttonID);
 
+				setTheButton:
 				if(buttonSec.isInt("slot")){
-					gameGui.setButton(button, buttonSec.getInt("slot"));
+					int slot = buttonSec.getInt("slot");
+					if(slot < 0 || slot >= gameGuiSlots){
+						Bukkit.getLogger().log(Level.WARNING, "the slot of gameBox.gameButtons." + buttonID + " is out of the inventory range (0 - "+ gameGuiSlots +")");
+						gameGui.setButton(button);
+						break setTheButton;
+					}
+					gameGui.setButton(button, slot);
 				} else {
 					gameGui.setButton(button);
 				}
@@ -190,6 +203,94 @@ public class Main extends JavaPlugin{
 			guiManager.registerGameGUI(gameID, "main", gameGui, gameButton, "gemcrush", "gc");
 		} else {
 			Bukkit.getLogger().log(Level.WARNING, " Missing or wrong configured main button in the configuration file!");
+		}
+
+
+		// get top list buttons
+		if(config.isConfigurationSection("gameBox.topListButtons")){
+			ConfigurationSection topListButtons = config.getConfigurationSection("gameBox.topListButtons");
+			ConfigurationSection buttonSec;
+
+			ArrayList<String> lore;
+
+
+			for(String buttonID : topListButtons.getKeys(false)){
+				buttonSec = topListButtons.getConfigurationSection(buttonID);
+
+				if(!gameTypes.keySet().contains(buttonID)){
+					Bukkit.getLogger().log(Level.WARNING, " the top list button 'gameBox.topListButtons." + buttonID + "' does not have a corresponding game button");
+					continue;
+				}
+
+
+				if(!gameTypes.get(buttonID).isSaveStats()){
+					Bukkit.getLogger().log(Level.WARNING, " the top list buttons 'gameBox.topListButtons." + buttonID + "' corresponding game button has statistics turned off!");
+					Bukkit.getLogger().log(Level.WARNING, " With these settings there is no toplist to display");
+					continue;
+				}
+
+				if(!buttonSec.isString("materialData")){
+					Bukkit.getLogger().log(Level.WARNING, " missing material data under: gameBox.topListButtons." + buttonID + "        can not load the button");
+					continue;
+				}
+
+				ItemStack mat = getItemStack(buttonSec.getString("materialData"));
+				if(mat == null){
+					Bukkit.getLogger().log(Level.WARNING, " error loading: gameBox.topListButtons." + buttonID);
+					Bukkit.getLogger().log(Level.WARNING, "     invalid material data");
+					continue;
+				}
+
+
+				AButton button =  new AButton(mat.getData(), 1);
+				ItemMeta meta = button.getItemMeta();
+
+				if(buttonSec.isString("displayName")){
+					meta.setDisplayName(chatColor(buttonSec.getString("displayName")));
+				}
+
+
+				if(buttonSec.isList("lore")){
+					lore = new ArrayList<>(buttonSec.getStringList("lore"));
+					for(int i = 0; i < lore.size();i++){
+						lore.set(i, chatColor(lore.get(i)));
+					}
+					meta.setLore(lore);
+				}
+
+				button.setItemMeta(meta);
+				button.setAction(ClickAction.SHOW_TOP_LIST);
+				button.setArgs(gameID, buttonID + GUIManager.TOP_LIST_KEY_ADDON);
+
+
+
+				setTheButton:
+				if(buttonSec.isInt("slot")){
+					int slot = buttonSec.getInt("slot");
+					if(slot < 0 || slot >= gameGuiSlots){
+						Bukkit.getLogger().log(Level.WARNING, "the slot of gameBox.topListButtons." + buttonID + " is out of the inventory range (0 - "+ gameGuiSlots +")");
+						gameGui.setButton(button);
+						break setTheButton;
+					}
+					gameGui.setButton(button, slot);
+				} else {
+					gameGui.setButton(button);
+				}
+
+				// get skull lore and pass on to the top list page
+				if(buttonSec.isList("skullLore")){
+					lore = new ArrayList<>(buttonSec.getStringList("skullLore"));
+					for(int i = 0; i < lore.size();i++){
+						lore.set(i, chatColor(lore.get(i)));
+					}
+				} else {
+					lore = new ArrayList<>(Arrays.asList("", "No lore specified in the config!"));
+				}
+
+				TopListPage topListPage = new TopListPage(gameBox, guiManager, 54, gameID, buttonID + GUIManager.TOP_LIST_KEY_ADDON, buttonSec.isString("inventoryTitle")? ChatColor.translateAlternateColorCodes('&',buttonSec.getString("inventoryTitle")):"Title missing in config", SaveType.SCORE, lore);
+
+				guiManager.registerTopList(gameID, buttonID, topListPage);
+			}
 		}
 	}
 	
@@ -262,7 +363,8 @@ public class Main extends JavaPlugin{
 		try { 
 			this.config = YamlConfiguration.loadConfiguration(new InputStreamReader(new FileInputStream(this.con), "UTF-8")); 
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
-			e.printStackTrace(); 
+			e.printStackTrace();
+			disabled = true;
 		}
 
 		/*
@@ -302,6 +404,8 @@ public class Main extends JavaPlugin{
 				Bukkit.getLogger().log(Level.WARNING, " Failed to set up economy...");
 				Bukkit.getLogger().log(Level.WARNING, " Do you have vault and an economy plugin installed?");
 				this.econEnabled = false;
+				disabled = true;
+				return;
 			}
 		}
 	}
