@@ -27,7 +27,7 @@ public class Language {
 	public String GAME_PAYED, GAME_NOT_ENOUGH_MONEY, GAME_FINISHED_NO_PAY, GAME_FINISHED_WITH_PAY;
 	public String GAME_REWARD_COOLDOWN_MONEY, GAME_REWARD_COOLDOWN_ITEMS;
 	public String TITLE_GAME;
-	public List<String> CMD_HELP;
+	public List<String> CMD_HELP, GAME_HELP;
 	private YamlConfiguration defaultLang;
 	
 	Language(Main plugin){
@@ -59,6 +59,8 @@ public class Language {
 		this.GAME_FINISHED_NO_PAY = getString("game.finishedWithoutPayout");
 		this.GAME_FINISHED_WITH_PAY = getString("game.finishedWithPayout");
 		
+		this.GAME_HELP = getStringList("gameHelp");
+
 	}
 
 	private void getCommandMessages() {
