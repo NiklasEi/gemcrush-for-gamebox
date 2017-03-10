@@ -34,6 +34,8 @@ gameBox:
       - '&4Gems: &28'
       - '&4Bombs: &2true'
       - '&4Cost: &45'
+      - ''
+      - '&3&lTop list is activated!'
       moves: 20
       # number of different gems in a normal game
       #   This number HAS TO BE equal or smaller then the number of gems defined in the section normalGems below
@@ -45,6 +47,7 @@ gameBox:
       #   be careful to not use the same twice ;)
       slot: 0
       cost: 5
+      saveStats: true
     lessMovesAndLessGemTypes:
       materialData: "nether_star"
       displayName: "&1So much &l&epling"
@@ -73,6 +76,23 @@ gameBox:
       bombs: false
       slot: 6
       cost: 5
+  topListButtons:
+    # use the same key as the game you want to display the top list for
+    #   for that button 'saveStats' must be true (see above)
+    normalGame:
+      materialData: "diamond_block"
+      displayName: "&cTop list"
+      lore:
+      - ""
+      - "&3Compare your GemCrush skills with others"
+      slot: 9
+      # inventory title of the top list (%player% and %game%)
+      inventoryTitle: " &1It's raining gems      &rTop List"
+      # Lore of the skulls in the inventory. Use %rank% for the rank and %time% for the time in 'mm:ss'
+      skullLore:
+      - ''
+      - '&6Rank:&1 %rank%'
+      - '&6Score:&1 %score%'
 
 
 game:
