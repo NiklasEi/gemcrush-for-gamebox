@@ -1,6 +1,8 @@
 package me.nikl.gemcrush.game;
 
 import me.nikl.gamebox.GameBox;
+import me.nikl.gamebox.data.SaveType;
+import me.nikl.gamebox.data.Statistics;
 import me.nikl.gamebox.game.IGameManager;
 import me.nikl.gemcrush.Language;
 import me.nikl.gemcrush.Main;
@@ -38,6 +40,9 @@ public class GameManager implements IGameManager{
 
 	private Map<String,GameRules> gameTypes;
 
+
+	private Statistics statistics;
+
 	// map with all gems
 	private Map<String, Gem> gems = new HashMap<>();
 
@@ -47,6 +52,7 @@ public class GameManager implements IGameManager{
 	
 	public GameManager(Main plugin){
 		this.plugin = plugin;
+		this.statistics = plugin.gameBox.getStatistics();
 		this.games = new HashSet<>();
 		this.clicks = new HashMap<>();
 		this.volume = (float) plugin.getConfig().getDouble("game.soundVolume", 0.5);
@@ -363,7 +369,7 @@ public class GameManager implements IGameManager{
 		int key = getKey(score);
 		if(Main.debug) Bukkit.getConsoleSender().sendMessage("Key in onGameEnd: " + key);
 		if(Main.debug)Bukkit.getConsoleSender().sendMessage("pay: " + payOut + "  sendMe: " + sendMessages + "   sendB: " + sendBroadcasts + "    dispatch: " + dispatchCommands);
-		
+
 		
 		giveItems:
 		if(giveItems && this.giveItems &&(!player.hasPermission("gemcrush.bypass") || rewardBypass)){
@@ -541,7 +547,7 @@ public class GameManager implements IGameManager{
 				if(!pay(players, rules.getCost())){
 					return GameBox.GAME_NOT_ENOUGH_MONEY;
 				}
-				games.add(new Game(plugin, players[0].getUniqueId(), rules.getMoves(), rules.isBombs(), rules.getNumberOfGemTypes(), gems, (playSounds && Main.playSounds)));
+				games.add(new Game(plugin, players[0].getUniqueId(), rules.getMoves(), rules.isBombs(), rules.getNumberOfGemTypes(), gems, (playSounds && Main.playSounds), rules));
 				return GameBox.GAME_STARTED;
 			}
 
@@ -572,5 +578,9 @@ public class GameManager implements IGameManager{
 
 	public void setGameTypes(Map<String,GameRules> gameTypes) {
 		this.gameTypes = gameTypes;
+	}
+
+	public void saveStats(UUID uniqueId, int points, String key) {
+		statistics.addStatistics(uniqueId, Main.gameID, key, (double) points, SaveType.SCORE);
 	}
 }

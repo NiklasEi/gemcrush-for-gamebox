@@ -5,47 +5,42 @@ package me.nikl.gemcrush.game;
  */
 public class GameRules {
     private int moves;
-    private boolean bombs;
+    private boolean bombs, saveStats;
     private int numberOfGemTypes;
     private double cost;
+    private String key;
 
 
-    public GameRules(int moves, int numberOfGemTypes, boolean bombs, double cost){
+    public GameRules(int moves, int numberOfGemTypes, boolean bombs, double cost, boolean saveStats, String key){
         this.moves = moves;
         this.numberOfGemTypes = numberOfGemTypes;
         this.bombs = bombs;
         this.cost = cost;
+        this.saveStats = saveStats;
+        this.key = key;
     }
 
     public int getMoves() {
         return moves;
     }
 
-    public void setMoves(int moves) {
-        this.moves = moves;
-    }
-
     public boolean isBombs() {
         return bombs;
-    }
-
-    public void setBombs(boolean bombs) {
-        this.bombs = bombs;
     }
 
     public int getNumberOfGemTypes() {
         return numberOfGemTypes;
     }
 
-    public void setNumberOfGemTypes(int numberOfGemTypes) {
-        this.numberOfGemTypes = numberOfGemTypes;
-    }
-
     public double getCost() {
         return cost;
     }
 
-    public void setCost(double cost) {
-        this.cost = cost;
+    public boolean isSaveStats() {
+        return saveStats;
+    }
+
+    public String getKey() {
+        return key;
     }
 }

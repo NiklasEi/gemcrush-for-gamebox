@@ -71,12 +71,14 @@ class Game extends BukkitRunnable{
 	private Random rand = new Random();
 	double randDouble;
 
+	private GameRules rule;
+
 	private float volume;
 	private boolean playSounds;
 	
 	private boolean payOut, sendMessages, dispatchCommands, sendBroadcasts, giveItemRewards;
 	
-	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean playSounds){
+	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean playSounds, GameRules rule){
 		this.plugin = plugin;
 		this.playSounds= playSounds;
 		this.lang = plugin.lang;
@@ -89,6 +91,7 @@ class Game extends BukkitRunnable{
 		this.moves = moves;
 		this.points = 0;
 		this.enableBombs = bombs;
+		this.rule = rule;
 
 		this.gems = gems;
 
@@ -140,8 +143,8 @@ class Game extends BukkitRunnable{
 		this.runTaskTimer(Main.getPlugin(Main.class), 0, this.moveTicks);
 	}
 
-	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean playSounds, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItemRewards){
-		this(plugin, playerUUID, moves, bombs, gemNums, gems, playSounds);
+	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean playSounds, GameRules rule, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItemRewards){
+		this(plugin, playerUUID, moves, bombs, gemNums, gems, playSounds, rule);
 		
 		this.payOut = payOut;
 		this.sendMessages = sendMessages;
@@ -555,6 +558,9 @@ class Game extends BukkitRunnable{
 	
 	
 	public void won() {
+		if(rule.isSaveStats()){
+			manager.saveStats(player.getUniqueId(), points, rule.getKey());
+		}
 		manager.onGameEnd(points, player, payOut, sendMessages, dispatchCommands, sendBroadcasts, giveItemRewards);
 	}
 	
@@ -661,5 +667,9 @@ class Game extends BukkitRunnable{
 
 	public boolean isPlaySounds() {
 		return playSounds;
+	}
+
+	public GameRules getRule() {
+		return rule;
 	}
 }
