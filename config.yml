@@ -131,26 +131,9 @@ economy:
 
 onGameEnd:
   pay: true
-  sendMessages: false
-  sendBroadcasts: false
-  dispatchCommands: false
-  giveItems: false
   restrictions:
     # players with bypass permission do not have to pay. Here you can set whether they also do not get any rewards.
     playersWithBypassDontGetRewards: true
-
-  itemRewards:
-    # add as many items as you want
-    #   use the key (in the example below it's 'exampleItem') to set it as a reward in the scoreIntervals
-    exampleItem:
-      material: Stone:2
-      lore:
-      - "&3testing"
-      - "second row"
-      displayName: "Test &4item"
-      # number of items
-      count: 1
-
 
   scoreIntervals:
     # all keys have to be integers otherwise they will be ignored and a warning will be printed in the console
@@ -160,18 +143,11 @@ onGameEnd:
     # You can add as many intervals as you want to. The order of the intervals doesn't matter
     #   the given reward/messages/commands/broadcasts will always be used if the game is finished with a score between the key and the
     #   next higher key. For the highest key the interval goes to infinity
-    # You can add a money-reward with money: x; messages to send to the player with messages: (as list);
-    #   commands: (as a list); broadcast: (as list); items: (as a list of previously under 'onGameEnd.itemRewards' defined item stacks)
+    # You can add a money-reward with money: x
 
     # use %player% for the players name and %score% for the score
-
-    # FYI: there is a message in the language file that will always be send after a game
-    #   only add additional messages in this section
     0:
       money: 0
-      messages:
-      - ' &2you can do better than that...'
-      - ' &4try again &1;)'
     100:
       money: 10
     200:
@@ -180,23 +156,8 @@ onGameEnd:
       money: 30
     400:
       money: 40
-      commands:
-      - 'tell %player% congrats ;)'
-      - 'tell %player% you scored %score%!'
     500:
       money: 50
-      messages:
-      - " &2%score% wow! &1That's not bad ^^"
-      # - ' &2You won a diamond'
-      commands:
-      - 'tell %player% you scored %score%!'
-      # - 'give %player% diamond 1'
-      broadcast:
-      - '%player% finished a game of &2GemCrush&r with &2%score%&r points!'
-      - 'Do &2/gc &rto prove that you are better ;)'
-      items:
-      #- 'exampleItem'
-      #- 'yourOwnDefinedItemStack(define above in section onGameEnd.itemRewards)'
 
 
 
