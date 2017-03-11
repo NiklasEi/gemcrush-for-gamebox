@@ -31,11 +31,6 @@ public class GameManager implements IGameManager{
 	private Map<UUID, Integer> clicks;
 	
 	private Map<Integer, Double> prices;
-	private Map<Integer, List<String>> commands;
-	private Map<Integer, List<String>> broadcasts;
-	private Map<Integer, List<String>> messages;
-	private Map<Integer, List<ItemStack>> items;
-	private Map<String, ItemStack> itemRewards;
 
 
 	private Map<String,GameRules> gameTypes;
@@ -48,7 +43,7 @@ public class GameManager implements IGameManager{
 
 	private float volume;
 	
-	private boolean pay, sendMessages, sendBroadcasts, dispatchCommands, rewardBypass, giveItems;
+	private boolean pay, rewardBypass;
 	
 	public GameManager(Main plugin){
 		this.plugin = plugin;
@@ -73,45 +68,10 @@ public class GameManager implements IGameManager{
 		ConfigurationSection onGameEnd = plugin.getConfig().getConfigurationSection("onGameEnd");
 		// default is true
 		rewardBypass = !onGameEnd.isBoolean("restrictions.playersWithBypassDontGetRewards") || onGameEnd.getBoolean("restrictions.playersWithBypassDontGetRewards");
+
 		prices = new HashMap<>();
-		commands = new HashMap<>();
-		broadcasts = new HashMap<>();
-		messages = new HashMap<>();
-		itemRewards = new HashMap<>();
-		items = new HashMap<>();
 		pay = onGameEnd.getBoolean("pay");
-		sendMessages = onGameEnd.getBoolean("sendMessages");
-		sendBroadcasts = onGameEnd.getBoolean("sendBroadcasts");
-		dispatchCommands = onGameEnd.getBoolean("dispatchCommands");
-		giveItems = onGameEnd.getBoolean("giveItems");
-		
-		if(onGameEnd.isConfigurationSection("itemRewards")){
-			ConfigurationSection itemRewards = onGameEnd.getConfigurationSection("itemRewards");
-			for(String key: itemRewards.getKeys(false)){
-				MaterialData mat = getMaterial(itemRewards.getString(key + ".material"));
-				if(mat == null){
-					Bukkit.getLogger().log(Level.WARNING, "Material of " + key + " from onGameEnd could not be loaded!");
-					continue;
-				}
-				ItemStack item = mat.toItemStack();
-				if(itemRewards.isInt(key + ".count")) item.setAmount(itemRewards.getInt(key + ".count"));
-				if(itemRewards.isList(key + ".lore")){
-					List<String> lore = new ArrayList<>(itemRewards.getStringList(key + ".lore"));
-					for(int i = 0; i < lore.size(); i++){
-						lore.set(i, ChatColor.translateAlternateColorCodes('&', lore.get(i)));
-					}
-					ItemMeta meta = item.getItemMeta();
-					meta.setLore(lore);
-					item.setItemMeta(meta);
-				}
-				if(itemRewards.isString(key + ".displayName")){
-					ItemMeta meta = item.getItemMeta();
-					meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', itemRewards.getString(key + ".displayName")));
-					item.setItemMeta(meta);
-				}
-				this.itemRewards.put(key, item);
-			}
-		}
+
 		
 		onGameEnd = plugin.getConfig().getConfigurationSection("onGameEnd.scoreIntervals");
 		for (String key : onGameEnd.getKeys(false)) {
@@ -127,60 +87,17 @@ public class GameManager implements IGameManager{
 			} else {
 				prices.put(keyInt, 0.);
 			}
-			
-			
-			if (onGameEnd.isSet(key + ".items") && (onGameEnd.isList(key + ".items") )) {
-				ArrayList<String> itemList = new ArrayList<>(onGameEnd.getStringList(key + ".items"));
-				ArrayList<ItemStack> itemStackList = new ArrayList<>();
-				boolean found = false;
-				for(String itemString: itemList){
-					if(itemRewards.get(itemString) != null){
-						itemStackList.add(itemRewards.get(itemString));
-						found = true;
-						continue;
-					}
-					Bukkit.getLogger().log(Level.WARNING, "Item " + itemString + " from 'onGameEnd." + key + ".items' was not defined in 'onGameEnd.itemRewards'");
-				}
-				
-				if(found){
-					items.put(keyInt, itemStackList);
-				} else {
-					items.put(keyInt, null);
-				}
-			} else {
-				items.put(keyInt, null);
-			}
-			
-			if (onGameEnd.isSet(key + ".broadcast") && onGameEnd.isList(key + ".broadcast")) {
-				broadcasts.put(keyInt, onGameEnd.getStringList(key + ".broadcast"));
-			} else {
-				broadcasts.put(keyInt, null);
-			}
-			
-			if (onGameEnd.isSet(key + ".messages") && onGameEnd.isList(key + ".messages")) {
-				messages.put(keyInt, onGameEnd.getStringList(key + ".messages"));
-			} else {
-				messages.put(keyInt, null);
-			}
-			
-			if (onGameEnd.isSet(key + ".commands") && onGameEnd.isList(key + ".commands")) {
-				commands.put(keyInt, onGameEnd.getStringList(key + ".commands"));
-			} else {
-				commands.put(keyInt, null);
-			}
+
 		}
 		
 		
 		if(Main.debug){
 			Bukkit.getConsoleSender().sendMessage("Testing onGameEnd: ");
 			
-			Bukkit.getConsoleSender().sendMessage("pay: " + pay + "  sendMe: " + sendMessages + "   sendB: " + sendBroadcasts + "    dispatch: " + dispatchCommands);
+			Bukkit.getConsoleSender().sendMessage("pay: " + pay);
 			for (int i : prices.keySet()) {
 				
 				Bukkit.getConsoleSender().sendMessage("Over: " + i + "    reward: " + prices.get(i));
-				Bukkit.getConsoleSender().sendMessage("    broadcasts: " + broadcasts.get(i));
-				Bukkit.getConsoleSender().sendMessage("    messages: " + messages.get(i));
-				Bukkit.getConsoleSender().sendMessage("    commands: " + commands.get(i));
 			}
 			
 			Bukkit.getConsoleSender().sendMessage(" ");
@@ -194,7 +111,6 @@ public class GameManager implements IGameManager{
 			Bukkit.getConsoleSender().sendMessage("Random score: " + 100);
 			Bukkit.getConsoleSender().sendMessage("Key: " + getKey(100));
 		}
-		
 	}
 	
 	private MaterialData getMaterial(String matString){
@@ -362,29 +278,13 @@ public class GameManager implements IGameManager{
 	}
 	
 	void onGameEnd(int score, Player player){
-		onGameEnd(score, player, true, true, true, true, true);
+		onGameEnd(score, player, true);
 	}
 	
-	void onGameEnd(int score, Player player, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItems){
+	void onGameEnd(int score, Player player, boolean payOut){
 		int key = getKey(score);
 		if(Main.debug) Bukkit.getConsoleSender().sendMessage("Key in onGameEnd: " + key);
-		if(Main.debug)Bukkit.getConsoleSender().sendMessage("pay: " + payOut + "  sendMe: " + sendMessages + "   sendB: " + sendBroadcasts + "    dispatch: " + dispatchCommands);
-
-		
-		giveItems:
-		if(giveItems && this.giveItems &&(!player.hasPermission("gemcrush.bypass") || rewardBypass)){
-
-			if(this.items.get(key) == null) break giveItems;
-			for(ItemStack item : this.items.get(key)){
-				player.getInventory().addItem(item);
-			}
-		}
-		
-		if(sendMessages && this.sendMessages && messages.get(key) != null && messages.get(key).size() > 0){
-			for(String message : messages.get(key)){
-				player.sendMessage(chatColor(Language.prefix + " " + message.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
-			}
-		}
+		if(Main.debug)Bukkit.getConsoleSender().sendMessage("pay: " + payOut);
 		
 		
 		payMoney:
@@ -399,19 +299,6 @@ public class GameManager implements IGameManager{
 			}
 		} else {
 			player.sendMessage(chatColor(Language.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
-		}
-		
-		
-		if(dispatchCommands && this.dispatchCommands && commands.get(key) != null && commands.get(key).size() > 0){
-			for(String cmd : commands.get(key)){
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replaceAll("%player%", player.getName()).replaceAll("%score%", score + ""));
-			}
-		}
-		
-		if(sendBroadcasts && this.sendBroadcasts && broadcasts.get(key) != null && broadcasts.get(key).size() > 0){
-			for(String broadcast: broadcasts.get(key)){
-				Bukkit.broadcastMessage(chatColor(Language.prefix + " " + broadcast.replaceAll("%player%", player.getName()).replaceAll("%score%", score + "")));
-			}
 		}
 		
 	}
