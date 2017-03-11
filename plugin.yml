@@ -2,9 +2,5 @@ name: GemCrush
 author: Nikl
 main: me.nikl.gemcrush.Main
 version: 2.0.0
+website: nikl.me
 depend: [GameBox]
-commands:
-  gemcrushtop:
-    description: display the top 10
-    usage: /gemcrushtop
-    aliases: [gctop]
