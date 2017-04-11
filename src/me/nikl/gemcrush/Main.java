@@ -19,7 +19,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -69,13 +68,10 @@ public class Main extends JavaPlugin{
 	private void hook() {
 		if(Bukkit.getPluginManager().getPlugin("GameBox") == null || !Bukkit.getPluginManager().getPlugin("GameBox").isEnabled()){
 			Bukkit.getLogger().log(Level.WARNING, " GameBox not found");
-			Bukkit.getLogger().log(Level.WARNING, " Continuing as standalone");
 			Bukkit.getPluginManager().disablePlugin(this);
 			disabled = true;
 			return;
 		}
-
-
 
 
 
