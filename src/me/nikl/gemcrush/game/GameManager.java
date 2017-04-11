@@ -17,20 +17,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 
 import java.util.*;
 import java.util.logging.Level;
 
+/**
+ * GameManager implementing the GameBox interface
+ */
 public class GameManager implements IGameManager{
 
 	private Main plugin;
 	private Set<Game> games;
 	private Map<UUID, Integer> clicks;
 	
-	private Map<Integer, Double> prices;
+	private Map<Integer, Double> moneyRewards;
+	private Map<Integer, Integer> tokenRewards;
 
 
 	private Map<String,GameRules> gameTypes;
@@ -64,12 +65,13 @@ public class GameManager implements IGameManager{
 	}
 	
 	private void getOnGameEnd() {
-		if(!plugin.getConfig().isConfigurationSection("onGameEnd.scoreIntervals")) return;
+		if(!plugin.getConfig().isConfigurationSection("onGameEnd")) return;
 		ConfigurationSection onGameEnd = plugin.getConfig().getConfigurationSection("onGameEnd");
 		// default is true
-		rewardBypass = !onGameEnd.isBoolean("restrictions.playersWithBypassDontGetRewards") || onGameEnd.getBoolean("restrictions.playersWithBypassDontGetRewards");
+		rewardBypass = onGameEnd.getBoolean("restrictions.playersWithBypassDontGetRewards", true);
 
-		prices = new HashMap<>();
+		moneyRewards = new HashMap<>();
+		tokenRewards = new HashMap<>();
 		pay = onGameEnd.getBoolean("pay");
 
 		
@@ -83,66 +85,17 @@ public class GameManager implements IGameManager{
 				continue;
 			}
 			if (onGameEnd.isSet(key + ".money") && (onGameEnd.isDouble(key + ".money") || onGameEnd.isInt(key + ".money"))) {
-				prices.put(keyInt, onGameEnd.getDouble(key + ".money"));
+				moneyRewards.put(keyInt, onGameEnd.getDouble(key + ".money"));
 			} else {
-				prices.put(keyInt, 0.);
+				moneyRewards.put(keyInt, 0.);
 			}
-
-		}
-		
-		
-		if(Main.debug){
-			Bukkit.getConsoleSender().sendMessage("Testing onGameEnd: ");
-			
-			Bukkit.getConsoleSender().sendMessage("pay: " + pay);
-			for (int i : prices.keySet()) {
-				
-				Bukkit.getConsoleSender().sendMessage("Over: " + i + "    reward: " + prices.get(i));
+			if (onGameEnd.isSet(key + ".tokens") && (onGameEnd.isDouble(key + ".tokens") || onGameEnd.isInt(key + ".tokens"))) {
+				tokenRewards.put(keyInt, onGameEnd.getInt(key + ".tokens"));
+			} else {
+				tokenRewards.put(keyInt, 0);
 			}
-			
-			Bukkit.getConsoleSender().sendMessage(" ");
-			Bukkit.getConsoleSender().sendMessage("Run some tests: ");
-			Random rand = new Random();
-			for (int i = 0; i < 10; i++) {
-				int score = rand.nextInt(600);
-				Bukkit.getConsoleSender().sendMessage("Random score: " + score);
-				Bukkit.getConsoleSender().sendMessage("Key: " + getKey(score));
-			}
-			Bukkit.getConsoleSender().sendMessage("Random score: " + 100);
-			Bukkit.getConsoleSender().sendMessage("Key: " + getKey(100));
 		}
 	}
-	
-	private MaterialData getMaterial(String matString){
-		if(matString==null) return null;
-		Material mat = null;
-		byte data = 0;
-		String[] obj = matString.split(":");
-		
-		if (obj.length == 2) {
-			try {
-				mat = Material.matchMaterial(obj[0]);
-			} catch (Exception e) {
-				// material name doesn't exist
-			}
-			
-			try {
-				data = Integer.valueOf(obj[1]).byteValue();
-			} catch (NumberFormatException e) {
-				// data not a number
-			}
-		} else {
-			try {
-				mat = Material.matchMaterial(matString);
-			} catch (Exception e) {
-				// material name doesn't exist
-			}
-		}
-		if(mat == null) return null;
-		@SuppressWarnings("deprecation") MaterialData toReturn = new MaterialData(mat, data);
-		return toReturn;
-	}
-
 
 
 	private boolean loadGems() {
@@ -267,7 +220,7 @@ public class GameManager implements IGameManager{
 	
 	private int getKey(int score){
 		int distance = -1;
-		for(int key : prices.keySet()) {
+		for(int key : moneyRewards.keySet()) {
 			if((score - key) >= 0 && (distance < 0 || distance > (score - key))){
 				distance = score - key;
 			}
@@ -289,7 +242,7 @@ public class GameManager implements IGameManager{
 		
 		payMoney:
 		if(payOut && this.pay && plugin.getEconEnabled() && (!player.hasPermission("gamebox.bypass." + Main.gameID) && (!player.hasPermission("gamebox.bypass")) || rewardBypass)){
-			double reward = prices.get(key);
+			double reward = moneyRewards.get(key);
 			if(Main.debug) Bukkit.getConsoleSender().sendMessage("Reward is: " + reward);
 			if(reward > 0){
 				Main.econ.depositPlayer(player, reward);
@@ -299,6 +252,14 @@ public class GameManager implements IGameManager{
 			}
 		} else {
 			player.sendMessage(chatColor(Language.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
+		}
+
+		giveTokens:
+		{
+			int tokens = tokenRewards.get(key);
+			if(tokens == 0) break giveTokens;
+
+			plugin.gameBox.wonTokens(player.getUniqueId(), tokens, Main.gameID);
 		}
 		
 	}
