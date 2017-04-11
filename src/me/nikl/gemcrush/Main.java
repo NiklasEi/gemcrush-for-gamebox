@@ -102,6 +102,7 @@ public class Main extends JavaPlugin{
 			if(minVersion[i].equals(version[i])) continue;
 
 			Bukkit.getLogger().log(Level.WARNING, " Your GameBox is outdated!");
+			Bukkit.getLogger().log(Level.WARNING, " Get the latest version here: https://www.spigotmc.org/resources/gamebox.37273/");
 			Bukkit.getLogger().log(Level.WARNING, " You need at least version " + depends[1][1]);
 			Bukkit.getPluginManager().disablePlugin(this);
 			disabled = true;
