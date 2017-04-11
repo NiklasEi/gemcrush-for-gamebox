@@ -48,6 +48,34 @@ gameBox:
       slot: 0
       cost: 5
       saveStats: true
+      scoreIntervals:
+        # all keys have to be integers otherwise they will be ignored and a warning will be printed in the console
+
+        # money is only paid if economy is enabled
+        # tokens can be used in the GameBox shop
+
+        # You can add as many intervals as you want to. The order of the intervals doesn't matter
+        #   the given reward/messages/commands/broadcasts will always be used if the game is finished with a score between the key and the
+        #   next higher key. For the highest key the interval goes to infinity
+        # You can add a money-reward with money: x
+        0:
+          money: 0
+          tokens: 0
+        100:
+          money: 10
+          tokens: 1
+        200:
+          money: 20
+          tokens: 1
+        300:
+          money: 30
+          tokens: 2
+        400:
+          money: 40
+          tokens: 2
+        500:
+          money: 50
+          tokens: 3
     lessMovesAndLessGemTypes:
       materialData: "nether_star"
       displayName: "&1So much &l&epling"
@@ -62,6 +90,25 @@ gameBox:
       bombs: true
       slot: 5
       cost: 10
+      scoreIntervals:
+        0:
+          money: 0
+          tokens: 0
+        100:
+          money: 10
+          tokens: 1
+        200:
+          money: 20
+          tokens: 1
+        300:
+          money: 30
+          tokens: 2
+        400:
+          money: 40
+          tokens: 2
+        500:
+          money: 50
+          tokens: 3
     materialdatatest:
       materialData: "nether_star"
       displayName: "&1The cheaper &l&epling"
@@ -134,30 +181,6 @@ onGameEnd:
   restrictions:
     # players with bypass permission do not have to pay. Here you can set whether they also do not get any rewards.
     playersWithBypassDontGetRewards: true
-
-  scoreIntervals:
-    # all keys have to be integers otherwise they will be ignored and a warning will be printed in the console
-
-    # money is only paid if economy is enabled
-
-    # You can add as many intervals as you want to. The order of the intervals doesn't matter
-    #   the given reward/messages/commands/broadcasts will always be used if the game is finished with a score between the key and the
-    #   next higher key. For the highest key the interval goes to infinity
-    # You can add a money-reward with money: x
-
-    # use %player% for the players name and %score% for the score
-    0:
-      money: 0
-    100:
-      money: 10
-    200:
-      money: 20
-    300:
-      money: 30
-    400:
-      money: 40
-    500:
-      money: 50
 
 
 
