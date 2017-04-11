@@ -33,10 +33,10 @@ gameBox:
       - "&4Moves: &220"
       - '&4Gems: &28'
       - '&4Bombs: &2true'
-      - '&4Cost: &45'
+      - '&4Cost: &410'
       - ''
       - '&3&lTop list is activated!'
-      moves: 20
+      moves: 10
       # number of different gems in a normal game
       #   This number HAS TO BE equal or smaller then the number of gems defined in the section normalGems below
       #   8 or 7 are good numbers. 7 is easier and the game has to shuffle less but 8 is a bit more challenging
@@ -46,7 +46,7 @@ gameBox:
       # slot of the button in the gui
       #   be careful to not use the same twice ;)
       slot: 0
-      cost: 5
+      cost: 10
       saveStats: true
       scoreIntervals:
         # all keys have to be integers otherwise they will be ignored and a warning will be printed in the console
@@ -57,36 +57,26 @@ gameBox:
         # You can add as many intervals as you want to. The order of the intervals doesn't matter
         #   the given reward/messages/commands/broadcasts will always be used if the game is finished with a score between the key and the
         #   next higher key. For the highest key the interval goes to infinity
-        # You can add a money-reward with money: x
         0:
           money: 0
           tokens: 0
-        100:
+        350:
           money: 10
           tokens: 1
-        200:
+        450:
           money: 20
-          tokens: 1
-        300:
-          money: 30
           tokens: 2
-        400:
-          money: 40
-          tokens: 2
-        500:
-          money: 50
-          tokens: 3
     lessMovesAndLessGemTypes:
       materialData: "nether_star"
       displayName: "&1So much &l&epling"
       lore:
       - ""
-      - "&4Moves: &210"
-      - '&4Gems: &24'
+      - "&4Moves: &25"
+      - '&4Gems: &27'
       - '&4Bombs: &2true'
       - '&4Cost: &410'
-      moves: 10
-      differentGems: 4
+      moves: 5
+      differentGems: 7
       bombs: true
       slot: 5
       cost: 10
@@ -94,9 +84,6 @@ gameBox:
         0:
           money: 0
           tokens: 0
-        100:
-          money: 10
-          tokens: 1
         200:
           money: 20
           tokens: 1
@@ -111,18 +98,19 @@ gameBox:
           tokens: 3
     materialdatatest:
       materialData: "nether_star"
-      displayName: "&1The cheaper &l&epling"
+      displayName: "&1Training"
       lore:
       - ""
       - "&4Moves: &210"
-      - '&4Gems: &24'
-      - '&4Bombs: &4false'
-      - '&4Cost: &45'
+      - '&4Gems: &28'
+      - '&4Bombs: &2true'
+      - ''
+      - '&3Free Training (no rewards)'
       moves: 10
-      differentGems: 4
-      bombs: false
+      differentGems: 8
+      bombs: true
       slot: 6
-      cost: 5
+      cost: 0
   topListButtons:
     # use the same key as the game you want to display the top list for
     #   for that button 'saveStats' must be true (see above)
