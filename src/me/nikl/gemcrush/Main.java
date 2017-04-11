@@ -153,7 +153,7 @@ public class Main extends JavaPlugin{
 				saveStats = buttonSec.getBoolean("saveStats", false);
 
 
-				rules = new GameRules(moves, numberOfGems, bombs, cost, saveStats, buttonID);
+				rules = new GameRules(this, moves, numberOfGems, bombs, cost, saveStats, buttonID);
 
 				setTheButton:
 				if(buttonSec.isInt("slot")){

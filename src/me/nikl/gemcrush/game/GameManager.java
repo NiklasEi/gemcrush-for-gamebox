@@ -29,9 +29,6 @@ public class GameManager implements IGameManager{
 	private Main plugin;
 	private Set<Game> games;
 	private Map<UUID, Integer> clicks;
-	
-	private Map<Integer, Double> moneyRewards;
-	private Map<Integer, Integer> tokenRewards;
 
 
 	private Map<String,GameRules> gameTypes;
@@ -70,31 +67,7 @@ public class GameManager implements IGameManager{
 		// default is true
 		rewardBypass = onGameEnd.getBoolean("restrictions.playersWithBypassDontGetRewards", true);
 
-		moneyRewards = new HashMap<>();
-		tokenRewards = new HashMap<>();
 		pay = onGameEnd.getBoolean("pay");
-
-		
-		onGameEnd = plugin.getConfig().getConfigurationSection("onGameEnd.scoreIntervals");
-		for (String key : onGameEnd.getKeys(false)) {
-			int keyInt;
-			try {
-				keyInt = Integer.parseInt(key);
-			} catch (NumberFormatException e) {
-				Bukkit.getLogger().warning("[GemCrush] NumberFormatException while getting the rewards from config!");
-				continue;
-			}
-			if (onGameEnd.isSet(key + ".money") && (onGameEnd.isDouble(key + ".money") || onGameEnd.isInt(key + ".money"))) {
-				moneyRewards.put(keyInt, onGameEnd.getDouble(key + ".money"));
-			} else {
-				moneyRewards.put(keyInt, 0.);
-			}
-			if (onGameEnd.isSet(key + ".tokens") && (onGameEnd.isDouble(key + ".tokens") || onGameEnd.isInt(key + ".tokens"))) {
-				tokenRewards.put(keyInt, onGameEnd.getInt(key + ".tokens"));
-			} else {
-				tokenRewards.put(keyInt, 0);
-			}
-		}
 	}
 
 
@@ -218,9 +191,9 @@ public class GameManager implements IGameManager{
 		games.remove(game);
 	}
 	
-	private int getKey(int score){
+	private int getKey(String gameID, int score){
 		int distance = -1;
-		for(int key : moneyRewards.keySet()) {
+		for(int key : gameTypes.get(gameID).getMoneyRewards().keySet()) {
 			if((score - key) >= 0 && (distance < 0 || distance > (score - key))){
 				distance = score - key;
 			}
@@ -230,19 +203,25 @@ public class GameManager implements IGameManager{
 		return -1;
 	}
 	
-	void onGameEnd(int score, Player player){
-		onGameEnd(score, player, true);
+	void onGameEnd(String gameID, int score, Player player){
+		onGameEnd(gameID, score, player, true);
 	}
 	
-	void onGameEnd(int score, Player player, boolean payOut){
-		int key = getKey(score);
+	void onGameEnd(String gameID, int score, Player player, boolean payOut){
+		int key = getKey(gameID, score);
 		if(Main.debug) Bukkit.getConsoleSender().sendMessage("Key in onGameEnd: " + key);
 		if(Main.debug)Bukkit.getConsoleSender().sendMessage("pay: " + payOut);
-		
-		
+
+		// score intervalls could be empty or not configured
+		if(key < 0){
+			player.sendMessage(chatColor(Language.prefix + plugin.lang.GAME_FINISHED_NO_PAY.replaceAll("%score%", score +"")));
+			return;
+		}
+
+
 		payMoney:
 		if(payOut && this.pay && plugin.getEconEnabled() && (!player.hasPermission("gamebox.bypass." + Main.gameID) && (!player.hasPermission("gamebox.bypass")) || rewardBypass)){
-			double reward = moneyRewards.get(key);
+			double reward = gameTypes.get(gameID).getMoneyRewards().get(key);
 			if(Main.debug) Bukkit.getConsoleSender().sendMessage("Reward is: " + reward);
 			if(reward > 0){
 				Main.econ.depositPlayer(player, reward);
@@ -256,7 +235,7 @@ public class GameManager implements IGameManager{
 
 		giveTokens:
 		{
-			int tokens = tokenRewards.get(key);
+			int tokens = gameTypes.get(gameID).getTokenRewards().get(key);
 			if(tokens == 0) break giveTokens;
 
 			plugin.gameBox.wonTokens(player.getUniqueId(), tokens, Main.gameID);

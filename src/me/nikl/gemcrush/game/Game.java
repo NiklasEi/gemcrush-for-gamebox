@@ -561,7 +561,7 @@ class Game extends BukkitRunnable{
 		if(rule.isSaveStats()){
 			manager.saveStats(player.getUniqueId(), points, rule.getKey());
 		}
-		manager.onGameEnd(points, player, payOut);
+		manager.onGameEnd(rule.getKey(), points, player, payOut);
 	}
 	
 	
