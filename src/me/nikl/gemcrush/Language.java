@@ -97,6 +97,10 @@ public class Language {
 		if(!defaultDe.exists()){
 			plugin.saveResource("language" + File.separatorChar + "lang_de.yml", false);
 		}
+		File defaultCn = new File(plugin.getDataFolder().toString() + File.separatorChar + "language" + File.separatorChar + "lang_zh-cn.yml");
+		if(!defaultCn.exists()){
+			plugin.saveResource("language" + File.separatorChar + "lang_zh-cn.yml", false);
+		}
 		
 		if(!plugin.getConfig().isSet("langFile")){
 			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4*******************************************************"));
