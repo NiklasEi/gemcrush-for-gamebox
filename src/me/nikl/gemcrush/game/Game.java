@@ -524,7 +524,9 @@ class Game extends BukkitRunnable{
 		this.inv.clear();
 		this.state = GameState.FILLING;
 	}
-	
+
+
+	@SuppressWarnings("deprecation")
 	private boolean breakAll(boolean schedule) {
 		ArrayList<Integer> toBreak = new ArrayList<>();
 		toBreak.addAll(this.scanColumns());
