@@ -3,11 +3,11 @@ package me.nikl.gemcrush.game;
 import java.util.*;
 import java.util.logging.Level;
 
+import me.nikl.gamebox.nms.NMSUtil;
 import me.nikl.gemcrush.Sounds;
 import me.nikl.gemcrush.gems.Bomb;
 import me.nikl.gemcrush.gems.Gem;
 import me.nikl.gemcrush.gems.NormalGem;
-import me.nikl.gemcrush.nms.InvTitle;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -47,7 +47,7 @@ class Game extends BukkitRunnable{
 	
 	private Main plugin;
 	
-	private InvTitle updater;
+	private NMSUtil updater;
 	
 	private int moves, points;
 	private int moveTicks, breakTicks;
@@ -605,7 +605,7 @@ class Game extends BukkitRunnable{
 		this.inv.setItem(lowerSlot, grid[lowerSlot].getItem());
 		this.inv.setItem(higherSlot, grid[higherSlot].getItem());
 		//setInventory();
-		updater.updateTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
+		updater.updateInventoryTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
 		return true;
 	}
 	
@@ -623,7 +623,7 @@ class Game extends BukkitRunnable{
 				bombSpawned.add(i);
 			}
 		}
-		updater.updateTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
+		updater.updateInventoryTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
 		//setInventory(); get rid of flicker
 		setState(GameState.FILLING);
 	}
