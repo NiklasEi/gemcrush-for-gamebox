@@ -7,9 +7,9 @@ import me.nikl.gamebox.guis.GUIManager;
 import me.nikl.gamebox.guis.button.AButton;
 import me.nikl.gamebox.guis.gui.game.GameGui;
 import me.nikl.gamebox.guis.gui.game.TopListPage;
+import me.nikl.gamebox.nms.NMSUtil;
 import me.nikl.gemcrush.game.GameManager;
 import me.nikl.gemcrush.game.GameRules;
-import me.nikl.gemcrush.nms.*;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -40,7 +40,7 @@ public class Main extends JavaPlugin{
 
 	public static final String gameID = "gemcrush";
 	
-	private InvTitle updater;
+	private NMSUtil updater;
 
 	public me.nikl.gamebox.GameBox gameBox;
 
@@ -51,15 +51,6 @@ public class Main extends JavaPlugin{
 	
 	@Override
 	public void onEnable(){
-		
-		if (!setupUpdater()) {
-			getLogger().severe("Your server version is not compatible with this plugin!");
-			getLogger().severe("    Please make sure, you are running the newest version");
-			
-			Bukkit.getPluginManager().disablePlugin(this);
-			return;
-		}
-
 
 		this.con = new File(this.getDataFolder().toString() + File.separatorChar + "config.yml");
 
@@ -68,6 +59,8 @@ public class Main extends JavaPlugin{
 
 		hook();
 		if(disabled) return;
+
+		this.updater = gameBox.getNMS();
 	}
 
 	private void hook() {
@@ -326,52 +319,9 @@ public class Main extends JavaPlugin{
 	public void onDisable(){
 
 	}
+
 	
-	private boolean setupUpdater() {
-		String version;
-		
-		try {
-			version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
-		} catch (ArrayIndexOutOfBoundsException whatVersionAreYouUsingException) {
-			return false;
-		}
-		
-		if(debug) getLogger().info("Your server is running version " + version);
-		
-		switch (version) {
-			case "v1_10_R1":
-				updater = new Update_1_10_R1();
-				
-				break;
-			case "v1_9_R2":
-				updater = new Update_1_9_R2();
-				
-				break;
-			case "v1_9_R1":
-				updater = new Update_1_9_R1();
-				
-				break;
-			case "v1_8_R3":
-				updater = new Update_1_8_R3();
-				
-				break;
-			case "v1_8_R2":
-				updater = new Update_1_8_R2();
-				
-				break;
-			case "v1_8_R1":
-				updater = new Update_1_8_R1();
-				
-				break;
-			case "v1_11_R1":
-				updater = new Update_1_11_R1();
-				
-				break;
-		}
-		return updater != null;
-	}
-	
-	public InvTitle getUpdater(){
+	public NMSUtil getUpdater(){
 		return this.updater;
 	}
 	
