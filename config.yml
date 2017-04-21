@@ -11,7 +11,7 @@
 #   the default.yml file is overwritten on every server restart! This means you will have to use the other files
 #     to customize the messages, but since i am adding messages regulary in updates 
 #   You should use the default file if you just want to have the up to date english default messages
-langFile: 'default.yml'
+langFile: 'default'
 
 
 gameBox:
