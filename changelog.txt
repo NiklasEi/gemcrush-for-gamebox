@@ -1,3 +1,9 @@
+- give link to GameBox when it is outdated
+- add spanish lang file
+
+
+-----------------------------------------------------------
+
 v 2.0.0
 - depends on GameBox!
 - no own starting command anymore
