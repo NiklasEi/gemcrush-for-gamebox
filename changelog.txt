@@ -1,4 +1,5 @@
 
+- removed deprecated methods and variables (now depends on GB version 1.3.0)
 - remove all non numbers of the version string
 - give link to GameBox when it is outdated
 - add spanish lang file
