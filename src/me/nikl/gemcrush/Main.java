@@ -78,7 +78,7 @@ public class Main extends JavaPlugin{
 		gameBox = (me.nikl.gamebox.GameBox)Bukkit.getPluginManager().getPlugin("GameBox");
 
 
-		String[] versionString = gameBox.getDescription().getVersion().split("\\.");
+		String[] versionString = gameBox.getDescription().getVersion().replaceAll("[^0-9.]", "").split("\\.");
 		String[] minVersionString = depends[1][1].split("\\.");
 		Integer[] version = new Integer[versionString.length];
 		Integer[] minVersion = new Integer[minVersionString.length];
