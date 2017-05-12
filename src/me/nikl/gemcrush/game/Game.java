@@ -3,13 +3,13 @@ package me.nikl.gemcrush.game;
 import java.util.*;
 import java.util.logging.Level;
 
+import me.nikl.gamebox.GameBox;
+import me.nikl.gamebox.Sounds;
 import me.nikl.gamebox.nms.NMSUtil;
-import me.nikl.gemcrush.Sounds;
 import me.nikl.gemcrush.gems.Bomb;
 import me.nikl.gemcrush.gems.Gem;
 import me.nikl.gemcrush.gems.NormalGem;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -45,8 +45,6 @@ class Game extends BukkitRunnable{
 	// map with all normal gems that are used in this game
 	private Map<String, Gem> usedNormalGems;
 	
-	private Main plugin;
-	
 	private NMSUtil updater;
 	
 	private int moves, points;
@@ -69,17 +67,15 @@ class Game extends BukkitRunnable{
 	private ArrayList<Integer> bombSpawned;
 	
 	private Random rand = new Random();
-	double randDouble;
 
 	private GameRules rule;
 
 	private float volume;
 	private boolean playSounds;
 	
-	private boolean payOut, sendMessages, dispatchCommands, sendBroadcasts, giveItemRewards;
+	private boolean payOut;
 	
 	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean playSounds, GameRules rule){
-		this.plugin = plugin;
 		this.playSounds= playSounds;
 		this.lang = plugin.lang;
 		this.config = plugin.getConfig();
@@ -103,10 +99,6 @@ class Game extends BukkitRunnable{
 		this.gemsNum = gemNums;
 		
 		payOut = true;
-		sendMessages = true;
-		dispatchCommands = true;
-		sendBroadcasts = true;
-		giveItemRewards = true;
 		
 		this.updater = plugin.getUpdater();
 		
@@ -128,29 +120,19 @@ class Game extends BukkitRunnable{
 		}
 		
 		if(!loadGems()){
-			player.sendMessage(chatColor(Language.prefix + " &2Configuration error. Please contact the server owner!"));
+			player.sendMessage(GameBox.chatColor(Language.prefix + " &2Configuration error. Please contact the server owner!"));
 			return;
 		}
 		
 		
 		this.title = lang.TITLE_GAME;
-		this.inv = Bukkit.getServer().createInventory(null, 54, chatColor(title.replaceAll("%moves%", moves + "").replaceAll("%score%", points + "")));
+		this.inv = Bukkit.getServer().createInventory(null, 54, GameBox.chatColor(title.replaceAll("%moves%", moves + "").replaceAll("%score%", points + "")));
 		
 		// this basically starts the game
 		this.state = GameState.FILLING;
 		player.openInventory(this.inv);
 		
 		this.runTaskTimer(Main.getPlugin(Main.class), 0, this.moveTicks);
-	}
-
-	public Game(Main plugin, UUID playerUUID, int moves, boolean bombs, int gemNums, Map<String, Gem> gems, boolean playSounds, GameRules rule, boolean payOut, boolean sendMessages, boolean dispatchCommands, boolean sendBroadcasts, boolean giveItemRewards){
-		this(plugin, playerUUID, moves, bombs, gemNums, gems, playSounds, rule);
-		
-		this.payOut = payOut;
-		this.sendMessages = sendMessages;
-		this.dispatchCommands = dispatchCommands;
-		this.sendBroadcasts = sendBroadcasts;
-		this.giveItemRewards = giveItemRewards;
 	}
 	
 	private boolean loadOptions() {
@@ -176,7 +158,7 @@ class Game extends BukkitRunnable{
 			bombLore.add("&4Caution: &6explosive!");
 		}
 		for(int i = 0 ; i < bombLore.size(); i++){
-			bombLore.set(i, chatColor(bombLore.get(i)));
+			bombLore.set(i, GameBox.chatColor(bombLore.get(i)));
 		}
 		return true;
 	}
@@ -199,19 +181,19 @@ class Game extends BukkitRunnable{
 			name = grid[i*9].getName();
 			colorInRow = 1;
 			c++;
-			//Bukkit.getConsoleSender().sendMessage("row: " + i);
+
 			while(c<9){
 				slot = i*9 + c;
-				//Bukkit.getConsoleSender().sendMessage("slot: " + slot + " (column: "+ c + ")   current name: " + name);
+
 				while(c<9 && slot<54 && name.equals(grid[slot].getName())){
-					//Bukkit.getConsoleSender().sendMessage("same name in column: " + c);
 					colorInRow++;
 					c++;
 					slot++;
 				}
-				//Bukkit.getConsoleSender().sendMessage("new name in column: "+ c + "   exited with " + colorInRow + " in a row");
+
 				if(colorInRow >= 3){
 					for(int breakSlot = slot - 1; breakSlot >= slot - colorInRow; breakSlot -- ){
+
 						// continue for not matchable gems
 						if(grid[breakSlot].getName().equalsIgnoreCase("Bomb")) continue;
 						toBreak.add(breakSlot);
@@ -553,11 +535,6 @@ class Game extends BukkitRunnable{
 	}
 	
 	
-	private String chatColor(String string) {
-		return ChatColor.translateAlternateColorCodes('&', string);
-	}
-	
-	
 	
 	public void won() {
 		if(rule.isSaveStats()){
@@ -605,7 +582,7 @@ class Game extends BukkitRunnable{
 		this.inv.setItem(lowerSlot, grid[lowerSlot].getItem());
 		this.inv.setItem(higherSlot, grid[higherSlot].getItem());
 		//setInventory();
-		updater.updateInventoryTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
+		updater.updateInventoryTitle(player, GameBox.chatColor(title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
 		return true;
 	}
 	
@@ -623,7 +600,7 @@ class Game extends BukkitRunnable{
 				bombSpawned.add(i);
 			}
 		}
-		updater.updateInventoryTitle(player, ChatColor.translateAlternateColorCodes('&', title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
+		updater.updateInventoryTitle(player, GameBox.chatColor(title.replaceAll("%moves%", moves + "").replaceAll("%score%", points+"")));
 		//setInventory(); get rid of flicker
 		setState(GameState.FILLING);
 	}
@@ -669,9 +646,5 @@ class Game extends BukkitRunnable{
 
 	public boolean isPlaySounds() {
 		return playSounds;
-	}
-
-	public GameRules getRule() {
-		return rule;
 	}
 }

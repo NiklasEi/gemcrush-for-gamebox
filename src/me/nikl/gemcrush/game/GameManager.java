@@ -1,12 +1,12 @@
 package me.nikl.gemcrush.game;
 
 import me.nikl.gamebox.GameBox;
+import me.nikl.gamebox.Sounds;
 import me.nikl.gamebox.data.SaveType;
 import me.nikl.gamebox.data.Statistics;
 import me.nikl.gamebox.game.IGameManager;
 import me.nikl.gemcrush.Language;
 import me.nikl.gemcrush.Main;
-import me.nikl.gemcrush.Sounds;
 import me.nikl.gemcrush.gems.Gem;
 import me.nikl.gemcrush.gems.NormalGem;
 import org.bukkit.Bukkit;
@@ -392,10 +392,10 @@ public class GameManager implements IGameManager{
 		if (plugin.getEconEnabled() && !player[0].hasPermission("gamebox.bypass." + Main.gameID) && !player[0].hasPermission("gamebox.bypass") && cost > 0.0) {
 			if (Main.econ.getBalance(player[0]) >= cost) {
 				Main.econ.withdrawPlayer(player[0], cost);
-				player[0].sendMessage(plugin.chatColor(Language.prefix + plugin.lang.GAME_PAYED.replaceAll("%cost%", String.valueOf(cost))));
+				player[0].sendMessage(GameBox.chatColor(Language.prefix + plugin.lang.GAME_PAYED.replaceAll("%cost%", String.valueOf(cost))));
 				return true;
 			} else {
-				player[0].sendMessage(plugin.chatColor(Language.prefix + plugin.lang.GAME_NOT_ENOUGH_MONEY));
+				player[0].sendMessage(GameBox.chatColor(Language.prefix + plugin.lang.GAME_NOT_ENOUGH_MONEY));
 				return false;
 			}
 		} else {
