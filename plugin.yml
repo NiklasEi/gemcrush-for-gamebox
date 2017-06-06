@@ -1,6 +1,6 @@
 name: GemCrush
 author: Nikl
 main: me.nikl.gemcrush.Main
-version: 2.2.0
+version: 2.3.0
 website: nikl.me
 depend: [GameBox]
