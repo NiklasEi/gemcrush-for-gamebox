@@ -117,6 +117,10 @@ public class Main extends JavaPlugin{
 				updater = new Update_1_11_R1();
 				
 				break;
+			case "v1_12_R1":
+				updater = new Update_1_12_R1();
+
+				break;
 		}
 		return updater != null;
 	}
@@ -138,18 +142,12 @@ public class Main extends JavaPlugin{
     }
 	
 	public void reloadConfig(){
-		try { 
-			this.config = YamlConfiguration.loadConfiguration(new InputStreamReader(new FileInputStream(this.con), "UTF-8")); 
+		// reload config
+		try {
+			this.config = YamlConfiguration.loadConfiguration(new InputStreamReader(new FileInputStream(con), "UTF-8"));
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
-			e.printStackTrace(); 
+			e.printStackTrace();
 		}
-		
-		InputStream defConfigStream = this.getResource("config.yml"); 
-		if (defConfigStream != null){		
-			@SuppressWarnings("deprecation") 
-			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream); 
-			this.config.setDefaults(defConfig); 
-		} 
 	} 
 	
 	public GameManager getManager() {

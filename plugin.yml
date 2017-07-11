@@ -1,7 +1,7 @@
 name: GemCrush
 author: Nikl
 main: me.nikl.gemcrush.Main
-version: 1.2.2
+version: 1.2.3
 commands:
   gemcrushtop:
     description: display the top 10
