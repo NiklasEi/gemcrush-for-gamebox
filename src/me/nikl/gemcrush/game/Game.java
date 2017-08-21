@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 import me.nikl.gamebox.GameBox;
+import me.nikl.gamebox.GameBoxSettings;
 import me.nikl.gamebox.Sounds;
 import me.nikl.gamebox.nms.NMSUtil;
 import me.nikl.gemcrush.gems.Bomb;
@@ -126,7 +127,11 @@ class Game extends BukkitRunnable{
 		
 		
 		this.title = lang.TITLE_GAME;
-		this.inv = Bukkit.getServer().createInventory(null, 54, GameBox.chatColor(title.replaceAll("%moves%", moves + "").replaceAll("%score%", points + "")));
+		String title = GameBox.chatColor(this.title.replaceAll("%moves%", moves + "").replaceAll("%score%", points + ""));
+		if(GameBoxSettings.checkInventoryLength && title.length() > 32){
+			title = "Title is too long!";
+		}
+		this.inv = Bukkit.getServer().createInventory(null, 54, title);
 		
 		// this basically starts the game
 		this.state = GameState.FILLING;
