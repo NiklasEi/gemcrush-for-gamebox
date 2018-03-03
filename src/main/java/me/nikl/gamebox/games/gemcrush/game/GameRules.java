@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * Created by Niklas on 15.02.2017.
- *
+ * <p>
  * save stuff for the different games
  */
 public class GameRules {
@@ -25,7 +25,7 @@ public class GameRules {
     private Map<Integer, Integer> tokenRewards;
 
 
-    public GameRules(GemCrush plugin, int moves, int numberOfGemTypes, boolean bombs, double cost, boolean saveStats, String key){
+    public GameRules(GemCrush plugin, int moves, int numberOfGemTypes, boolean bombs, double cost, boolean saveStats, String key) {
         this.plugin = plugin;
 
         this.moves = moves;
@@ -42,7 +42,7 @@ public class GameRules {
         moneyRewards = new HashMap<>();
         tokenRewards = new HashMap<>();
 
-        if(!plugin.getConfig().isConfigurationSection("gameBox.gameButtons." + key + ".scoreIntervals")) return;
+        if (!plugin.getConfig().isConfigurationSection("gameBox.gameButtons." + key + ".scoreIntervals")) return;
 
         ConfigurationSection onGameEnd = plugin.getConfig().getConfigurationSection("gameBox.gameButtons." + key + ".scoreIntervals");
         for (String key : onGameEnd.getKeys(false)) {

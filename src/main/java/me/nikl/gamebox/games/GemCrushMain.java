@@ -14,9 +14,9 @@ public class GemCrushMain extends JavaPlugin {
     private GameBox gameBox;
 
     @Override
-    public void onEnable(){
+    public void onEnable() {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("GameBox");
-        if(plugin == null || !plugin.isEnabled()){
+        if (plugin == null || !plugin.isEnabled()) {
             getLogger().warning(" GameBox was not found! Disabling LogicPuzzles...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
