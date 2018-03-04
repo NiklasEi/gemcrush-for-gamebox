@@ -1,67 +1,50 @@
 package me.nikl.gamebox.games.gemcrush.game;
 
+import me.nikl.gamebox.data.toplist.SaveType;
+import me.nikl.gamebox.games.GameRuleMultiRewards;
 import me.nikl.gamebox.games.gemcrush.GemCrush;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Niklas on 15.02.2017.
- * <p>
+ * @author Niklas Eicker
+ *
  * save stuff for the different games
  */
-public class GameRules {
-    private GemCrush plugin;
-
+public class GameRules extends GameRuleMultiRewards {
     private int moves;
-    private boolean bombs, saveStats;
+    private boolean bombs;
     private int numberOfGemTypes;
-    private double cost;
-    private String key;
-
-    private Map<Integer, Double> moneyRewards;
-    private Map<Integer, Integer> tokenRewards;
-
 
     public GameRules(GemCrush plugin, int moves, int numberOfGemTypes, boolean bombs, double cost, boolean saveStats, String key) {
-        this.plugin = plugin;
-
+        super(key, saveStats, SaveType.SCORE, cost);
         this.moves = moves;
         this.numberOfGemTypes = numberOfGemTypes;
         this.bombs = bombs;
-        this.cost = cost;
-        this.saveStats = saveStats;
-        this.key = key;
-
-        loadRewards();
+        loadRewards(plugin);
     }
 
-    private void loadRewards() {
-        moneyRewards = new HashMap<>();
-        tokenRewards = new HashMap<>();
-
+    private void loadRewards(GemCrush plugin) {
         if (!plugin.getConfig().isConfigurationSection("gameBox.gameButtons." + key + ".scoreIntervals")) return;
-
         ConfigurationSection onGameEnd = plugin.getConfig().getConfigurationSection("gameBox.gameButtons." + key + ".scoreIntervals");
         for (String key : onGameEnd.getKeys(false)) {
             int keyInt;
             try {
                 keyInt = Integer.parseInt(key);
             } catch (NumberFormatException e) {
-                Bukkit.getLogger().warning("[GemCrush] NumberFormatException while getting the rewards from config!");
+                plugin.warn(" NumberFormatException while getting the rewards from config!");
                 continue;
             }
-            if (onGameEnd.isSet(key + ".money") && (onGameEnd.isDouble(key + ".money") || onGameEnd.isInt(key + ".money"))) {
-                moneyRewards.put(keyInt, onGameEnd.getDouble(key + ".money"));
+            if (onGameEnd.isSet(key + ".money") && ((onGameEnd.isDouble(key + ".money") || onGameEnd.isInt(key + ".money")))) {
+                addMoneyReward(keyInt, onGameEnd.getDouble(key + ".money"));
             } else {
-                moneyRewards.put(keyInt, 0.);
+                addMoneyReward(keyInt, 0.);
             }
             if (onGameEnd.isSet(key + ".tokens") && (onGameEnd.isDouble(key + ".tokens") || onGameEnd.isInt(key + ".tokens"))) {
-                tokenRewards.put(keyInt, onGameEnd.getInt(key + ".tokens"));
+                addTokenReward(keyInt, onGameEnd.getInt(key + ".tokens"));
             } else {
-                tokenRewards.put(keyInt, 0);
+                addTokenReward(keyInt, 0);
             }
         }
     }
@@ -76,25 +59,5 @@ public class GameRules {
 
     public int getNumberOfGemTypes() {
         return numberOfGemTypes;
-    }
-
-    public double getCost() {
-        return cost;
-    }
-
-    public boolean isSaveStats() {
-        return saveStats;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public Map<Integer, Double> getMoneyRewards() {
-        return moneyRewards;
-    }
-
-    public Map<Integer, Integer> getTokenRewards() {
-        return tokenRewards;
     }
 }

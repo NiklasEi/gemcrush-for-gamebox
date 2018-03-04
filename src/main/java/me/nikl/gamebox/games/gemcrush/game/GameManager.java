@@ -28,6 +28,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 /**
+ * @author Niklas Eicker
+ *
  * GameManager implementing the GameBox interface
  */
 public class GameManager implements me.nikl.gamebox.games.GameManager {
@@ -154,34 +156,14 @@ public class GameManager implements me.nikl.gamebox.games.GameManager {
         games.remove(game);
     }
 
-    private int getKey(String gameID, int score) {
-        int distance = -1;
-        for (int key : gameTypes.get(gameID).getMoneyRewards().keySet()) {
-            if ((score - key) >= 0 && (distance < 0 || distance > (score - key))) {
-                distance = score - key;
-            }
-        }
-        if (distance > -1)
-            return score - distance;
-        return -1;
-    }
-
-    void onGameEnd(String gameID, int score, Player player) {
-        onGameEnd(gameID, score, player, true);
-    }
-
     void onGameEnd(String gameID, int score, Player player, boolean payOut) {
-        int key = getKey(gameID, score);
-        this.game.debug("Key in onGameEnd: " + key);
-        this.game.debug("pay: " + payOut);
-        // score intervalls could be empty or not configured
-        if (key < 0) {
+        double reward = gameTypes.get(gameID).getMoneyToWin(score);
+        if (reward <= 0) {
             player.sendMessage(StringUtility.color(language.PREFIX + language.GAME_FINISHED_NO_PAY.replaceAll("%score%", score + "")));
             return;
         }
         payMoney:
         if (payOut && this.pay && GameBoxSettings.econEnabled && (!player.hasPermission("gamebox.bypass." + this.game.getGameID()) && (!player.hasPermission("gamebox.bypass")) || rewardBypass)) {
-            double reward = gameTypes.get(gameID).getMoneyRewards().get(key);
             this.game.debug("Reward is: " + reward);
             if (reward > 0) {
                 GameBox.econ.depositPlayer(player, reward);
@@ -194,40 +176,21 @@ public class GameManager implements me.nikl.gamebox.games.GameManager {
         }
         giveTokens:
         {
-            int tokens = gameTypes.get(gameID).getTokenRewards().get(key);
+            int tokens = gameTypes.get(gameID).getTokenToWin(score);
             if (tokens == 0) break giveTokens;
-
             game.getGameBox().wonTokens(player.getUniqueId(), tokens, this.game.getGameID());
-        }
-    }
-
-    public void shutDown() {
-        for (Game game : games) {
-            removeGame(game);
         }
     }
 
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
-
-        if (!isInGame(event.getWhoClicked().getUniqueId()) || event.getInventory() == null || event.getCurrentItem() == null || !(event.getWhoClicked() instanceof Player)) {
-            return;
-        }
-
-        // player is inGame, clicked inside an inventory and the clicked item is not null
-
-        // cancel event and return if it's not a right/left click
         event.setCancelled(true);
         if (!event.getAction().equals(InventoryAction.PICKUP_ALL) && !event.getAction().equals(InventoryAction.PICKUP_HALF)) {
             return;
         }
-
-        // check whether the clicked inventory is the top inventory
         if (event.getRawSlot() != event.getSlot()) {
             return;
         }
-
-        // get Player and Game objects
         Player player = (Player) event.getWhoClicked();
         Game game = getGame(player.getUniqueId());
         if (game == null) {
@@ -237,13 +200,8 @@ public class GameManager implements me.nikl.gamebox.games.GameManager {
             return;
         }
         int slot = event.getSlot();
-
-        // switch with getState
         if (game.getState() == null) return;
-
         switch (game.getState()) {
-
-
             case PLAY:
                 if (this.clicks.containsKey(player.getUniqueId())) {
                     int oldSlot = clicks.get(player.getUniqueId());
@@ -255,8 +213,6 @@ public class GameManager implements me.nikl.gamebox.games.GameManager {
                         } else {
                             if (game.isPlaySounds())
                                 player.playSound(player.getLocation(), Sound.VILLAGER_HIT.bukkitSound(), volume, 1f);
-                            //if(GemCrush.playSounds)player.playSound(player.getLocation(), Sound.ANVIL_BREAK.bukkitSound(), volume, 1f);
-
                         }
                     } else if (slot == oldSlot) {
                         break;
@@ -278,14 +234,11 @@ public class GameManager implements me.nikl.gamebox.games.GameManager {
             case FILLING:
                 break;
 
-
             default:
                 break;
-
         }
         return;
     }
-
 
     @Override
     public void onInventoryClose(InventoryCloseEvent inventoryCloseEvent) {
@@ -342,7 +295,7 @@ public class GameManager implements me.nikl.gamebox.games.GameManager {
 
     @Override
     public Map<String, ? extends GameRule> getGameRules() {
-        return null;
+        return gameTypes;
     }
 
     @Override
