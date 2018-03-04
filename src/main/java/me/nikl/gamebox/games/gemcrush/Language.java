@@ -11,6 +11,12 @@ public class Language extends GameLanguage {
         super(game);
     }
 
+    @Override
+    protected void loadMessages() {
+        getGameMessages();
+        getInvTitles();
+    }
+
     private void getInvTitles() {
         this.TITLE_GAME = getString("inventoryTitles.title");
     }
@@ -20,13 +26,6 @@ public class Language extends GameLanguage {
         this.GAME_NOT_ENOUGH_MONEY = getString("game.econ.notEnoughMoney");
         this.GAME_FINISHED_NO_PAY = getString("game.finishedWithoutPayout");
         this.GAME_FINISHED_WITH_PAY = getString("game.finishedWithPayout");
-        this.GAME_HELP = getStringList("gameHelp");
-    }
-
-    @Override
-    protected void loadMessages() {
-        getGameMessages();
-        getInvTitles();
     }
 }
 

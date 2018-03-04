@@ -26,11 +26,6 @@ public class Bomb extends Gem {
         this.pointsOnBreak = pointsOnBreak;
     }
 
-    @Override
-    public void onBreak() {
-
-    }
-
     public String getName() {
         return "Bomb";
     }

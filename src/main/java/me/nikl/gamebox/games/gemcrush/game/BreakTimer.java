@@ -6,11 +6,10 @@ import java.util.ArrayList;
 
 /**
  * Created by niklas on 10/6/16.
- * <p>
+ *
  * Timer Class used to break matched Gems with a small delay
  */
 class BreakTimer extends BukkitRunnable {
-
     private ArrayList<Integer> toBreak;
     private Game game;
     private boolean isBomb = false;
@@ -18,7 +17,6 @@ class BreakTimer extends BukkitRunnable {
     BreakTimer(Game game, ArrayList<Integer> toBreak, int breakTicks) {
         this.toBreak = toBreak;
         this.game = game;
-
         this.runTaskLater(game.getGameBox(), breakTicks);
     }
 
@@ -26,7 +24,6 @@ class BreakTimer extends BukkitRunnable {
         this(game, toBreak, breakTicks);
         this.isBomb = isBomb;
     }
-
 
     @Override
     public void run() {
