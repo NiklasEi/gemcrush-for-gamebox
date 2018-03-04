@@ -1,8 +1,8 @@
 package me.nikl.gamebox.games.gemcrush;
 
 import me.nikl.gamebox.GameBox;
-import me.nikl.gamebox.games.Game;
-import me.nikl.gamebox.games.GameSettings;
+import me.nikl.gamebox.game.Game;
+import me.nikl.gamebox.game.GameSettings;
 import me.nikl.gamebox.games.GemCrushMain;
 import me.nikl.gamebox.games.gemcrush.game.GameManager;
 

@@ -1,7 +1,7 @@
 package me.nikl.gamebox.games.gemcrush;
 
-import me.nikl.gamebox.games.Game;
-import me.nikl.gamebox.games.GameLanguage;
+import me.nikl.gamebox.game.Game;
+import me.nikl.gamebox.game.GameLanguage;
 
 public class Language extends GameLanguage {
     public String GAME_PAYED, GAME_NOT_ENOUGH_MONEY, GAME_FINISHED_NO_PAY, GAME_FINISHED_WITH_PAY;

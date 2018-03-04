@@ -3,8 +3,8 @@ package me.nikl.gamebox.games.gemcrush.game;
 import me.nikl.gamebox.GameBox;
 import me.nikl.gamebox.GameBoxSettings;
 import me.nikl.gamebox.data.toplist.SaveType;
-import me.nikl.gamebox.games.GameRule;
-import me.nikl.gamebox.games.exceptions.GameStartException;
+import me.nikl.gamebox.game.rules.GameRule;
+import me.nikl.gamebox.game.exceptions.GameStartException;
 import me.nikl.gamebox.games.gemcrush.GemCrush;
 import me.nikl.gamebox.games.gemcrush.Language;
 import me.nikl.gamebox.games.gemcrush.gems.Gem;
@@ -32,7 +32,7 @@ import java.util.logging.Level;
  *
  * GameManager implementing the GameBox interface
  */
-public class GameManager implements me.nikl.gamebox.games.GameManager {
+public class GameManager implements me.nikl.gamebox.game.manager.GameManager {
     private GemCrush game;
     private Set<Game> games;
     private Map<UUID, Integer> clicks;

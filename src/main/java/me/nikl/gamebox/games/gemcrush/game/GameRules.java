@@ -1,11 +1,9 @@
 package me.nikl.gamebox.games.gemcrush.game;
 
 import me.nikl.gamebox.data.toplist.SaveType;
-import me.nikl.gamebox.games.GameRuleMultiRewards;
+import me.nikl.gamebox.game.rules.GameRuleMultiRewards;
 import me.nikl.gamebox.games.gemcrush.GemCrush;
 import org.bukkit.configuration.ConfigurationSection;
-
-import java.util.Map;
 
 /**
  * @author Niklas Eicker
