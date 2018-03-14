@@ -36,7 +36,7 @@ gameBox:
       - '&4Cost: &410'
       - ''
       - '&3&lTop list is activated!'
-      moves: 10
+      moves: 20
       # number of different gems in a normal game
       #   This number HAS TO BE equal or smaller then the number of gems defined in the section normalGems below
       #   8 or 7 are good numbers. 7 is easier and the game has to shuffle less but 8 is a bit more challenging

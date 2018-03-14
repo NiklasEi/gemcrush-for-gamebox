@@ -158,15 +158,9 @@ public class GameManager implements me.nikl.gamebox.game.manager.GameManager {
 
     void onGameEnd(String gameID, int score, Player player, boolean payOut) {
         double reward = gameTypes.get(gameID).getMoneyToWin(score);
-        if (reward <= 0) {
-            player.sendMessage(StringUtility.color(language.PREFIX + language.GAME_FINISHED_NO_PAY.replaceAll("%score%", score + "")));
-            return;
-        }
-        payMoney:
         if (payOut && this.pay && GameBoxSettings.econEnabled && (!player.hasPermission("gamebox.bypass." + this.game.getGameID()) && (!player.hasPermission("gamebox.bypass")) || rewardBypass)) {
             this.game.debug("Reward is: " + reward);
             if (reward > 0) {
-                GameBox.econ.depositPlayer(player, reward);
                 player.sendMessage(StringUtility.color(language.PREFIX + language.GAME_FINISHED_WITH_PAY.replaceAll("%score%", score + "").replaceAll("%reward%", reward + "")));
             } else {
                 player.sendMessage(StringUtility.color(language.PREFIX + language.GAME_FINISHED_NO_PAY.replaceAll("%score%", score + "")));
@@ -174,12 +168,7 @@ public class GameManager implements me.nikl.gamebox.game.manager.GameManager {
         } else {
             player.sendMessage(StringUtility.color(language.PREFIX + language.GAME_FINISHED_NO_PAY.replaceAll("%score%", score + "")));
         }
-        giveTokens:
-        {
-            int tokens = gameTypes.get(gameID).getTokenToWin(score);
-            if (tokens == 0) break giveTokens;
-            game.getGameBox().wonTokens(player.getUniqueId(), tokens, this.game.getGameID());
-        }
+        this.game.onGameWon(player, gameTypes.get(gameID), score);
     }
 
     @Override
