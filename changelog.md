@@ -1,16 +1,20 @@
 # Change log
 
 
+### v 3.0.0
+- update to gamebox v2
 - mavenized repository
 
-v 2.3.1
+# 
+
+### v 2.3.1
 - check for GB flag and if set: check the inventory title length
 
-v 2.3.0
+### v 2.3.0
 - push GB dependency to 1.5.0
   - compatible with /gba reload
 
-v 2.2.0
+### v 2.2.0
 - centralised more code to GameBox
   - use static main-key from GUIManager (GameBox) for guis
   - chat color in Main class
@@ -21,13 +25,13 @@ v 2.2.0
 - give link to GameBox when it is outdated
 - add spanish lang file
 
-v 2.0.0
+### v 2.0.0
 - depends on GameBox!
 - no own starting command anymore
 - highly configurable games (different settings/rules)
 - no payment message when the cost is 0
 
-v 1.2.2:
+### v 1.2.2:
 - configurable sound volume in the configuration file
 - changes in the structure of the top list apply after gc reload now
 - improved matching algorithm
@@ -35,7 +39,7 @@ v 1.2.2:
 - fixed that sometimes the runnable of a game continued running after the inventory was closed. This did not cause any problems apart from unnecessary load.
 - fixed matching of bombs
 
-v 1.1.0:
+### v 1.1.0:
 - implemented bombs
   - they will spawn glowing and explode later
   - added section in config: 'game.bombs' for customisation of bombs
