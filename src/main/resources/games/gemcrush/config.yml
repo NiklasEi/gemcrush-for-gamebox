@@ -27,14 +27,14 @@ gameBox:
   gameButtons:
     normalGame:
       materialData: "EMERALD"
-      displayName: "&1It's raining gems"
+      displayName: "&a&lIt's raining gems"
       lore:
       - ""
       - "&4Moves: &220"
       - '&4Gems: &28'
-      - '&4Bombs: &2true'
       - '&4Cost: &410'
       - ''
+      - '&3Rewards from a score of 750 upwards.'
       - '&3&lTop list is activated!'
       moves: 20
       # number of different gems in a normal game
@@ -45,7 +45,7 @@ gameBox:
       bombs: true
       # slot of the button in the gui
       #   be careful to not use the same twice ;)
-      slot: 0
+      slot: 21
       cost: 10
       saveStats: true
       scoreIntervals:
@@ -60,67 +60,39 @@ gameBox:
         0:
           money: 0
           tokens: 0
-        350:
+        750:
           money: 10
           tokens: 1
-        450:
-          money: 20
-          tokens: 2
-    lessMovesAndLessGemTypes:
-      materialData: "nether_star"
-      displayName: "&1So much &l&epling"
-      lore:
-      - ""
-      - "&4Moves: &25"
-      - '&4Gems: &27'
-      - '&4Bombs: &2true'
-      - '&4Cost: &410'
-      moves: 5
-      differentGems: 7
-      bombs: true
-      slot: 5
-      cost: 10
-      scoreIntervals:
-        0:
-          money: 0
-          tokens: 0
-        200:
+        900:
           money: 20
           tokens: 1
-        300:
-          money: 30
+        1000:
+          money: 25
           tokens: 2
-        400:
-          money: 40
-          tokens: 2
-        500:
-          money: 50
-          tokens: 3
-    materialdatatest:
+    gcTraining:
       materialData: "nether_star"
-      displayName: "&1Training"
+      displayName: "&a&lTraining"
       lore:
       - ""
       - "&4Moves: &210"
-      - '&4Gems: &28'
-      - '&4Bombs: &2true'
+      - '&4Gems: &27'
       - ''
       - '&3Free Training (no rewards)'
       moves: 10
-      differentGems: 8
+      differentGems: 7
       bombs: true
-      slot: 6
+      slot: 23
       cost: 0
   topListButtons:
     # use the same key as the game you want to display the top list for
     #   for that button 'saveStats' must be true (see above)
     normalGame:
       materialData: "diamond_block"
-      displayName: "&cTop list"
+      displayName: "&a&lTop list"
       lore:
       - ""
       - "&3Compare your GemCrush skills with others"
-      slot: 9
+      slot: 30
       # inventory title of the top list (%player% and %game%)
       inventoryTitle: " &1It's raining gems      &rTop List"
       # Lore of the skulls in the inventory. Use %rank% for the rank and %time% for the time in 'mm:ss'
