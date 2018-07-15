@@ -1,6 +1,5 @@
 package me.nikl.gamebox.games.gemcrush.game;
 
-import me.nikl.gamebox.GameBox;
 import me.nikl.gamebox.GameBoxSettings;
 import me.nikl.gamebox.data.toplist.SaveType;
 import me.nikl.gamebox.game.rules.GameRule;
@@ -144,7 +143,7 @@ public class GameManager implements me.nikl.gamebox.game.manager.GameManager {
     void removeGame(UUID uuid) {
         Game game = getGame(uuid);
         if (game != null) {
-            removeGame(getGame(uuid));
+            removeGame(game);
         } else {
             this.game.debug(" game was already closed O.o");
         }

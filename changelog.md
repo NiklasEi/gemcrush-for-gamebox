@@ -1,5 +1,7 @@
 # Change log
 
+### v 3.0.1
+- empty inventory when player closes the game to stop players from taking ghost items.
 
 ### v 3.0.0
 - update to gamebox v2

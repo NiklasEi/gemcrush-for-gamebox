@@ -494,6 +494,7 @@ class Game extends BukkitRunnable {
             this.breakTimer.cancel();
             this.breakTimer = null;
         }
+        inv.clear();
     }
 
     public void shine(int slot, boolean b) {
