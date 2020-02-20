@@ -1,6 +1,8 @@
 package me.nikl.gamebox.games.gemcrush.gems;
 
 import org.bukkit.Material;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 
 /**
  * @author Niklas Eicker
@@ -19,7 +21,14 @@ public class NormalGem extends Gem {
     }
 
     public NormalGem(NormalGem copyFrom) {
-        super(copyFrom.getItem().getType(), copyFrom.name, copyFrom.getItem().getDurability(), copyFrom.lore);
+        super(copyFrom.getItem().getType(), copyFrom.name);
+        ItemMeta meta = item.getItemMeta();
+        ItemMeta oldMeta = copyFrom.getItem().getItemMeta();
+        if (meta instanceof Damageable && oldMeta instanceof Damageable) {
+            ((Damageable) meta).setDamage(((Damageable) oldMeta).getDamage());
+        }
+        meta.setLore(oldMeta.getLore());
+        item.setItemMeta(meta);
         this.possibility = copyFrom.possibility;
         this.pointsOnBreak = copyFrom.pointsOnBreak;
     }

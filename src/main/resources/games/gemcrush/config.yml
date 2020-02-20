@@ -144,7 +144,7 @@ onGameEnd:
 
 
 
-# use 'Material:data' or 'ID:data'
+# use 'Material' see e.g. https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java
 # Some materials can not be displayed in an inventory, just test everything after changing
 # You are advised to use different materials.
 # The display names have to be different for the game to work!
@@ -165,13 +165,9 @@ normalGems:
   gem2:
     material: 'EMERALD'
     displayName: '&2Emerald'
-    pointsOnBreak: 10
-    probability: 1
   gem3:
     material: 'BLAZE_POWDER'
     displayName: '&eSparks'
-    pointsOnBreak: 10
-    probability: 1
   gem4:
     material: 'clay_ball'
     displayName: '&7Pearl'
@@ -194,6 +190,6 @@ normalGems:
     material: 'structure_void'
     displayName: '&2Wheel'
   gem11:
-    material: 'double_plant'
+    material: 'SUNFLOWER'
     displayName: '&6Amber'
 

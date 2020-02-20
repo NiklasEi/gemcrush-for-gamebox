@@ -3,6 +3,7 @@ package me.nikl.gamebox.games.gemcrush.gems;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
@@ -23,9 +24,6 @@ public abstract class Gem {
         this.item = new ItemStack(material, 1);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        if (lore != null && lore.size() > 0) {
-            meta.setLore(lore);
-        }
         item.setItemMeta(meta);
         this.name = name;
         this.pointsOnBreak = 10;
@@ -33,7 +31,11 @@ public abstract class Gem {
 
     Gem(Material material, String name, short durability) {
         this(material, name);
-        item.setDurability(durability);
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof Damageable) {
+            ((Damageable) meta).setDamage(durability);
+            item.setItemMeta(meta);
+        }
         this.name = name;
         this.pointsOnBreak = 10;
     }
@@ -41,10 +43,10 @@ public abstract class Gem {
     Gem(Material material, String name, short durability, List<String> lore) {
         this(material, name, durability);
         if (lore != null && !lore.isEmpty())
-            this.setLore(new ArrayList(lore));
+            this.setLore(new ArrayList<>(lore));
     }
 
-    public void setLore(ArrayList lore) {
+    public void setLore(List<String> lore) {
         ItemMeta meta = item.getItemMeta();
         meta.setLore(lore);
         item.setItemMeta(meta);
