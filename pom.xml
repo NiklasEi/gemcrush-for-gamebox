@@ -5,8 +5,63 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.nikl.gamebox.games</groupId>
-    <artifactId>GemCrush</artifactId>
-    <version>4.0.0-alpha</version>
+    <artifactId>gemcrush</artifactId>
+    <name>GemCrush</name>
+    <packaging>jar</packaging>
+    <version>4.0.0-beta</version>
+    <description>Match items and let it rain gems</description>
+
+    <distributionManagement>
+        <repository>
+            <id>nikl-repo</id>
+            <url>http://repo.nikl.me/artifactory/public</url>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <url>https://github.com/NiklasEi/gemcrush-for-gamebox</url>
+        <connection>git@github.com:NiklasEi/gemcrush-for-gamebox.git</connection>
+    </scm>
+
+    <build>
+        <defaultGoal>clean package</defaultGoal>
+        <finalName>${project.name}</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <directory>target</directory>
+        <resources>
+            <resource>
+                <targetPath>.</targetPath>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>**/*.yml</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create-timestamp</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <repositories>
         <repository>
@@ -30,20 +85,17 @@
         <!-- GameBox -->
         <dependency>
             <groupId>me.nikl</groupId>
-            <artifactId>gamebox-core</artifactId>
-            <version>3.0.0-alpha</version>
+            <artifactId>gamebox</artifactId>
+            <version>${gamebox.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <defaultGoal>clean package</defaultGoal>
-        <finalName>${project.artifactId}</finalName>
-    </build>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <gamebox.version>3.0.0-beta.2</gamebox.version>
     </properties>
 </project>

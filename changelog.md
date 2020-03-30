@@ -1,5 +1,11 @@
 # Change log
 
+
+### v4.0.0-beta
+- update to GAmeBox v3 and MC 1.14+
+
+#
+
 ### v 3.0.1
 - empty inventory when player closes the game to stop players from taking ghost items.
 
